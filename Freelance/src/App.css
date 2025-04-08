@@ -12,6 +12,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 /* Contenedor principal con fondo */
@@ -25,12 +26,13 @@ html, body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  position: absolute; /* Cambiado de relative a absolute */
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 0;
+  color: #334155;
 }
 
 /* Overlay para mejorar legibilidad */
@@ -41,7 +43,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 10, 50, 0.7); /* Azul oscuro semi-transparente */
+  background: rgba(255, 255, 255, 0.7);
   z-index: 1;
 }
 
@@ -125,6 +127,8 @@ html, body {
   position: absolute;
   left: 1rem;
   color: #64748b;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .input-container input {
@@ -135,6 +139,11 @@ html, body {
   font-size: 0.95rem;
   transition: border-color 0.3s, box-shadow 0.3s;
   background-color: rgba(255, 255, 255, 0.9);
+  color: #334155;
+}
+
+.input-container input::placeholder {
+  color: #94a3b8; /* Color para el texto de placeholder */
 }
 
 .input-container input:focus {
@@ -152,6 +161,17 @@ html, body {
   color: #64748b;
   cursor: pointer;
   transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.toggle-password svg {
+  width: 100%;
+  height: 100%;
 }
 
 .toggle-password:hover, .toggle-password:focus {
@@ -262,12 +282,19 @@ html, body {
   gap: 1rem;
 }
 
+/* Para el tercer botón (Microsoft), usamos la vista de grid con 3 columnas */
+.social-login {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+}
+
 .social-button {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.75rem 0.5rem;
   background-color: white;
   border: 1px solid #cbd5e1;
   border-radius: 0.5rem;
@@ -278,6 +305,11 @@ html, body {
   transition: all 0.2s;
 }
 
+.social-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
 .social-button:hover {
   background-color: #f1f5f9;
   border-color: #94a3b8;
@@ -285,8 +317,24 @@ html, body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+.google-button:hover {
+  border-color: #EA4335;
+}
+
+.github-button {
+  color: #24292e;
+}
+
+.github-button:hover {
+  border-color: #24292e;
+}
+
+.microsoft-button:hover {
+  border-color: #00a4ef;
+}
+
 /* Estilos responsivos */
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .login-card {
     padding: 1.5rem;
   }

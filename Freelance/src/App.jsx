@@ -7,15 +7,34 @@ const App = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [message, setMessage] = useState(''); // Estado para el mensaje
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulación de envío de formulario
-    setTimeout(() => {
+    setMessage(''); // Limpiar mensaje anterior
+
+    try {
+      const response = await fetch('http://localhost:3000/api/login', { // Cambia la URL según tu configuración
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage('Inicio de sesión exitoso'); // Mensaje de éxito
+      } else {
+        setMessage(data.error.mensaje || 'Error en el inicio de sesión'); // Mensaje de error
+      }
+    } catch (error) {
+      setMessage('Correo/Contraseña no validos'); // Mensaje de error de conexión
+    } finally {
       setIsSubmitting(false);
-      alert(`Inicio de sesión con: ${email}`);
-    }, 1500);
+    }
   };
 
   return (
@@ -107,6 +126,8 @@ const App = () => {
             {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </button>
         </form>
+
+        {message && <div className="message">{message}</div>} {/* Mostrar mensaje */}
 
         <div className="register-link">
           <p>

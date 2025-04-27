@@ -2,6 +2,8 @@
 /* Estos estilos complementan los de login y usan la misma paleta */
 
 /* Contenedor principal con fondo */
+/* Estilos para el formulario de registro */
+/* Contenedor principal con fondo */
 .register-container {
     display: flex;
     justify-content: center;
@@ -19,10 +21,9 @@
     bottom: 0;
     z-index: 0;
     color: #334155;
-  }
-  
-  /* Overlay para mejorar legibilidad */
-  .register-container::before {
+}
+
+.register-container::before {
     content: "";
     position: absolute;
     top: 0;
@@ -31,97 +32,95 @@
     bottom: 0;
     background: rgba(255, 255, 255, 0.7);
     z-index: 1;
-  }
-  
-  /* Tarjeta de registro */
-  .register-card {
+}
+
+/* Tarjeta de registro */
+.register-card {
     width: 100%;
-    max-width: 550px; /* Un poco más ancha que la de login */
+    max-width: 550px;
     background-color: rgba(255, 255, 255, 0.95);
     border-radius: 1rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    padding: 2rem;
+    padding: 1.5rem;
     position: relative;
     z-index: 2;
     backdrop-filter: blur(10px);
-  }
-  
-  /* Encabezado */
-  .register-header {
+}
+
+/* Encabezado */
+.register-header {
     text-align: center;
-    margin-bottom: 2rem;
-  }
-  
-  .register-header h1 {
+    margin-bottom: 1.5rem;
+}
+
+.register-header h1 {
     color: #1e3a8a;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-  }
-  
-  .register-header p {
+}
+
+.register-header p {
     color: #475569;
-    font-size: 0.95rem;
-  }
-  
-  /* Formulario */
-  .register-form {
+    font-size: 0.9rem;
+}
+
+/* Formulario */
+.register-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  /* Fila para inputs en horizontal */
-  .form-row {
+    gap: 1rem;
+}
+
+.form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-  }
-  
-  /* Para dispositivos pequeños, cambiar a columna */
-  @media (max-width: 640px) {
+}
+
+@media (max-width: 640px) {
     .form-row {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
-  }
-  
-  .form-group {
+}
+
+.form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-  }
-  
-  .form-group label {
+}
+
+.form-group label {
     font-size: 0.875rem;
     font-weight: 500;
     color: #334155;
-  }
-  
-  /* Mensaje de error */
-  .error-message {
+}
+
+/* Mensaje de error */
+.error-message {
     color: #dc2626;
     font-size: 0.75rem;
     margin-top: 0.25rem;
     font-weight: 500;
-  }
-  
-  /* Contenedor de input con ícono */
-  .input-container {
+}
+
+/* Contenedor de input con ícono */
+.input-container {
     position: relative;
     display: flex;
     align-items: center;
-  }
-  
-  .icon {
+}
+
+.icon {
     position: absolute;
     left: 1rem;
     color: #64748b;
     width: 1.25rem;
     height: 1.25rem;
-  }
-  
-  .input-container input {
+}
+
+.input-container input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.5rem;
     border: 1px solid #cbd5e1;
@@ -130,20 +129,20 @@
     transition: border-color 0.3s, box-shadow 0.3s;
     background-color: rgba(255, 255, 255, 0.9);
     color: #334155;
-  }
-  
-  .input-container input::placeholder {
+}
+
+.input-container input::placeholder {
     color: #94a3b8;
-  }
-  
-  .input-container input:focus {
+}
+
+.input-container input:focus {
     border-color: #3b82f6;
     outline: none;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-  }
-  
-  /* Botón para mostrar/ocultar contraseña */
-  .toggle-password {
+}
+
+/* Botón para mostrar/ocultar contraseña */
+.toggle-password {
     position: absolute;
     right: 1rem;
     background: none;
@@ -157,54 +156,54 @@
     padding: 0;
     width: 1.25rem;
     height: 1.25rem;
-  }
-  
-  .toggle-password svg {
+}
+
+.toggle-password svg {
     width: 100%;
     height: 100%;
-  }
-  
-  .toggle-password:hover, .toggle-password:focus {
+}
+
+.toggle-password:hover, .toggle-password:focus {
     color: #334155;
     outline: none;
-  }
-  
-  /* Aceptación de términos */
-  .terms-agreement {
+}
+
+/* Aceptación de términos */
+.terms-agreement {
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
     margin-top: 0.5rem;
-  }
-  
-  .terms-agreement input[type="checkbox"] {
+}
+
+.terms-agreement input[type="checkbox"] {
     width: 1rem;
     height: 1rem;
     margin-top: 0.2rem;
     accent-color: #3b82f6;
     cursor: pointer;
-  }
-  
-  .terms-agreement label {
+}
+
+.terms-agreement label {
     font-size: 0.875rem;
     color: #334155;
     line-height: 1.4;
-  }
-  
-  .terms-link {
+}
+
+.terms-link {
     color: #2563eb;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
-  }
-  
-  .terms-link:hover {
+}
+
+.terms-link:hover {
     color: #1d4ed8;
     text-decoration: underline;
-  }
-  
-  /* Botón de registro */
-  .register-button {
+}
+
+/* Botón de registro */
+.register-button {
     background-color: #2563eb;
     color: white;
     font-weight: 500;
@@ -216,53 +215,53 @@
     transition: background-color 0.3s, transform 0.1s;
     box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
     margin-top: 0.5rem;
-  }
-  
-  .register-button:hover {
+}
+
+.register-button:hover {
     background-color: #1d4ed8;
     box-shadow: 0 6px 10px rgba(29, 78, 216, 0.25);
-  }
-  
-  .register-button:active {
+}
+
+.register-button:active {
     transform: scale(0.98);
-  }
-  
-  .register-button.submitting {
+}
+
+.register-button.submitting {
     background-color: #93c5fd;
     cursor: not-allowed;
-  }
-  
-  /* Link para iniciar sesión */
-  .login-link {
+}
+
+/* Link para iniciar sesión */
+.login-link {
     text-align: center;
-    margin-top: 1.5rem;
-  }
-  
-  .login-link p {
+    margin-top: 1rem;
+}
+
+.login-link p {
     font-size: 0.875rem;
     color: #475569;
-  }
-  
-  .login-link a {
+}
+
+.login-link a {
     color: #2563eb;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
-  }
-  
-  .login-link a:hover {
+}
+
+.login-link a:hover {
     color: #1d4ed8;
     text-decoration: underline;
-  }
-  
-  /* Separador */
-  .separator {
+}
+
+/* Separador */
+.separator {
     position: relative;
     text-align: center;
-    margin: 1.5rem 0;
-  }
-  
-  .separator::before {
+    margin: 1rem 0;
+}
+
+.separator::before {
     content: "";
     position: absolute;
     top: 50%;
@@ -270,24 +269,24 @@
     right: 0;
     height: 1px;
     background-color: #cbd5e1;
-  }
-  
-  .separator span {
+}
+
+.separator span {
     position: relative;
     padding: 0 0.75rem;
     background-color: white;
     color: #64748b;
     font-size: 0.875rem;
-  }
-  
-  /* Botones de redes sociales */
-  .social-login {
+}
+
+/* Botones de redes sociales */
+.social-login {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 0.75rem;
-  }
-  
-  .social-button {
+}
+
+.social-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -301,43 +300,43 @@
     color: #475569;
     cursor: pointer;
     transition: all 0.2s;
-  }
-  
-  .social-icon {
+}
+
+.social-icon {
     width: 1rem;
     height: 1rem;
-  }
-  
-  .social-button:hover {
+}
+
+.social-button:hover {
     background-color: #f1f5f9;
     border-color: #94a3b8;
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  }
-  
-  .google-button:hover {
+}
+
+.google-button:hover {
     border-color: #EA4335;
-  }
-  
-  .github-button {
+}
+
+.github-button {
     color: #24292e;
-  }
-  
-  .github-button:hover {
+}
+
+.github-button:hover {
     border-color: #24292e;
-  }
-  
-  .microsoft-button:hover {
+}
+
+.microsoft-button:hover {
     border-color: #00a4ef;
-  }
-  
-  /* Estilos responsivos */
-  @media (max-width: 640px) {
+}
+
+/* Estilos responsivos */
+@media (max-width: 640px) {
     .register-card {
-      padding: 1.5rem;
+        padding: 1.5rem;
     }
-    
+
     .social-login {
-      grid-template-columns: 1fr;
+        grid-template-columns: 1fr;
     }
-  }
+}

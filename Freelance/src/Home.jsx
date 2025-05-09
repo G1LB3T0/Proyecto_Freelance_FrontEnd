@@ -47,3 +47,14 @@ const MainContent = () => (
     </section>
   </main>
 );
+
+const Home = () => {
+  return (
+    <div className="home-container">
+      <Sidebar />
+      <MainContent />
+    </div>
+  );
+};
+
+export default Home;

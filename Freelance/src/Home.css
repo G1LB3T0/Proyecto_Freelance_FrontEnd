@@ -720,3 +720,79 @@ body, html {
   color: white;
 }
 
+/* Estilos responsivos */
+@media (max-width: 1200px) {
+  .content-layout {
+    grid-template-columns: 1fr 2fr;
+  }
+  
+  .right-sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 70px;
+    padding: 20px 10px;
+  }
+  
+  .sidebar-title, .user-profile p, .user-profile h3 {
+    display: none;
+  }
+  
+  .sidebar-menu li span:not(.icon) {
+    display: none;
+  }
+  
+  .sidebar-menu .icon {
+    margin-right: 0;
+    font-size: 1.4rem;
+  }
+  
+  .premium-btn {
+    padding: 10px;
+    font-size: 0;
+  }
+  
+  .premium-btn::before {
+    content: '⭐';
+    font-size: 1.2rem;
+  }
+  
+  .content-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .left-sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .top-bar {
+    padding: 12px;
+  }
+  
+  .search-container {
+    max-width: 200px;
+  }
+  
+  .content-wrapper {
+    padding: 12px;
+  }
+  
+  .create-post {
+    flex-wrap: wrap;
+  }
+  
+  .create-post input {
+    order: 1;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .post-btn {
+    margin-left: auto;
+  }
+}

@@ -664,3 +664,59 @@ body, html {
   background-color: #dbeafe;
   transform: translateY(-2px);
 }
+
+.contact-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contact-avatar {
+  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+  background-color: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-info {
+  flex: 1;
+}
+
+.contact-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.contact-role {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.connect-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  border: none;
+  color: #3b82f6;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.connect-btn:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+

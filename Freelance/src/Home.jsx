@@ -5,10 +5,67 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   
-  const posts = [];
+ const posts = [
+    {
+      id: 1,
+      author: "Laura García",
+      avatar: "👩‍💼",
+      title: "Consejos para gestionar proyectos freelance",
+      content: "Organizar tu tiempo es fundamental para cumplir con los plazos. Recomiendo usar herramientas como Trello o Asana para seguimiento de tareas...",
+      likes: 24,
+      comments: 8,
+      time: "hace 2 horas"
+    },
+    {
+      id: 2,
+      author: "Carlos Mendoza",
+      avatar: "👨‍💻",
+      title: "Cómo conseguir tus primeros clientes",
+      content: "Construir un portafolio sólido es el primer paso. Luego, networking en plataformas como LinkedIn y participar en comunidades de tu sector...",
+      likes: 45,
+      comments: 12,
+      time: "hace 5 horas"
+    },
+    {
+      id: 3,
+      author: "Marina López",
+      avatar: "👩‍🎨",
+      title: "Tendencias de diseño UX/UI para 2025",
+      content: "El minimalismo sigue en auge, pero con toques de neomorfismo y uso estratégico del color. La accesibilidad se ha vuelto prioritaria...",
+      likes: 37,
+      comments: 15,
+      time: "hace 1 día"
+    },
+    {
+      id: 4,
+      author: "Javier Ruiz",
+      avatar: "🧑‍💻",
+      title: "Herramientas indispensables para desarrolladores",
+      content: "VS Code, GitHub Copilot y Postman son mis imprescindibles. También recomiendo Notion para documentación y gestión de conocimiento...",
+      likes: 19,
+      comments: 7,
+      time: "hace 2 días"
+    },
+    {
+      id: 5,
+      author: "Elena Martínez",
+      avatar: "👩‍💻",
+      title: "Cómo fijar tarifas justas por tus servicios",
+      content: "Calcula tus gastos fijos, el tiempo invertido y añade un margen para imprevistos. No te subvalores y ajusta según la complejidad...",
+      likes: 56,
+      comments: 23,
+      time: "hace 3 días"
+    }
+  ];
 
+ 
+  const upcomingEvents = [
+    { id: 1, title: "Webinar: Marketing Digital", date: "15 Mayo, 18:00" },
+    { id: 2, title: "Workshop de React", date: "21 Mayo, 16:30" },
+    { id: 3, title: "Networking Online", date: "29 Mayo, 19:00" }
+  ];
   
-  const upcomingEvents = [];
+  
 
   return (
     <div className="home-container">

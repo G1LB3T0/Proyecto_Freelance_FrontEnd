@@ -578,3 +578,49 @@ body, html {
   background-color: #f1f5f9;
   color: #334155;
 }
+
+/* Sidebar derecho */
+.right-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.premium-ad {
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-ad::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0 0 L100 100 M20 0 L100 80 M0 20 L80 100" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>');
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.ad-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
+.premium-ad h3 {
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.premium-ad p {
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}

@@ -641,3 +641,26 @@ body, html {
   background-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
 }
+
+.topics-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.topics-list li {
+  padding: 8px 16px;
+  background-color: #f1f5f9;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #3b82f6;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topics-list li:hover {
+  background-color: #dbeafe;
+  transform: translateY(-2px);
+}

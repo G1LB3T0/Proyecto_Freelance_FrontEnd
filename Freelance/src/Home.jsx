@@ -1,71 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Home.css';
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  
-  
- const posts = [
-    {
-      id: 1,
-      author: "Laura García",
-      avatar: "👩‍💼",
-      title: "Consejos para gestionar proyectos freelance",
-      content: "Organizar tu tiempo es fundamental para cumplir con los plazos. Recomiendo usar herramientas como Trello o Asana para seguimiento de tareas...",
-      likes: 24,
-      comments: 8,
-      time: "hace 2 horas"
-    },
-    {
-      id: 2,
-      author: "Carlos Mendoza",
-      avatar: "👨‍💻",
-      title: "Cómo conseguir tus primeros clientes",
-      content: "Construir un portafolio sólido es el primer paso. Luego, networking en plataformas como LinkedIn y participar en comunidades de tu sector...",
-      likes: 45,
-      comments: 12,
-      time: "hace 5 horas"
-    },
-    {
-      id: 3,
-      author: "Marina López",
-      avatar: "👩‍🎨",
-      title: "Tendencias de diseño UX/UI para 2025",
-      content: "El minimalismo sigue en auge, pero con toques de neomorfismo y uso estratégico del color. La accesibilidad se ha vuelto prioritaria...",
-      likes: 37,
-      comments: 15,
-      time: "hace 1 día"
-    },
-    {
-      id: 4,
-      author: "Javier Ruiz",
-      avatar: "🧑‍💻",
-      title: "Herramientas indispensables para desarrolladores",
-      content: "VS Code, GitHub Copilot y Postman son mis imprescindibles. También recomiendo Notion para documentación y gestión de conocimiento...",
-      likes: 19,
-      comments: 7,
-      time: "hace 2 días"
-    },
-    {
-      id: 5,
-      author: "Elena Martínez",
-      avatar: "👩‍💻",
-      title: "Cómo fijar tarifas justas por tus servicios",
-      content: "Calcula tus gastos fijos, el tiempo invertido y añade un margen para imprevistos. No te subvalores y ajusta según la complejidad...",
-      likes: 56,
-      comments: 23,
-      time: "hace 3 días"
-    }
-  ];
+  const [posts, setPosts]       = useState([]);
+  const [error, setError]       = useState(false);
+  const [loading, setLoading]   = useState(true);
 
- 
   const upcomingEvents = [
     { id: 1, title: "Webinar: Marketing Digital", date: "15 Mayo, 18:00" },
-    { id: 2, title: "Workshop de React", date: "21 Mayo, 16:30" },
-    { id: 3, title: "Networking Online", date: "29 Mayo, 19:00" }
+    { id: 2, title: "Workshop de React",       date: "21 Mayo, 16:30" },
+    { id: 3, title: "Networking Online",       date: "29 Mayo, 19:00" }
   ];
-  
-  
+
+  useEffect(() => {
+    fetch('http://localhost:3000/posts')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error en la respuesta de la API');
+        }
+        return response.json();
+      })
+      .then(raw => {
+        console.log('API response:', raw);
+        const arr = Array.isArray(raw)
+          ? raw
+          : raw.posts || raw.data || [];
+        setPosts(arr);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error al cargar los posts:', err);
+        setError(true);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="loading">Cargando...</div>;
+  if (error)   return <div className="error">Error al cargar los posts</div>;
 
   return (
     <div className="home-container">
@@ -73,13 +45,11 @@ const Home = () => {
         <div className="sidebar-header">
           <h2 className="sidebar-title">FreelanceHub</h2>
         </div>
-        
         <div className="user-profile">
           <div className="avatar">👤</div>
           <p>Bienvenido/a</p>
           <h3>Miguel Sánchez</h3>
         </div>
-        
         <nav className="sidebar-nav">
           <ul className="sidebar-menu">
             <li className="active"><span className="icon">🏠</span> Inicio</li>
@@ -91,7 +61,6 @@ const Home = () => {
             <li><span className="icon">⚙️</span> Configuración</li>
           </ul>
         </nav>
-        
         <div className="sidebar-footer">
           <button className="premium-btn">Actualizar a Premium</button>
         </div>
@@ -101,14 +70,13 @@ const Home = () => {
         <header className="top-bar">
           <div className="search-container">
             <span className="search-icon">🔍</span>
-            <input 
-              type="text" 
-              placeholder="Buscar publicaciones, proyectos o personas..." 
+            <input
+              type="text"
+              placeholder="Buscar publicaciones, proyectos o personas..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
-          
           <div className="top-actions">
             <div className="notification-icon">🔔</div>
             <div className="messages-icon">✉️</div>
@@ -139,7 +107,6 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              
               <div className="widget events-widget">
                 <h3>Próximos Eventos</h3>
                 <ul className="events-list">
@@ -163,13 +130,11 @@ const Home = () => {
                   <span>Siguiendo</span>
                 </div>
               </div>
-              
               <div className="create-post">
                 <div className="user-avatar">👤</div>
                 <input type="text" placeholder="¿Qué quieres compartir hoy?" />
                 <button className="post-btn">Publicar</button>
               </div>
-              
               <div className="posts-list">
                 {posts.map(post => (
                   <div key={post.id} className="post-card">
@@ -183,34 +148,31 @@ const Home = () => {
                       </div>
                       <div className="post-menu">⋯</div>
                     </div>
-                    
                     <div className="post-content">
                       <h3 className="post-title">{post.title}</h3>
                       <p>{post.content}</p>
                     </div>
-                    
                     <div className="post-actions">
                       <div className="action">
-                        <span className="action-icon">👍</span> 
+                        <span className="action-icon">👍</span>
                         <span className="action-count">{post.likes}</span>
                       </div>
                       <div className="action">
-                        <span className="action-icon">💬</span> 
+                        <span className="action-icon">💬</span>
                         <span className="action-count">{post.comments}</span>
                       </div>
                       <div className="action">
-                        <span className="action-icon">↗️</span> 
+                        <span className="action-icon">↗️</span>
                         <span className="action-label">Compartir</span>
                       </div>
                       <div className="action">
-                        <span className="action-icon">🔖</span> 
+                        <span className="action-icon">🔖</span>
                         <span className="action-label">Guardar</span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              
               <button className="load-more-btn">Cargar más publicaciones</button>
             </section>
 
@@ -221,7 +183,6 @@ const Home = () => {
                 <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
                 <button className="upgrade-btn">Conocer más</button>
               </div>
-              
               <div className="widget trending-topics">
                 <h3>Tendencias</h3>
                 <ul className="topics-list">
@@ -232,7 +193,6 @@ const Home = () => {
                   <li>#MarketingDigital</li>
                 </ul>
               </div>
-              
               <div className="widget suggested-contacts">
                 <h3>Personas que quizás conozcas</h3>
                 <div className="contact-suggestions">

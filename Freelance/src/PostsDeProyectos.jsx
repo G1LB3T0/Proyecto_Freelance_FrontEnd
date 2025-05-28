@@ -202,3 +202,200 @@ const PostsDeProyectos = () => {
                   </div>
                 </div>
               </div>
+              
+              <div className="widget events-widget">
+                <h3>Actividad Reciente</h3>
+                <ul className="events-list">
+                  <li className="event-item">
+                    <div className="event-date">Hace 2 días</div>
+                    <div className="event-title">Proyecto completado</div>
+                  </li>
+                  <li className="event-item">
+                    <div className="event-date">Hace 1 semana</div>
+                    <div className="event-title">Actualización de progreso</div>
+                  </li>
+                  <li className="event-item">
+                    <div className="event-date">Hace 2 semanas</div>
+                    <div className="event-title">Nuevo proyecto iniciado</div>
+                  </li>
+                </ul>
+                <button className="see-all-btn">Ver Todos</button>
+              </div>
+            </section>
+
+            {/* Sección Principal de Proyectos */}
+            <section className="posts-section">
+              <div className="section-header">
+                <h2>Mis Proyectos</h2>
+                <div className="filters">
+                  <span 
+                    className={filterStatus === 'todos' ? 'active-filter' : ''}
+                    onClick={() => setFilterStatus('todos')}
+                  >
+                    Todos
+                  </span>
+                  <span 
+                    className={filterStatus === 'en-progreso' ? 'active-filter' : ''}
+                    onClick={() => setFilterStatus('en-progreso')}
+                  >
+                    En Progreso
+                  </span>
+                  <span 
+                    className={filterStatus === 'completado' ? 'active-filter' : ''}
+                    onClick={() => setFilterStatus('completado')}
+                  >
+                    Completados
+                  </span>
+                  <span 
+                    className={filterStatus === 'pausado' ? 'active-filter' : ''}
+                    onClick={() => setFilterStatus('pausado')}
+                  >
+                    Pausados
+                  </span>
+                </div>
+              </div>
+
+              <div className="create-post">
+                <div className="user-avatar">💼</div>
+                <input type="text" placeholder="Crear nuevo proyecto..." />
+                <button className="post-btn">+ Nuevo Proyecto</button>
+              </div>
+
+              <div className="posts-list">
+                {filteredProjects.map(project => (
+                  <div key={project.id} className="post-card project-card-content">
+                    <div className="post-header">
+                      <div className="post-author">
+                        <span className="author-avatar">{project.image}</span>
+                        <div className="author-info">
+                          <span className="author-name">{project.title}</span>
+                          <span className="post-time">{project.client}</span>
+                        </div>
+                      </div>
+                      <div className="post-menu">⋯</div>
+                    </div>
+                    
+                    <div className="post-content">
+                      <p>{project.description}</p>
+                      
+                      <div className="project-technologies">
+                        {project.technologies.slice(0, 4).map((tech, index) => (
+                          <span key={index} className="tech-tag">{tech}</span>
+                        ))}
+                        {project.technologies.length > 4 && (
+                          <span className="tech-more">+{project.technologies.length - 4}</span>
+                        )}
+                      </div>
+                      
+                      <div className="project-progress">
+                        <div className="progress-header">
+                          <span className="progress-label">Progreso</span>
+                          <span className="progress-percentage">{project.progress}%</span>
+                        </div>
+                        <div className="progress-bar">
+                          <div 
+                            className="progress-fill" 
+                            style={{ 
+                              width: `${project.progress}%`,
+                              backgroundColor: getStatusColor(project.status)
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="post-actions">
+                      <div className="action">
+                        <span className="action-icon">📊</span>
+                        <span className="action-label" style={{ color: getStatusColor(project.status) }}>
+                          {getStatusText(project.status)}
+                        </span>
+                      </div>
+                      <div className="action">
+                        <span className="action-icon">💰</span>
+                        <span className="action-label">{project.budget}</span>
+                      </div>
+                      <div className="action">
+                        <span className="action-icon">👁️</span>
+                        <span className="action-label">Ver</span>
+                      </div>
+                      <div className="action">
+                        <span className="action-icon">✏️</span>
+                        <span className="action-label">Editar</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filteredProjects.length === 0 && (
+                <div className="empty-state">
+                  <div className="empty-icon">📋</div>
+                  <h3>No se encontraron proyectos</h3>
+                  <p>Intenta cambiar los filtros o crear un nuevo proyecto</p>
+                  <button className="post-btn">+ Crear Proyecto</button>
+                </div>
+              )}
+
+              <button className="load-more-btn">Ver más proyectos</button>
+            </section>
+
+            {/* Sidebar Derecho */}
+            <section className="right-sidebar">
+              <div className="widget premium-ad">
+                <div className="ad-badge">Premium</div>
+                <h3>Potencia tu Carrera Freelance</h3>
+                <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
+                <button className="upgrade-btn">Conocer más</button>
+              </div>
+              
+              <div className="widget trending-topics">
+                <h3>Tecnologías Más Usadas</h3>
+                <ul className="topics-list">
+                  <li>#React</li>
+                  <li>#Node.js</li>
+                  <li>#JavaScript</li>
+                  <li>#CSS3</li>
+                  <li>#Vue.js</li>
+                </ul>
+              </div>
+              
+              <div className="widget suggested-contacts">
+                <h3>Próximos Vencimientos</h3>
+                <div className="contact-suggestions">
+                  <div className="contact-item">
+                    <div className="contact-avatar">💪</div>
+                    <div className="contact-info">
+                      <div className="contact-name">App Móvil Fitness</div>
+                      <div className="contact-role">En 5 días</div>
+                    </div>
+                    <button className="connect-btn">⚠️</button>
+                  </div>
+                  <div className="contact-item">
+                    <div className="contact-avatar">📊</div>
+                    <div className="contact-info">
+                      <div className="contact-name">Dashboard Analytics</div>
+                      <div className="contact-role">En 2 semanas</div>
+                    </div>
+                    <button className="connect-btn">📅</button>
+                  </div>
+                  <div className="contact-item">
+                    <div className="contact-avatar">✍️</div>
+                    <div className="contact-info">
+                      <div className="contact-name">Blog Personal</div>
+                      <div className="contact-role">En 1 mes</div>
+                    </div>
+                    <button className="connect-btn">✅</button>
+                  </div>
+                </div>
+                <button className="see-all-btn">Ver más</button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default PostsDeProyectos;

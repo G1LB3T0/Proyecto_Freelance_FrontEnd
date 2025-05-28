@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import './Calendario.css';
 
 const Calendario = () => {
+  const [showNotifications, setShowNotifications] = React.useState(false);
   const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   const diasMes = Array.from({ length: 30 }, (_, i) => i + 1); // Genera días del 1 al 30
 
@@ -45,7 +46,18 @@ const Calendario = () => {
             />
           </div>
           <div className="top-actions">
-            <div className="notification-icon">🔔</div>
+            <div className="notification-wrapper">
+              <div className="notification-icon" onClick={() => setShowNotifications(!showNotifications)}>🔔</div>
+              {showNotifications && (
+                <div className="notification-dropdown">
+                  <ul>
+                    <li>📩 Pancho te envió un mensaje</li>
+                    <li>💼 Nueva oportunidad de trabajo</li>
+                    <li>⏸️ Has pausado el proyecto "Sistema de Inventario"</li>
+                  </ul>
+                </div>
+              )}
+            </div>
             <div className="messages-icon">✉️</div>
             <div className="user-menu">
               <span className="user-avatar">👤</span>

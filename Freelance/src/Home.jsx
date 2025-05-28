@@ -2,11 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
 
+
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [posts, setPosts]       = useState([]);
   const [error, setError]       = useState(false);
   const [loading, setLoading]   = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notifications = [
+    "Pancho te envió un mensaje",
+    "Nueva oportunidad de trabajo",
+    "Has pausado el proyecto Sistema de Inventario"
+  ];
 
   const upcomingEvents = [
     { id: 1, title: "Webinar: Marketing Digital", date: "15 Mayo, 18:00" },
@@ -79,7 +86,16 @@ const Home = () => {
             />
           </div>
           <div className="top-actions">
-            <div className="notification-icon">🔔</div>
+            <div className="notification-icon" onClick={() => setShowNotifications(!showNotifications)}>🔔</div>
+            {showNotifications && (
+              <div className="notification-dropdown">
+                <ul>
+                  {notifications.map((n, i) => (
+                    <li key={i}>{n}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="messages-icon">✉️</div>
             <div className="user-menu">
               <span className="user-avatar">👤</span>

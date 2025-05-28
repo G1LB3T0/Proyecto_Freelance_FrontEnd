@@ -9,6 +9,7 @@ const PostsDeProyectos = () => {
   const [error, setError] = useState(false);
   const [filterStatus, setFilterStatus] = useState('todos');
   const [viewMode, setViewMode] = useState('grid'); // grid o list
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // Datos mock de proyectos (después puedes conectar con tu API)
   const mockProjects = [
@@ -172,7 +173,16 @@ const PostsDeProyectos = () => {
             />
           </div>
           <div className="top-actions">
-            <div className="notification-icon">🔔</div>
+            <div className="notification-icon" onClick={() => setShowNotifications(!showNotifications)}>🔔</div>
+            {showNotifications && (
+              <div className="notification-dropdown">
+                <ul>
+                  <li>📩 Pancho te envió un mensaje</li>
+                  <li>💼 Nueva oportunidad de trabajo</li>
+                  <li>⏸️ Has pausado el proyecto Sistema de Inventario</li>
+                </ul>
+              </div>
+            )}
             <div className="messages-icon">✉️</div>
             <div className="user-menu">
               <span className="user-avatar">👤</span>

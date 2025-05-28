@@ -118,7 +118,7 @@ const Home = () => {
                     </li>
                   ))}
                 </ul>
-                <button className="see-all-btn">Ver Todos</button>
+                <button className="see-all-btn"><Link to="/calendario">Ver Todos</Link></button>
               </div>
             </section>
 

@@ -59,7 +59,7 @@ const Calendario = () => {
             <section className="left-sidebar">
               <div className="widget profile-stats">
                 <h3>Calendario</h3>
-                <p>Dashboard Analytics</p>
+                <p>Networking Online</p>
               </div>
             </section>
 
@@ -72,9 +72,25 @@ const Calendario = () => {
                   {diasSemana.map((dia, idx) => (
                     <div key={idx} className="day-name">{dia}</div>
                   ))}
-                  {diasMes.map(dia => (
-                    <div key={dia} className="day-cell">{dia}</div>
-                  ))}
+                  {diasMes.map(dia => {
+                    let evento = '';
+                    if (dia === 20) evento = 'App Móvil Fitness';
+                    else if (dia === 21) evento = 'Workshop de React';
+                    else if (dia === 25) evento = 'Blog Personal';
+                    else if (dia === 27) evento = 'Sistema Inventario';
+                    else if (dia === 28) evento = 'Revisión Final';
+                    else if (dia === 29) evento = 'Networking Online';
+
+                    const clases = ['day-cell'];
+                    if (dia === 28) clases.push('hoy');
+
+                    return (
+                      <div key={dia} className={clases.join(' ')}>
+                        <div>{dia}</div>
+                        {evento && <div className="evento">{evento}</div>}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </section>
@@ -89,11 +105,12 @@ const Calendario = () => {
               <div className="widget trending-topics">
                 <h3>Eventos Recientes</h3>
                 <ul className="topics-list">
-                  <li>Entrega #1</li>
-                  <li>Reunión cliente</li>
-                  <li>Deadline proyecto A</li>
-                  <li>Sprint demo</li>
-                  <li>Revisión final</li>
+                  <li>Webinar: Marketing Digital - 15 mayo</li>
+                  <li>Dashboard Analytics - 16 mayo</li>
+                  <li>App Móvil Fitness - 20 mayo</li>
+                  <li>Workshop de React - 21 mayo</li>
+                  <li>Blog Personal - 25 mayo</li>
+                  <li>Sistema de Inventario - 27 mayo</li>
                 </ul>
               </div>
             </section>

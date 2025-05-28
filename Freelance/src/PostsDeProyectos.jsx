@@ -146,7 +146,7 @@ const PostsDeProyectos = () => {
         <nav className="sidebar-nav">
           <ul className="sidebar-menu">
             <li><Link to="/home"><span className="icon">🏠</span> Inicio</Link></li>
-            <li><span className="icon">📅</span> Calendario</li>
+            <li><Link to="/calendario"><span className="icon">📅</span> Calendario</Link></li>
             <li className="active"><span className="icon">💼</span> Proyectos</li>
             <li><span className="icon">💰</span> Finanzas</li>
             <li><span className="icon">👥</span> Clientes</li>

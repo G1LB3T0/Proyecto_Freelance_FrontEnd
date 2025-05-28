@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './PostsDeProyectos.css';
+import './Calendario.css';
 
 const Calendario = () => {
+  const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  const diasMes = Array.from({ length: 30 }, (_, i) => i + 1); // Genera días del 1 al 30
+
   return (
     <div className="home-container">
       {/* Sidebar */}
@@ -56,7 +59,7 @@ const Calendario = () => {
             <section className="left-sidebar">
               <div className="widget profile-stats">
                 <h3>Calendario</h3>
-                <p>Aquí se mostrarán los eventos y deadlines de tus proyectos.</p>
+                <p>Dashboard Analytics</p>
               </div>
             </section>
 
@@ -64,8 +67,15 @@ const Calendario = () => {
               <div className="section-header">
                 <h2>Vista del Calendario</h2>
               </div>
-              <div className="create-post">
-                <p>🗓️ Aquí iría el calendario interactivo.</p>
+              <div className="calendar-container">
+                <div className="calendar-grid">
+                  {diasSemana.map((dia, idx) => (
+                    <div key={idx} className="day-name">{dia}</div>
+                  ))}
+                  {diasMes.map(dia => (
+                    <div key={dia} className="day-cell">{dia}</div>
+                  ))}
+                </div>
               </div>
             </section>
 
@@ -79,7 +89,7 @@ const Calendario = () => {
               <div className="widget trending-topics">
                 <h3>Eventos Recientes</h3>
                 <ul className="topics-list">
-                  <li>Entrega parcial</li>
+                  <li>Entrega #1</li>
                   <li>Reunión cliente</li>
                   <li>Deadline proyecto A</li>
                   <li>Sprint demo</li>

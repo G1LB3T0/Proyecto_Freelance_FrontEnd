@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from 'react-router-dom';
 import './App.css';
 import Register from './Register';
-import Home from './Home'; // Importamos el componente Home
+import Home from './Home';
+import PostsDeProyectos from './PostsDeProyectos'; // Importamos el nuevo componente
 
 // Componente Login separado para poder usar useNavigate
 const Login = () => {
@@ -185,6 +186,7 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/proyectos" element={<PostsDeProyectos />} />
       </Routes>
     </Router>
   );

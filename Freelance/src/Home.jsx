@@ -54,7 +54,7 @@ const Home = () => {
         <nav className="sidebar-nav">
           <ul className="sidebar-menu">
             <li className="active"><span className="icon">🏠</span> Inicio</li>
-            <li><span className="icon">📅</span> Calendario</li>
+            <li><Link to="/calendario"><span className="icon">📅</span> Calendario</Link></li>
             <li><Link to="/proyectos"><span className="icon">💼</span> Proyectos</Link></li>
             <li><span className="icon">💰</span> Finanzas</li>
             <li><span className="icon">👥</span> Clientes</li>

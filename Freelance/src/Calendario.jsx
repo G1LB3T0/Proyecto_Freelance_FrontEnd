@@ -83,6 +83,7 @@ const Calendario = () => {
 
                     const clases = ['day-cell'];
                     if (dia === 28) clases.push('hoy');
+                    if (evento) clases.push('evento-dia');
 
                     return (
                       <div key={dia} className={clases.join(' ')}>

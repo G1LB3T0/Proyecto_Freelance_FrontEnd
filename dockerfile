@@ -6,8 +6,8 @@ WORKDIR /app
 # Copiar archivos de dependencias
 COPY Freelance/package*.json ./
 
-# Instalar dependencias
-RUN npm install
+# Instalar dependencias con legacy peer deps para resolver conflictos
+RUN npm install --legacy-peer-deps
 
 # Copiar el resto de los archivos
 COPY Freelance .
@@ -18,11 +18,4 @@ RUN npm run build
 # Etapa de producción
 FROM nginx:alpine
 
-# Copiar los archivos construidos a nginx
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Exponer el puerto 80
-EXPOSE 80
-
-# Iniciar nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Copiar los archivos construidos a nginxq

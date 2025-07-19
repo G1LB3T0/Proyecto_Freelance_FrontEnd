@@ -4,6 +4,14 @@ import './Calendario.css';
 
 const Calendario = () => {
   const [showNotifications, setShowNotifications] = React.useState(false);
+  const [eventos, setEventos] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch('http://localhost:3000/api/events')
+      .then(res => res.json())
+      .then(data => setEventos(data))
+      .catch(err => console.error('Error al cargar eventos:', err));
+  }, []);
   const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   const diasMes = Array.from({ length: 30 }, (_, i) => i + 1); // Genera días del 1 al 30
 
@@ -85,22 +93,18 @@ const Calendario = () => {
                     <div key={idx} className="day-name">{dia}</div>
                   ))}
                   {diasMes.map(dia => {
-                    let evento = '';
-                    if (dia === 20) evento = 'App Móvil Fitness';
-                    else if (dia === 21) evento = 'Workshop de React';
-                    else if (dia === 25) evento = 'Blog Personal';
-                    else if (dia === 27) evento = 'Sistema Inventario';
-                    else if (dia === 28) evento = 'Revisión Final';
-                    else if (dia === 29) evento = 'Networking Online';
+                    const eventosDelDia = eventos.filter(e => e.day === dia && e.month === 7); // Asumiendo mes julio
 
                     const clases = ['day-cell'];
                     if (dia === 28) clases.push('hoy');
-                    if (evento) clases.push('evento-dia');
+                    if (eventosDelDia.length > 0) clases.push('evento-dia');
 
                     return (
                       <div key={dia} className={clases.join(' ')}>
                         <div>{dia}</div>
-                        {evento && <div className="evento">{evento}</div>}
+                        {eventosDelDia.map((evento, idx) => (
+                          <div key={idx} className="evento">{evento.title}</div>
+                        ))}
                       </div>
                     );
                   })}

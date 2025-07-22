@@ -7,3 +7,4 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3001:80"
+    container_name: freelance-app

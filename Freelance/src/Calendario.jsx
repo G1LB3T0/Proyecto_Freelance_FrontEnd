@@ -9,9 +9,43 @@ const Calendario = () => {
   React.useEffect(() => {
     fetch('http://localhost:3000/api/events')
       .then(res => res.json())
-      .then(data => setEventos(data))
+      .then(data => setEventos(Array.isArray(data) ? data : []))
       .catch(err => console.error('Error al cargar eventos:', err));
   }, []);
+
+  const [nuevoEvento, setNuevoEvento] = React.useState({ title: '', day: '', month: '', year: 2025 });
+  const [eventoEditando, setEventoEditando] = React.useState(null);
+
+  const fetchEventos = () => {
+    fetch('http://localhost:3000/api/events')
+      .then(res => res.json())
+      .then(data => setEventos(Array.isArray(data) ? data : []))
+      .catch(err => console.error('Error al cargar eventos:', err));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const url = eventoEditando ? `http://localhost:3000/api/events/${eventoEditando.id}` : 'http://localhost:3000/api/events';
+    const method = eventoEditando ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nuevoEvento),
+    });
+
+    if (response.ok) {
+      setNuevoEvento({ title: '', day: '', month: '', year: 2025 });
+      setEventoEditando(null);
+      fetchEventos();
+    }
+  };
+
+  const eliminarEvento = async (id) => {
+    const res = await fetch(`http://localhost:3000/api/events/${id}`, { method: 'DELETE' });
+    if (res.ok) fetchEventos();
+  };
+
   const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   const diasMes = Array.from({ length: 30 }, (_, i) => i + 1); // Genera días del 1 al 30
 
@@ -87,13 +121,36 @@ const Calendario = () => {
               <div className="section-header">
                 <h2>Vista del Calendario</h2>
               </div>
+              <form onSubmit={handleSubmit} className="formulario-evento">
+                <input
+                  type="text"
+                  placeholder="Título"
+                  value={nuevoEvento.title}
+                  onChange={(e) => setNuevoEvento({ ...nuevoEvento, title: e.target.value })}
+                />
+                <input
+                  type="number"
+                  placeholder="Día"
+                  value={nuevoEvento.day}
+                  onChange={(e) => setNuevoEvento({ ...nuevoEvento, day: parseInt(e.target.value) })}
+                />
+                <input
+                  type="number"
+                  placeholder="Mes"
+                  value={nuevoEvento.month}
+                  onChange={(e) => setNuevoEvento({ ...nuevoEvento, month: parseInt(e.target.value) })}
+                />
+                <button type="submit">
+                  {eventoEditando ? 'Actualizar evento' : 'Agregar evento'}
+                </button>
+              </form>
               <div className="calendar-container">
                 <div className="calendar-grid">
                   {diasSemana.map((dia, idx) => (
                     <div key={idx} className="day-name">{dia}</div>
                   ))}
                   {diasMes.map(dia => {
-                    const eventosDelDia = eventos.filter(e => e.day === dia && e.month === 7); // Asumiendo mes julio
+                    const eventosDelDia = Array.isArray(eventos) ? eventos.filter(e => e.day === dia && e.month === 7) : [];
 
                     const clases = ['day-cell'];
                     if (dia === 28) clases.push('hoy');
@@ -103,7 +160,14 @@ const Calendario = () => {
                       <div key={dia} className={clases.join(' ')}>
                         <div>{dia}</div>
                         {eventosDelDia.map((evento, idx) => (
-                          <div key={idx} className="evento">{evento.title}</div>
+                          <div key={idx} className="evento">
+                            {evento.title}
+                            <button onClick={() => {
+                              setEventoEditando(evento);
+                              setNuevoEvento({ title: evento.title, day: evento.day, month: evento.month, year: evento.year });
+                            }}>✏️</button>
+                            <button onClick={() => eliminarEvento(evento.id)}>🗑️</button>
+                          </div>
                         ))}
                       </div>
                     );

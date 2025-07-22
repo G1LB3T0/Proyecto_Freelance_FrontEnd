@@ -22,7 +22,17 @@ const Login = () => {
     setIsSubmitting(true);
     setMessage(''); // Limpiar mensaje anterior
 
+    // TEMPORAL: Mientras arreglas el backend, usa esto para probar el frontend
+    if (email === 'demo@test.com' && password === 'demo123') {
+      setMessage('Login exitoso (modo demo)');
+      setTimeout(() => navigate('/home'), 1000);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      console.log('Enviando datos:', { email, password }); // Debug log
+      
       const response = await fetch('http://localhost:3000/api/login', {
         method: 'POST',
         headers: {
@@ -31,22 +41,25 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Response status:', response.status); // Debug log
+      console.log('Response ok:', response.ok); // Debug log
+
       const data = await response.json();
+      console.log('Response data:', data); // Debug log
 
       if (response.ok) {
         // En lugar de mostrar un mensaje, redirigimos a la página Home
         navigate('/home');
       } else {
-        setMessage(data.error.mensaje || 'Error en el inicio de sesión');
+        setMessage(`Backend Error ${response.status}: ${data.error || 'Error en el inicio de sesión'}`);
       }
     } catch (error) {
-      setMessage('Correo/Contraseña no validos');
+      console.error('Error completo:', error); // Debug log
+      setMessage('Error de conexión: ' + error.message + ' (usa demo@test.com / demo123 para probar)');
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  return (
+  };  return (
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">

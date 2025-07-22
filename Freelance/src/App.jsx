@@ -23,7 +23,7 @@ const Login = () => {
     setMessage(''); // Limpiar mensaje anterior
 
     try {
-      const response = await fetch('http://localhost:3000/api/login', {
+      const response = await fetch('http://host.docker.internal:3000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -221,7 +221,6 @@ const Finanzas = () => {
               + Nueva Transacción
             </button>
           </div>
-
           {/* Cards de Resumen */}
           <div className="resumen-cards">
             <div className="card-resumen ingresos">
@@ -268,6 +267,7 @@ const Finanzas = () => {
               <span className="card-porcentaje positivo">+25.4%</span>
             </div>
           </div>
+          —————————————————————————————————————————————
           <div className="content-layout">
             {/* Left Sidebar */}
             <section className="left-sidebar">
@@ -292,11 +292,14 @@ const Finanzas = () => {
               <div className="widget categories-widget">
                 <h3>Categorías</h3>
                 <ul className="categories-list">
-                  {categorias.map(cat => (
+                  {categorias.map((cat) => (
                     <li key={cat} className="category-item">
                       <span className="category-name">{cat}</span>
                       <span className="category-count">
-                        {transacciones.filter(t => t.categoria === cat).length}
+                        {
+                          transacciones.filter((t) => t.categoria === cat)
+                            .length
+                        }
                       </span>
                     </li>
                   ))}
@@ -309,21 +312,21 @@ const Finanzas = () => {
               <div className="section-header">
                 <h2>Transacciones</h2>
                 <div className="filters">
-                  <span 
-                    className={filtroTipo === 'todos' ? 'active-filter' : ''}
-                    onClick={() => handleFiltroChange('todos')}
+                  <span
+                    className={filtroTipo === "todos" ? "active-filter" : ""}
+                    onClick={() => handleFiltroChange("todos")}
                   >
                     Todos
                   </span>
-                  <span 
-                    className={filtroTipo === 'ingreso' ? 'active-filter' : ''}
-                    onClick={() => handleFiltroChange('ingreso')}
+                  <span
+                    className={filtroTipo === "ingreso" ? "active-filter" : ""}
+                    onClick={() => handleFiltroChange("ingreso")}
                   >
                     Ingresos
                   </span>
-                  <span 
-                    className={filtroTipo === 'gasto' ? 'active-filter' : ''}
-                    onClick={() => handleFiltroChange('gasto')}
+                  <span
+                    className={filtroTipo === "gasto" ? "active-filter" : ""}
+                    onClick={() => handleFiltroChange("gasto")}
                   >
                     Gastos
                   </span>
@@ -337,8 +340,8 @@ const Finanzas = () => {
                     <div className="form-row">
                       <div className="form-group">
                         <label>Tipo</label>
-                        <select 
-                          name="tipo" 
+                        <select
+                          name="tipo"
                           value={nuevaTransaccion.tipo}
                           onChange={handleInputChange}
                         >
@@ -346,16 +349,18 @@ const Finanzas = () => {
                           <option value="gasto">Gasto</option>
                         </select>
                       </div>
-                      
+
                       <div className="form-group">
                         <label>Categoría</label>
-                        <select 
-                          name="categoria" 
+                        <select
+                          name="categoria"
                           value={nuevaTransaccion.categoria}
                           onChange={handleInputChange}
                         >
-                          {categorias.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
+                          {categorias.map((cat) => (
+                            <option key={cat} value={cat}>
+                              {cat}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -363,7 +368,7 @@ const Finanzas = () => {
 
                     <div className="form-group">
                       <label>Concepto</label>
-                      <input 
+                      <input
                         type="text"
                         name="concepto"
                         value={nuevaTransaccion.concepto}
@@ -376,7 +381,7 @@ const Finanzas = () => {
                     <div className="form-row">
                       <div className="form-group">
                         <label>Monto (Q)</label>
-                        <input 
+                        <input
                           type="number"
                           name="monto"
                           value={nuevaTransaccion.monto}
@@ -386,10 +391,10 @@ const Finanzas = () => {
                           required
                         />
                       </div>
-                      
+
                       <div className="form-group">
                         <label>Fecha</label>
-                        <input 
+                        <input
                           type="date"
                           name="fecha"
                           value={nuevaTransaccion.fecha}
@@ -400,9 +405,11 @@ const Finanzas = () => {
                     </div>
 
                     <div className="form-actions">
-                      <button type="submit" className="btn-guardar">Guardar</button>
-                      <button 
-                        type="button" 
+                      <button type="submit" className="btn-guardar">
+                        Guardar
+                      </button>
+                      <button
+                        type="button"
                         className="btn-cancelar"
                         onClick={() => setMostrarFormulario(false)}
                       >
@@ -415,12 +422,15 @@ const Finanzas = () => {
 
               {/* Lista de Transacciones */}
               <div className="posts-list">
-                {transaccionesFiltradas.map(transaccion => (
-                  <div key={transaccion.id} className="post-card transaccion-card">
+                {transaccionesFiltradas.map((transaccion) => (
+                  <div
+                    key={transaccion.id}
+                    className="post-card transaccion-card"
+                  >
                     <div className="transaccion-header">
                       <div className="transaccion-info">
                         <span className="transaccion-icono">
-                          {transaccion.tipo === 'ingreso' ? '💰' : '💳'}
+                          {transaccion.tipo === "ingreso" ? "💰" : "💳"}
                         </span>
                         <div className="transaccion-detalles">
                           <h4>{transaccion.concepto}</h4>
@@ -431,9 +441,12 @@ const Finanzas = () => {
                       </div>
                       <div className="transaccion-monto-estado">
                         <p className={`transaccion-monto ${transaccion.tipo}`}>
-                          {transaccion.tipo === 'ingreso' ? '+' : '-'} Q{transaccion.monto.toFixed(2)}
+                          {transaccion.tipo === "ingreso" ? "+" : "-"} Q
+                          {transaccion.monto.toFixed(2)}
                         </p>
-                        <span className={`transaccion-estado ${transaccion.estado}`}>
+                        <span
+                          className={`transaccion-estado ${transaccion.estado}`}
+                        >
                           {transaccion.estado}
                         </span>
                       </div>
@@ -441,7 +454,9 @@ const Finanzas = () => {
                   </div>
                 ))}
               </div>
-              <button className="load-more-btn">Cargar más transacciones</button>
+              <button className="load-more-btn">
+                Cargar más transacciones
+              </button>
             </section>
 
             {/* Right Sidebar */}
@@ -452,22 +467,40 @@ const Finanzas = () => {
                   <div className="chart-bars">
                     <div className="chart-month">
                       <div className="bars-container">
-                        <div className="bar ingreso" style={{ height: '80px' }}></div>
-                        <div className="bar gasto" style={{ height: '40px' }}></div>
+                        <div
+                          className="bar ingreso"
+                          style={{ height: "80px" }}
+                        ></div>
+                        <div
+                          className="bar gasto"
+                          style={{ height: "40px" }}
+                        ></div>
                       </div>
                       <span>Ene</span>
                     </div>
                     <div className="chart-month">
                       <div className="bars-container">
-                        <div className="bar ingreso" style={{ height: '90px' }}></div>
-                        <div className="bar gasto" style={{ height: '45px' }}></div>
+                        <div
+                          className="bar ingreso"
+                          style={{ height: "90px" }}
+                        ></div>
+                        <div
+                          className="bar gasto"
+                          style={{ height: "45px" }}
+                        ></div>
                       </div>
                       <span>Feb</span>
                     </div>
                     <div className="chart-month">
                       <div className="bars-container">
-                        <div className="bar ingreso" style={{ height: '100px' }}></div>
-                        <div className="bar gasto" style={{ height: '50px' }}></div>
+                        <div
+                          className="bar ingreso"
+                          style={{ height: "100px" }}
+                        ></div>
+                        <div
+                          className="bar gasto"
+                          style={{ height: "50px" }}
+                        ></div>
                       </div>
                       <span>Mar</span>
                     </div>

@@ -11,7 +11,6 @@ import Register from "./Register";
 import Home from "./Home";
 import PostsDeProyectos from "./PostsDeProyectos"; // Importamos el nuevo componente
 import Calendario from "./Calendario";
-import Finanzas from "./Finanzas";
 
 // Componente Login separado para poder usar useNavigate
 const Login = () => {
@@ -251,7 +250,6 @@ const App = () => {
         <Route path="/home" element={<Home />} />
         <Route path="/proyectos" element={<PostsDeProyectos />} />
         <Route path="/calendario" element={<Calendario />} />
-        <Route path="/finanzas" element={<Finanzas />} />
       </Routes>
     </Router>
   );

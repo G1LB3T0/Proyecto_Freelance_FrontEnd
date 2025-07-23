@@ -1,51 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import './Home.css';
-
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import "./Home.css";
 
 const Home = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [posts, setPosts]       = useState([]);
-  const [error, setError]       = useState(false);
-  const [loading, setLoading]   = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
   const notifications = [
     "Pancho te envió un mensaje",
     "Nueva oportunidad de trabajo",
-    "Has pausado el proyecto Sistema de Inventario"
+    "Has pausado el proyecto Sistema de Inventario",
   ];
 
   const upcomingEvents = [
     { id: 1, title: "Webinar: Marketing Digital", date: "15 Mayo, 18:00" },
-    { id: 2, title: "Workshop de React",       date: "21 Mayo, 16:30" },
-    { id: 3, title: "Networking Online",       date: "29 Mayo, 19:00" }
+    { id: 2, title: "Workshop de React", date: "21 Mayo, 16:30" },
+    { id: 3, title: "Networking Online", date: "29 Mayo, 19:00" },
   ];
 
   useEffect(() => {
-    fetch('http://localhost:3000/posts')
-      .then(response => {
+    fetch("http://localhost:3000/posts")
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('Error en la respuesta de la API');
+          throw new Error("Error en la respuesta de la API");
         }
         return response.json();
       })
-      .then(raw => {
-        console.log('API response:', raw);
-        const arr = Array.isArray(raw)
-          ? raw
-          : raw.posts || raw.data || [];
+      .then((raw) => {
+        console.log("API response:", raw);
+        const arr = Array.isArray(raw) ? raw : raw.posts || raw.data || [];
         setPosts(arr);
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Error al cargar los posts:', err);
+      .catch((err) => {
+        console.error("Error al cargar los posts:", err);
         setError(true);
         setLoading(false);
       });
   }, []);
 
   if (loading) return <div className="loading">Cargando...</div>;
-  if (error)   return <div className="error">Error al cargar los posts</div>;
+  if (error) return <div className="error">Error al cargar los posts</div>;
 
   return (
     <div className="home-container">
@@ -60,13 +57,33 @@ const Home = () => {
         </div>
         <nav className="sidebar-nav">
           <ul className="sidebar-menu">
-            <li className="active"><span className="icon">🏠</span> Inicio</li>
-            <li><Link to="/calendario"><span className="icon">📅</span> Calendario</Link></li>
-            <li><Link to="/proyectos"><span className="icon">💼</span> Proyectos</Link></li>
-            <li><span className="icon">💰</span> Finanzas</li>
-            <li><span className="icon">👥</span> Clientes</li>
-            <li><span className="icon">📊</span> Estadísticas</li>
-            <li><span className="icon">⚙️</span> Configuración</li>
+            <li className="active">
+              <span className="icon">🏠</span> Inicio
+            </li>
+            <li>
+              <Link to="/calendario">
+                <span className="icon">📅</span> Calendario
+              </Link>
+            </li>
+            <li>
+              <Link to="/proyectos">
+                <span className="icon">💼</span> Proyectos
+              </Link>
+            </li>
+            <li>
+              <Link to="/finanzas">
+                <span className="icon">💰</span> Finanzas
+              </Link>
+            </li>
+            <li>
+              <span className="icon">👥</span> Clientes
+            </li>
+            <li>
+              <span className="icon">📊</span> Estadísticas
+            </li>
+            <li>
+              <span className="icon">⚙️</span> Configuración
+            </li>
           </ul>
         </nav>
         <div className="sidebar-footer">
@@ -82,11 +99,16 @@ const Home = () => {
               type="text"
               placeholder="Buscar publicaciones, proyectos o personas..."
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className="top-actions">
-            <div className="notification-icon" onClick={() => setShowNotifications(!showNotifications)}>🔔</div>
+            <div
+              className="notification-icon"
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              🔔
+            </div>
             {showNotifications && (
               <div className="notification-dropdown">
                 <ul>
@@ -127,14 +149,16 @@ const Home = () => {
               <div className="widget events-widget">
                 <h3>Próximos Eventos</h3>
                 <ul className="events-list">
-                  {upcomingEvents.map(event => (
+                  {upcomingEvents.map((event) => (
                     <li key={event.id} className="event-item">
                       <div className="event-date">{event.date}</div>
                       <div className="event-title">{event.title}</div>
                     </li>
                   ))}
                 </ul>
-                <button className="see-all-btn"><Link to="/calendario">Ver Todos</Link></button>
+                <button className="see-all-btn">
+                  <Link to="/calendario">Ver Todos</Link>
+                </button>
               </div>
             </section>
 
@@ -153,7 +177,7 @@ const Home = () => {
                 <button className="post-btn">Publicar</button>
               </div>
               <div className="posts-list">
-                {posts.map(post => (
+                {posts.map((post) => (
                   <div key={post.id} className="post-card">
                     <div className="post-header">
                       <div className="post-author">
@@ -190,7 +214,9 @@ const Home = () => {
                   </div>
                 ))}
               </div>
-              <button className="load-more-btn">Cargar más publicaciones</button>
+              <button className="load-more-btn">
+                Cargar más publicaciones
+              </button>
             </section>
 
             <section className="right-sidebar">

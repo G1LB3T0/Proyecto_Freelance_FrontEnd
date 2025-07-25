@@ -110,6 +110,44 @@
   cursor: pointer;
 }
 
-.evento-dia {
-    background-color: #e0f2fe;
-  }
+.formulario-evento {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: flex-end;
+}
+
+.formulario-evento input,
+.formulario-evento select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  background-color: #1e293b;
+  color: #f1f5f9;
+  border: 1px solid #475569;
+  font-size: 0.9rem;
+  flex: 1 1 150px;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.formulario-evento input:focus,
+.formulario-evento select:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  background-color: #334155;
+}
+
+.boton-agregar-evento {
+  padding: 0.6rem 1.2rem;
+  background-color: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.boton-agregar-evento:hover {
+  background-color: #0284c7;
+}

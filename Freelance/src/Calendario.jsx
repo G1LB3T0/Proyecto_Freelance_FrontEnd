@@ -69,11 +69,6 @@ const Calendario = () => {
       return;
     }
 
-    if (nuevoEvento.year < 2020 || nuevoEvento.year > 2030) {
-      alert('El año debe estar entre 2020 y 2030');
-      return;
-    }
-
     const url = eventoEditando ? `http://localhost:3000/api/events/${eventoEditando.id}` : 'http://localhost:3000/api/events';
     const method = eventoEditando ? 'PUT' : 'POST';
 
@@ -84,11 +79,7 @@ const Calendario = () => {
     // Agregar user_id al evento antes de enviarlo
     const eventoParaEnviar = {
       ...nuevoEvento,
-      user_id: 1, // Por ahora hardcodeado, después puedes obtenerlo del contexto de usuario
-      // Asegurar que los números sean enteros
-      day: parseInt(nuevoEvento.day),
-      month: parseInt(nuevoEvento.month),
-      year: parseInt(nuevoEvento.year)
+      user_id: 1 // Por ahora hardcodeado, después puedes obtenerlo del contexto de usuario
     };
 
     console.log('Evento final a enviar:', eventoParaEnviar); // Para debugging

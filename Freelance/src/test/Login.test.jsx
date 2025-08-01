@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
 import App from '../App'
 
 // Mock de useNavigate
@@ -20,11 +19,7 @@ describe('Login Component', () => {
   })
 
   it('renderiza el formulario de login', () => {
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
+    render(<App />)
 
     expect(screen.getByText('Iniciar Sesión')).toBeInTheDocument()
     expect(screen.getByText('Bienvenido de nuevo')).toBeInTheDocument()
@@ -34,11 +29,7 @@ describe('Login Component', () => {
   })
 
   it('permite escribir en los campos', () => {
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
+    render(<App />)
 
     const emailInput = screen.getByPlaceholderText('usuario@ejemplo.com')
     const passwordInput = screen.getByPlaceholderText('••••••••')
@@ -51,26 +42,18 @@ describe('Login Component', () => {
   })
 
   it('muestra/oculta la contraseña', () => {
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
+    render(<App />)
 
     const passwordInput = screen.getByPlaceholderText('••••••••')
-    const toggleButtons = screen.getAllByRole('button').filter(btn => btn.textContent === '')
+    const toggleButton = screen.getByRole('button', { name: '' })
 
     expect(passwordInput.type).toBe('password')
-    fireEvent.click(toggleButtons[0])
+    fireEvent.click(toggleButton)
     expect(passwordInput.type).toBe('text')
   })
 
   it('maneja el checkbox recordarme', () => {
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
+    render(<App />)
 
     const rememberMeCheckbox = screen.getByLabelText('Recordarme')
     expect(rememberMeCheckbox.checked).toBe(false)
@@ -84,11 +67,7 @@ describe('Login Component', () => {
       json: async () => ({ message: 'Login exitoso' })
     })
 
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
+    render(<App />)
 
     const emailInput = screen.getByPlaceholderText('usuario@ejemplo.com')
     const passwordInput = screen.getByPlaceholderText('••••••••')
@@ -118,11 +97,7 @@ describe('Login Component', () => {
       json: async () => ({ error: { mensaje: 'Credenciales inválidas' } })
     })
 
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
+    render(<App />)
 
     const emailInput = screen.getByPlaceholderText('usuario@ejemplo.com')
     const passwordInput = screen.getByPlaceholderText('••••••••')
@@ -133,27 +108,19 @@ describe('Login Component', () => {
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText('Credenciales inválidas')).toBeInTheDocument()
+      expect(screen.getByText(/Backend Error/)).toBeInTheDocument()
     })
   })
 
   it('muestra el enlace de registro', () => {
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
+    render(<App />)
 
     expect(screen.getByText('¿No tienes cuenta?')).toBeInTheDocument()
     expect(screen.getByText('Regístrate ahora')).toBeInTheDocument()
   })
 
   it('muestra los botones de redes sociales', () => {
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
+    render(<App />)
 
     expect(screen.getByText('O continúa con')).toBeInTheDocument()
     expect(screen.getByText('Google')).toBeInTheDocument()

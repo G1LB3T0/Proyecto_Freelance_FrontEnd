@@ -9,6 +9,7 @@ const Calendario = () => {
   const [mesVisualizando, setMesVisualizando] = React.useState(5); // Mayo por defecto para ver los eventos existentes
   const [nuevoEvento, setNuevoEvento] = React.useState({ title: '', day: '', month: 5, year: 2025 });
   const [eventoEditando, setEventoEditando] = React.useState(null);
+  const [mostrarFormulario, setMostrarFormulario] = React.useState(false);
 
   React.useEffect(() => {
     fetch('http://localhost:3000/api/events')
@@ -196,16 +197,79 @@ const Calendario = () => {
 
         <div className="content-wrapper">
           <div className="content-layout">
-            <section className="left-sidebar">
-              <div className="widget profile-stats">
-                <h3>Calendario</h3>
-                <p>Networking Online</p>
-              </div>
-            </section>
 
             <section className="posts-section">
               <div className="section-header">
                 <h2>Vista del Calendario</h2>
+                <button 
+                  className="toggle-form-button" 
+                  onClick={() => setMostrarFormulario(prev => !prev)}
+                >
+                  {mostrarFormulario ? '×' : '+'}
+                </button>
+              </div>
+              {mostrarFormulario && (
+                <div className="calendar-form-container">
+                  <form onSubmit={handleSubmit} className="formulario-evento">
+                    <input
+                      type="text"
+                      placeholder="Título"
+                      value={nuevoEvento.title}
+                      onChange={(e) => setNuevoEvento({ ...nuevoEvento, title: e.target.value })}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Día (1-31)"
+                      min="1"
+                      max="31"
+                      value={nuevoEvento.day}
+                      onChange={(e) => setNuevoEvento({ ...nuevoEvento, day: parseInt(e.target.value) || '' })}
+                    />
+                    <select
+                      value={nuevoEvento.month}
+                      onChange={(e) => setNuevoEvento({ ...nuevoEvento, month: parseInt(e.target.value) })}
+                    >
+                      <option value="">Mes</option>
+                      <option value="1">Enero</option>
+                      <option value="2">Febrero</option>
+                      <option value="3">Marzo</option>
+                      <option value="4">Abril</option>
+                      <option value="5">Mayo</option>
+                      <option value="6">Junio</option>
+                      <option value="7">Julio</option>
+                      <option value="8">Agosto</option>
+                      <option value="9">Septiembre</option>
+                      <option value="10">Octubre</option>
+                      <option value="11">Noviembre</option>
+                      <option value="12">Diciembre</option>
+                    </select>
+                    <button type="submit">
+                      {eventoEditando ? 'Actualizar evento' : 'Agregar evento'}
+                    </button>
+                  </form>
+                  <div className="calendar-controls">
+                    <label>Ver mes: </label>
+                    <select
+                      value={mesVisualizando}
+                      onChange={(e) => setMesVisualizando(parseInt(e.target.value))}
+                    >
+                      <option value="1">Enero</option>
+                      <option value="2">Febrero</option>
+                      <option value="3">Marzo</option>
+                      <option value="4">Abril</option>
+                      <option value="5">Mayo</option>
+                      <option value="6">Junio</option>
+                      <option value="7">Julio</option>
+                      <option value="8">Agosto</option>
+                      <option value="9">Septiembre</option>
+                      <option value="10">Octubre</option>
+                      <option value="11">Noviembre</option>
+                      <option value="12">Diciembre</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              {!mostrarFormulario && (
                 <div className="calendar-controls">
                   <label>Ver mes: </label>
                   <select
@@ -226,44 +290,7 @@ const Calendario = () => {
                     <option value="12">Diciembre</option>
                   </select>
                 </div>
-              </div>
-              <form onSubmit={handleSubmit} className="formulario-evento">
-                <input
-                  type="text"
-                  placeholder="Título"
-                  value={nuevoEvento.title}
-                  onChange={(e) => setNuevoEvento({ ...nuevoEvento, title: e.target.value })}
-                />
-                <input
-                  type="number"
-                  placeholder="Día (1-31)"
-                  min="1"
-                  max="31"
-                  value={nuevoEvento.day}
-                  onChange={(e) => setNuevoEvento({ ...nuevoEvento, day: parseInt(e.target.value) || '' })}
-                />
-                <select
-                  value={nuevoEvento.month}
-                  onChange={(e) => setNuevoEvento({ ...nuevoEvento, month: parseInt(e.target.value) })}
-                >
-                  <option value="">Selecciona mes</option>
-                  <option value="1">Enero</option>
-                  <option value="2">Febrero</option>
-                  <option value="3">Marzo</option>
-                  <option value="4">Abril</option>
-                  <option value="5">Mayo</option>
-                  <option value="6">Junio</option>
-                  <option value="7">Julio</option>
-                  <option value="8">Agosto</option>
-                  <option value="9">Septiembre</option>
-                  <option value="10">Octubre</option>
-                  <option value="11">Noviembre</option>
-                  <option value="12">Diciembre</option>
-                </select>
-                <button type="submit">
-                  {eventoEditando ? 'Actualizar evento' : 'Agregar evento'}
-                </button>
-              </form>
+              )}
               <div className="calendar-container">
                 <div className="calendar-grid">
                   {diasSemana.map((dia, idx) => (
@@ -310,12 +337,11 @@ const Calendario = () => {
               <div className="widget trending-topics">
                 <h3>Eventos Recientes</h3>
                 <ul className="topics-list">
-                  <li>Webinar: Marketing Digital - 15 mayo</li>
-                  <li>Dashboard Analytics - 16 mayo</li>
-                  <li>App Móvil Fitness - 20 mayo</li>
-                  <li>Workshop de React - 21 mayo</li>
-                  <li>Blog Personal - 25 mayo</li>
-                  <li>Sistema de Inventario - 27 mayo</li>
+                  {eventos.slice(-6).reverse().map((evento, idx) => (
+                    <li key={idx}>
+                      {evento.title} - {evento.day}/{evento.month}/{evento.year}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </section>

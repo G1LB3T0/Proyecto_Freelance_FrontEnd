@@ -3,17 +3,17 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import "./styles/App.css";
+import "../styles/App.css";
 
 // Componentes
-import Login from "./components/Login";
+import Login from "../Components/Login.jsx";
 
 // Páginas
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import PostsDeProyectos from "./pages/PostsDeProyectos";
-import Calendario from "./pages/Calendario";
-import Finanzas from "./pages/Finanzas";
+import Register from "./Register";
+import Home from "./Home";
+import PostsDeProyectos from "./PostsDeProyectos";
+import Calendario from "./Calendario";
+import Finanzas from "./Finanzas";
 
 const App = () => {
   return (

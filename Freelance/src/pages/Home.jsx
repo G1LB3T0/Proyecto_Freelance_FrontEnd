@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Layout from "../components/Layout";
+import Layout from "../Components/Layout.jsx";
 import "../styles/Home.css";
 
 const Home = () => {

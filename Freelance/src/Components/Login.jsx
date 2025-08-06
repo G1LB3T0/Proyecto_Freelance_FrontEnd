@@ -1,19 +1,6 @@
 import { useState } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Link,
-  useNavigate,
-} from "react-router-dom";
-import "./App.css";
-import Register from "./Register";
-import Home from "./Home";
-import PostsDeProyectos from "./PostsDeProyectos";
-import Calendario from "./Calendario";
-import Finanzas from "./Finanzas";
+import { Link, useNavigate } from "react-router-dom";
 
-// Componente Login separado para poder usar useNavigate
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,12 +8,12 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // Hook para navegación programática
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setMessage(""); // Limpiar mensaje anterior
+    setMessage("");
 
     // TEMPORAL: Mientras arreglas el backend, usa esto para probar el frontend
     if (email === "demo@test.com" && password === "demo123") {
@@ -37,7 +24,7 @@ const Login = () => {
     }
 
     try {
-      console.log("Enviando datos:", { email, password }); // Debug log
+      console.log("Enviando datos:", { email, password });
 
       const response = await fetch("http://localhost:3000/api/login", {
         method: "POST",
@@ -47,14 +34,13 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log("Response status:", response.status); // Debug log
-      console.log("Response ok:", response.ok); // Debug log
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
 
       const data = await response.json();
-      console.log("Response data:", data); // Debug log
+      console.log("Response data:", data);
 
       if (response.ok) {
-        // En lugar de mostrar un mensaje, redirigimos a la página Home
         navigate("/home");
       } else {
         setMessage(
@@ -64,7 +50,7 @@ const Login = () => {
         );
       }
     } catch (error) {
-      console.error("Error completo:", error); // Debug log
+      console.error("Error completo:", error);
       setMessage(
         "Error de conexión: " +
           error.message +
@@ -74,6 +60,7 @@ const Login = () => {
       setIsSubmitting(false);
     }
   };
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -241,20 +228,4 @@ const Login = () => {
   );
 };
 
-// Componente App principal
-const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/proyectos" element={<PostsDeProyectos />} />
-        <Route path="/calendario" element={<Calendario />} />
-        <Route path="/finanzas" element={<Finanzas />} />
-      </Routes>
-    </Router>
-  );
-};
-
-export default App;
+export default Login;

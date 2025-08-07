@@ -1,31 +1,39 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import Layout from '../Components/Layout.jsx';
 import '../styles/Calendario.css';
 
+const API = import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:3000';
+
 const Calendario = () => {
   const [eventos, setEventos] = React.useState([]);
-  const [mesVisualizando, setMesVisualizando] = React.useState(5); // Mayo por defecto para ver los eventos existentes
-  const [nuevoEvento, setNuevoEvento] = React.useState({ title: '', day: '', month: 5, year: 2025 });
+  const [mesVisualizando, setMesVisualizando] = React.useState(8); // Agosto por defecto para ver los eventos existentes
+  const [nuevoEvento, setNuevoEvento] = React.useState({ title: '', day: '', month: 8, year: 2025 });
   const [eventoEditando, setEventoEditando] = React.useState(null);
 
-  React.useEffect(() => {
-    fetch('http://localhost:3000/api/events')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log('Eventos cargados:', data); // Para debugging
-        setEventos(Array.isArray(data) ? data : []);
-      })
-      .catch(err => {
-        console.error('Error al cargar eventos:', err);
-        setEventos([]);
-      });
+  const fetchEventos = React.useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/api/events`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const normalizados = Array.isArray(data)
+        ? data.map(e => ({
+            ...e,
+            day: Number(e.day),
+            month: Number(e.month),
+            year: Number(e.year),
+            title: e.title ?? ''
+          }))
+        : [];
+      setEventos(normalizados);
+    } catch (err) {
+      console.error('Error al cargar eventos:', err);
+      setEventos([]);
+    }
   }, []);
+
+  React.useEffect(() => {
+    fetchEventos();
+  }, [fetchEventos]);
 
   // Actualizar el mes del formulario cuando cambie el mes visualizado
   React.useEffect(() => {
@@ -34,20 +42,7 @@ const Calendario = () => {
     }
   }, [mesVisualizando, eventoEditando]);
 
-  const fetchEventos = () => {
-    fetch('http://localhost:3000/api/events')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => setEventos(Array.isArray(data) ? data : []))
-      .catch(err => {
-        console.error('Error al cargar eventos:', err);
-        setEventos([]); // Asegurar que eventos sea un array vacío en caso de error
-      });
-  };
+  // Removed old fetchEventos function to avoid duplicate logic
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,7 +63,7 @@ const Calendario = () => {
       return;
     }
 
-    const url = eventoEditando ? `http://localhost:3000/api/events/${eventoEditando.id}` : 'http://localhost:3000/api/events';
+    const url = eventoEditando ? `${API}/api/events/${eventoEditando.id}` : `${API}/api/events`;
     const method = eventoEditando ? 'PUT' : 'POST';
 
     console.log('Enviando evento:', nuevoEvento); // Para debugging
@@ -95,7 +90,7 @@ const Calendario = () => {
       if (response.ok) {
         setNuevoEvento({ title: '', day: '', month: mesVisualizando, year: 2025 });
         setEventoEditando(null);
-        fetchEventos();
+        await fetchEventos();
         alert(eventoEditando ? 'Evento actualizado correctamente' : 'Evento creado correctamente');
       } else {
         const errorData = await response.text();
@@ -114,9 +109,9 @@ const Calendario = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/events/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API}/api/events/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        fetchEventos();
+        await fetchEventos();
         alert('Evento eliminado correctamente');
       } else {
         const errorData = await res.text();
@@ -130,7 +125,13 @@ const Calendario = () => {
   };
 
   const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-  const diasMes = Array.from({ length: 30 }, (_, i) => i + 1); // Genera días del 1 al 30
+  const daysInMonth = (y, m) => new Date(y, m, 0).getDate(); // m: 1..12
+  const diasMes = Array.from({ length: daysInMonth(nuevoEvento.year, mesVisualizando) }, (_, i) => i + 1);
+  const hoy = new Date();
+  const esHoy = (d) =>
+    d === hoy.getDate() &&
+    mesVisualizando === (hoy.getMonth() + 1) &&
+    nuevoEvento.year === hoy.getFullYear();
 
   return (
     <Layout 
@@ -138,12 +139,6 @@ const Calendario = () => {
       searchPlaceholder="Buscar eventos..."
     >
       <div className="content-layout">
-        <section className="left-sidebar">
-          <div className="widget profile-stats">
-            <h3>Calendario</h3>
-            <p>Networking Online</p>
-          </div>
-        </section>
 
         <section className="posts-section">
           <div className="section-header">
@@ -214,24 +209,32 @@ const Calendario = () => {
                 <div key={idx} className="day-name">{dia}</div>
               ))}
               {diasMes.map(dia => {
-                const eventosDelDia = Array.isArray(eventos) ? eventos.filter(e =>
-                  e.day === dia &&
-                  e.month === mesVisualizando
-                ) : [];
+                const eventosDelDia = Array.isArray(eventos)
+                  ? eventos.filter(e =>
+                      Number(e.day) === dia &&
+                      Number(e.month) === mesVisualizando &&
+                      Number(e.year) === Number(nuevoEvento.year)
+                    )
+                  : [];
 
                 const clases = ['day-cell'];
-                if (dia === 28) clases.push('hoy');
+                if (esHoy(dia)) clases.push('hoy');
                 if (eventosDelDia.length > 0) clases.push('evento-dia');
 
                 return (
                   <div key={dia} className={clases.join(' ')}>
                     <div>{dia}</div>
-                    {eventosDelDia.map((evento, idx) => (
-                      <div key={idx} className="evento">
+                    {eventosDelDia.map((evento) => (
+                      <div key={evento.id ?? `${evento.title}-${evento.day}-${evento.month}-${evento.year}`} className="evento">
                         {evento.title}
                         <button onClick={() => {
                           setEventoEditando(evento);
-                          setNuevoEvento({ title: evento.title, day: evento.day, month: evento.month, year: evento.year });
+                          setNuevoEvento({
+                            title: evento.title,
+                            day: Number(evento.day),
+                            month: Number(evento.month),
+                            year: Number(evento.year)
+                          });
                         }}>✏️</button>
                         <button onClick={() => eliminarEvento(evento.id)}>🗑️</button>
                       </div>

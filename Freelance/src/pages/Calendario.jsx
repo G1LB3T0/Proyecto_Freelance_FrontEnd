@@ -135,6 +135,9 @@ const Calendario = () => {
     mesVisualizando === (hoy.getMonth() + 1) &&
     nuevoEvento.year === hoy.getFullYear();
 
+  const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaCorta = (d, m, y) => `${d} ${MESES[m - 1]}`; // ejemplo: 15 mayo
+
   return (
     <Layout 
       currentPage="calendar" 
@@ -301,12 +304,18 @@ const Calendario = () => {
           <div className="widget trending-topics">
             <h3>Eventos Recientes</h3>
             <ul className="topics-list">
-              <li>Webinar: Marketing Digital - 15 mayo</li>
-              <li>Dashboard Analytics - 16 mayo</li>
-              <li>App Móvil Fitness - 20 mayo</li>
-              <li>Workshop de React - 21 mayo</li>
-              <li>Blog Personal - 25 mayo</li>
-              <li>Sistema de Inventario - 27 mayo</li>
+              {(() => {
+                const recientes = [...eventos]
+                  .filter(e => e && e.title)
+                  .sort((a, b) => new Date(b.year, b.month - 1, b.day) - new Date(a.year, a.month - 1, a.day))
+                  .slice(0, 6);
+                if (recientes.length === 0) return <li>No hay eventos recientes</li>;
+                return recientes.map(e => (
+                  <li key={e.id ?? `${e.title}-${e.day}-${e.month}-${e.year}`}>
+                    {e.title} - {fechaCorta(Number(e.day), Number(e.month), Number(e.year))}
+                  </li>
+                ));
+              })()}
             </ul>
           </div>
         </section>

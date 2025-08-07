@@ -9,6 +9,8 @@ const Calendario = () => {
   const [mesVisualizando, setMesVisualizando] = React.useState(8); // Agosto por defecto para ver los eventos existentes
   const [nuevoEvento, setNuevoEvento] = React.useState({ title: '', day: '', month: 8, year: 2025 });
   const [eventoEditando, setEventoEditando] = React.useState(null);
+  const [diaActivo, setDiaActivo] = React.useState(null); // e.g., '2025-8-4'
+  const dayKey = (d) => `${nuevoEvento.year}-${mesVisualizando}-${d}`;
 
   const fetchEventos = React.useCallback(async () => {
     try {
@@ -220,23 +222,65 @@ const Calendario = () => {
                 const clases = ['day-cell'];
                 if (esHoy(dia)) clases.push('hoy');
                 if (eventosDelDia.length > 0) clases.push('evento-dia');
+                const activo = diaActivo === dayKey(dia);
 
                 return (
-                  <div key={dia} className={clases.join(' ')}>
+                  <div
+                    key={dia}
+                    className={clases.join(' ')}
+                    style={{ position: 'relative' }}
+                    onClick={() => setDiaActivo(prev => (prev === dayKey(dia) ? null : dayKey(dia)))}
+                  >
                     <div>{dia}</div>
                     {eventosDelDia.map((evento) => (
-                      <div key={evento.id ?? `${evento.title}-${evento.day}-${evento.month}-${evento.year}`} className="evento">
-                        {evento.title}
-                        <button onClick={() => {
-                          setEventoEditando(evento);
-                          setNuevoEvento({
-                            title: evento.title,
-                            day: Number(evento.day),
-                            month: Number(evento.month),
-                            year: Number(evento.year)
-                          });
-                        }}>✏️</button>
-                        <button onClick={() => eliminarEvento(evento.id)}>🗑️</button>
+                      <div
+                        key={evento.id ?? `${evento.title}-${evento.day}-${evento.month}-${evento.year}`}
+                        className="evento"
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <span className="evento-title">{evento.title}</span>
+                        {activo && (
+                          <div
+                            className="evento-actions-overlay"
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              right: 0,
+                              background: 'rgba(255,255,255,0.95)',
+                              borderRadius: '4px',
+                              padding: '2px 4px',
+                              display: 'flex',
+                              gap: '4px',
+                              boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                              zIndex: 10
+                            }}
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEventoEditando(evento);
+                                setNuevoEvento({
+                                  title: evento.title,
+                                  day: Number(evento.day),
+                                  month: Number(evento.month),
+                                  year: Number(evento.year)
+                                });
+                              }}
+                              title="Editar"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                eliminarEvento(evento.id);
+                              }}
+                              title="Eliminar"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

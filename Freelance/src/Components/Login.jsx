@@ -41,11 +41,32 @@ const Login = () => {
       console.log("Response data:", data);
 
       if (response.ok) {
+        // Guardar token y datos del usuario (si existen)
+        if (data.token) {
+          console.log("Login con JWT - guardando token y usuario");
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+        } else {
+          // Login temporal sin JWT - guardar datos ficticios para que funcione
+          console.log("Login sin JWT - usando datos temporales");
+          const tempUser = {
+            id: 1, // ID temporal - deberías usar el ID real del usuario
+            name: email.split('@')[0], // Nombre basado en el email
+            email: email,
+            avatar: null
+          };
+          localStorage.setItem('user', JSON.stringify(tempUser));
+          console.log("Usuario temporal guardado:", tempUser);
+        }
+
+        // Verificar que se guardó correctamente
+        const savedUser = localStorage.getItem('user');
+        console.log("Usuario guardado en localStorage:", savedUser);
+
         navigate("/home");
       } else {
         setMessage(
-          `Backend Error ${response.status}: ${
-            data.error || "Error en el inicio de sesión"
+          `Backend Error ${response.status}: ${data.error || "Error en el inicio de sesión"
           }`
         );
       }
@@ -53,8 +74,8 @@ const Login = () => {
       console.error("Error completo:", error);
       setMessage(
         "Error de conexión: " +
-          error.message +
-          " (usa demo@test.com / demo123 para probar)"
+        error.message +
+        " (usa demo@test.com / demo123 para probar)"
       );
     } finally {
       setIsSubmitting(false);

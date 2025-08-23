@@ -3,11 +3,14 @@ FROM node:18-alpine as build
 
 WORKDIR /app
 
-# Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias con legacy peer deps para resolver conflictos
+# Give permission to the current directory to the node user
+RUN mkdir -p /app/node_modules && chown -R node:node /app
+
+USER node
 RUN npm install --legacy-peer-deps
+
 
 # Copiar el resto de los archivos del proyecto
 COPY . .

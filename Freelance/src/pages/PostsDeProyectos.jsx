@@ -122,12 +122,39 @@ const PostsDeProyectos = () => {
     return baseUrl;
   };
 
+  // Función para verificar y renderizar imagen opcional
+  const renderProjectImage = (project) => {
+    // Verificar si existe una URL de imagen válida
+    if (project.image_url &&
+      project.image_url.trim() !== '' &&
+      project.image_url !== null &&
+      project.image_url !== undefined) {
+      return (
+        <div className="project-image">
+          <img
+            src={project.image_url}
+            alt={project.title}
+            onError={(e) => {
+              // Si la imagen falla al cargar, ocultar el contenedor
+              e.target.parentElement.style.display = 'none';
+            }}
+            onLoad={(e) => {
+              // Asegurar que el contenedor sea visible si la imagen carga
+              e.target.parentElement.style.display = 'block';
+            }}
+          />
+        </div>
+      );
+    }
+    return null; // No renderizar nada si no hay imagen
+  };
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
       setError(null);
       console.log('🔄 Conectando a la API...');
-      
+
       const apiUrl = getApiUrl();
       console.log('🌐 URL de la API:', apiUrl);
       const response = await fetch(apiUrl);
@@ -157,6 +184,7 @@ const PostsDeProyectos = () => {
           endDate: project.end_date || project.endDate,
           budget: project.budget ? `$${project.budget}` : 'No especificado',
           image: getProjectIcon(project.category || project.title),
+          image_url: project.image_url || null, // Agregar campo para imagen opcional
           progress: calculateProgress(project.status, project.start_date || project.startDate, project.end_date || project.endDate)
         };
       };
@@ -282,7 +310,7 @@ const PostsDeProyectos = () => {
       </div>
     </Layout>
   );
-  
+
   if (error) return (
     <Layout currentPage="projects">
       <div className="error">
@@ -302,8 +330,8 @@ const PostsDeProyectos = () => {
   );
 
   return (
-    <Layout 
-      currentPage="projects" 
+    <Layout
+      currentPage="projects"
       searchPlaceholder="Buscar proyectos, clientes o tecnologías..."
     >
       <div className="content-layout">
@@ -427,6 +455,9 @@ const PostsDeProyectos = () => {
 
                 <div className="post-content">
                   <p>{project.description}</p>
+
+                  {/* Imagen opcional del proyecto */}
+                  {renderProjectImage(project)}
 
                   <div className="project-technologies">
                     {project.technologies.slice(0, 4).map((tech, index) => (

@@ -1,11 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Register.css';
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
+    username: '',
     password: '',
     confirmPassword: '',
     phone: '',
@@ -15,12 +19,16 @@ const Register = () => {
     postalCode: '',
     agreeTerms: false
   });
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState('');
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registrationMessage, setRegistrationMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -46,10 +54,10 @@ const Register = () => {
   const validateStep = (step) => {
     switch (step) {
       case 1:
-        return formData.firstName && formData.lastName && formData.email;
+        return formData.firstName && formData.lastName && formData.email && formData.username;
       case 2:
-        return formData.phone && formData.dateOfBirth && formData.gender && 
-               formData.country && formData.postalCode;
+        return formData.phone && formData.dateOfBirth && formData.gender &&
+          formData.country && formData.postalCode;
       case 3:
         if (formData.password !== formData.confirmPassword) {
           setPasswordError('Las contraseñas no coinciden');
@@ -65,6 +73,30 @@ const Register = () => {
     }
   };
 
+  const openTermsModal = (e) => {
+    e.preventDefault();
+    setShowTermsModal(true);
+  };
+
+  const openPrivacyModal = (e) => {
+    e.preventDefault();
+    setShowPrivacyModal(true);
+  };
+
+  const closeTermsModal = () => {
+    setShowTermsModal(false);
+  };
+
+  const closePrivacyModal = () => {
+    setShowPrivacyModal(false);
+  };
+
+  const handleLoginClick = (e) => {
+    e.preventDefault();
+    console.log('handleLoginClick ejecutado - navegando a login');
+    navigate('/');
+  };
+
   const handleNextClick = () => {
     if (validateStep(currentStep)) {
       nextStep();
@@ -73,50 +105,74 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateStep(3)) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
+    const requestData = {
+      email: formData.email,
+      password: formData.password,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      username: formData.username
+    };
+
+    console.log('Datos que se envían al servidor:', requestData);
+    console.log('Username específicamente:', formData.username);
+
     try {
-        const response = await fetch('http://localhost:3000/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                first_name: formData.firstName,
-                last_name: formData.lastName,
-                email: formData.email,
-                password: formData.password,
-                phone: formData.phone,
-                date_of_birth: formData.dateOfBirth,
-                gender: formData.gender,
-                country: formData.country,
-                postal_code: formData.postalCode
-            }),
-        });
+      const response = await fetch('http://localhost:3000/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error en el registro');
-        }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Error desconocido del servidor' }));
+        console.error('Error del servidor:', errorData);
+        console.error('Status:', response.status);
+        console.error('Response:', errorData);
 
-        const data = await response.json();
-        alert(`Cuenta creada para: ${data.email}`);
-        // Opcional: redireccionar al login después de un registro exitoso
+        // Manejar la estructura de error del servidor
+        const errorMessage = errorData.error || errorData.message || `Error ${response.status}: ${response.statusText}`;
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log('Respuesta del servidor:', data);
+
+      // Manejar la respuesta según la estructura del servidor
+      if (data.success) {
+        const userEmail = data.data?.user?.email || formData.email;
+        const userName = data.data?.user?.username || formData.username;
+
+        // Mostrar mensaje de éxito
+        setRegistrationSuccess(true);
+        setRegistrationMessage(`¡Registro exitoso! Cuenta creada para: ${userEmail} con username: ${userName}`);
+
+        // Redireccionar al login después de un registro exitoso
+        setTimeout(() => {
+          navigate('/');
+        }, 3000); // Esperar 3 segundos para que el usuario vea el mensaje
+      } else {
+        throw new Error(data.message || 'Error en el registro');
+      }
     } catch (error) {
-        alert(error.message);
+      console.error('Error durante el registro:', error);
+      alert(`Error: ${error.message}`);
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
   const renderProgressBar = () => {
     const percentage = ((currentStep - 1) / 2) * 100;
-    
+
     return (
       <div className="progress-container">
         <div className="progress-bar" style={{ width: `${percentage}%` }}></div>
@@ -158,7 +214,7 @@ const Register = () => {
           />
         </div>
       </div>
-      
+
       <div className="form-group">
         <label htmlFor="lastName">Apellido</label>
         <div className="input-container">
@@ -199,10 +255,30 @@ const Register = () => {
           />
         </div>
       </div>
-      
+
+      <div className="form-group">
+        <label htmlFor="username">Nombre de usuario</label>
+        <div className="input-container">
+          <span className="icon user-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+          </span>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            value={formData.username}
+            onChange={handleChange}
+            placeholder="juanperez"
+            required
+          />
+        </div>
+      </div>
+
       <div className="form-buttons">
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="next-button"
           onClick={handleNextClick}
         >
@@ -290,17 +366,17 @@ const Register = () => {
           />
         </div>
       </div>
-      
+
       <div className="form-buttons">
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="back-button"
           onClick={prevStep}
         >
           Atrás
         </button>
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="next-button"
           onClick={handleNextClick}
         >
@@ -397,13 +473,13 @@ const Register = () => {
           required
         />
         <label htmlFor="agreeTerms">
-          Acepto los <a href="#" className="terms-link">Términos y Condiciones</a> y la <a href="#" className="terms-link">Política de Privacidad</a>
+          Acepto los <a href="#" className="terms-link" onClick={openTermsModal}>Términos y Condiciones</a> y la <a href="#" className="terms-link" onClick={openPrivacyModal}>Política de Privacidad</a>
         </label>
       </div>
 
       <div className="form-buttons">
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="back-button"
           onClick={prevStep}
         >
@@ -446,10 +522,20 @@ const Register = () => {
           {renderCurrentStep()}
         </form>
 
+        {registrationSuccess && (
+          <div className="success-message">
+            <div className="success-icon">✓</div>
+            <p>{registrationMessage}</p>
+            <p className="redirect-message">Serás redirigido al login en unos segundos...</p>
+          </div>
+        )}
+
         <div className="login-link">
           <p>
             ¿Ya tienes cuenta?{' '}
-            <a href="#">Iniciar sesión</a>
+            <button type="button" className="link-button" onClick={handleLoginClick}>
+              Iniciar sesión
+            </button>
           </p>
         </div>
 
@@ -484,6 +570,71 @@ const Register = () => {
           </button>
         </div>
       </div>
+
+      {/* Modal de Términos y Condiciones */}
+      {showTermsModal && (
+        <div className="modal-overlay" onClick={closeTermsModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Términos y Condiciones</h2>
+              <button className="modal-close" onClick={closeTermsModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <h3>1. Aceptación de los Términos</h3>
+              <p>Al registrarte y utilizar nuestros servicios, aceptas estar sujeto a estos términos y condiciones.</p>
+
+              <h3>2. Uso del Servicio</h3>
+              <p>Te comprometes a usar nuestro servicio de manera responsable y conforme a la ley.</p>
+
+              <h3>3. Cuenta de Usuario</h3>
+              <p>Eres responsable de mantener la confidencialidad de tu cuenta y contraseña.</p>
+
+              <h3>4. Contenido</h3>
+              <p>El contenido que publiques debe ser apropiado y no infringir derechos de terceros.</p>
+
+              <h3>5. Limitación de Responsabilidad</h3>
+              <p>No nos hacemos responsables por daños indirectos o consecuenciales.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-button" onClick={closeTermsModal}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Política de Privacidad */}
+      {showPrivacyModal && (
+        <div className="modal-overlay" onClick={closePrivacyModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Política de Privacidad</h2>
+              <button className="modal-close" onClick={closePrivacyModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <h3>1. Recopilación de Información</h3>
+              <p>Recopilamos información que nos proporcionas directamente al registrarte.</p>
+
+              <h3>2. Uso de la Información</h3>
+              <p>Utilizamos tu información para proporcionar y mejorar nuestros servicios.</p>
+
+              <h3>3. Compartir Información</h3>
+              <p>No compartimos tu información personal con terceros sin tu consentimiento.</p>
+
+              <h3>4. Seguridad</h3>
+              <p>Implementamos medidas de seguridad para proteger tu información.</p>
+
+              <h3>5. Cookies</h3>
+              <p>Utilizamos cookies para mejorar tu experiencia de usuario.</p>
+
+              <h3>6. Contacto</h3>
+              <p>Para preguntas sobre esta política, contáctanos en privacy@ejemplo.com</p>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-button" onClick={closePrivacyModal}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

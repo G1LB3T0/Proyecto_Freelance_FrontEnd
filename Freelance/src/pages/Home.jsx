@@ -5,34 +5,189 @@ import "../styles/Home.css";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const upcomingEvents = [
+  const [newPostContent, setNewPostContent] = useState("");
+  const [newPostImageUrl, setNewPostImageUrl] = useState("");
+  const [upcomingEvents, setUpcomingEvents] = useState([
     { id: 1, title: "Webinar: Marketing Digital", date: "15 Mayo, 18:00" },
     { id: 2, title: "Workshop de React", date: "21 Mayo, 16:30" },
     { id: 3, title: "Networking Online", date: "29 Mayo, 19:00" },
-  ];
+  ]);
+  const [userStats, setUserStats] = useState({
+    projects: 12,
+    contacts: 37,
+    visits: "5.2k"
+  });
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Función para validar URL de imagen
+  const isValidImageUrl = (url) => {
+    if (!url || !url.trim()) return false;
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  // Función para crear nueva publicación
+  const handleCreatePost = async () => {
+    if (!newPostContent.trim()) return;
+
+    try {
+      // Obtener el usuario actual (temporal)
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      console.log("Usuario actual al crear post:", currentUser);
+
+      if (!currentUser.id) {
+        alert('Debes estar logueado para publicar');
+        console.log("No hay currentUser.id:", currentUser);
+        return;
+      }
+
+      const response = await fetch("http://localhost:3000/api/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          title: newPostContent.substring(0, 50) + (newPostContent.length > 50 ? "..." : ""),
+          content: newPostContent,
+          user_id: currentUser.id, // Enviar user_id temporalmente
+          category_id: 1,
+          image_url: newPostImageUrl.trim() || null // Incluir imagen URL si existe
+        })
+      });
+
+      if (response.ok) {
+        const newPost = await response.json();
+        console.log("Post creado:", newPost);
+        setNewPostContent("");
+        setNewPostImageUrl("");
+        // Recargar posts
+        fetchPosts();
+      }
+    } catch (error) {
+      console.error("Error creando post:", error);
+    }
+  };
+
+  // Función para manejar likes
+  const handleLike = async (postId) => {
+    try {
+      // Aquí podrías hacer una llamada al backend para dar like
+      // Por ahora solo actualiza localmente
+      setPosts(prevPosts =>
+        prevPosts.map(post =>
+          post.id === postId
+            ? { ...post, likes_count: (post.likes_count || 0) + 1 }
+            : post
+        )
+      );
+    } catch (error) {
+      console.error("Error dando like:", error);
+    }
+  };
+
+  // Función para eliminar un post
+  const handleDeletePost = async (postId) => {
+    try {
+      // Obtener el usuario actual
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      console.log("Usuario actual al eliminar post:", currentUser);
+
+      if (!currentUser.id) {
+        alert('Debes estar logueado para eliminar posts');
+        console.log("No hay currentUser.id para eliminar:", currentUser);
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3000/api/posts/${postId}?user_id=${currentUser.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setPosts(posts.filter(post => post.id !== postId));
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Error al eliminar el post');
+      }
+    } catch (error) {
+      console.error("Error eliminando post:", error);
+      alert('Error al eliminar el post');
+    }
+  };
+
+  // Función para verificar si el post pertenece al usuario actual
+  const isMyPost = (post) => {
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    return currentUser.id && (post.user_id === currentUser.id || post.author_name === currentUser.name);
+  };
+
+  // Función para obtener posts (separada para poder reutilizar)
+  const fetchPosts = async () => {
+    try {
+      const postsResponse = await fetch("http://localhost:3000/api/posts/");
+      if (postsResponse.ok) {
+        const postsData = await postsResponse.json();
+        const postsArray = Array.isArray(postsData) ? postsData : postsData.data?.posts || postsData.posts || postsData.data || [];
+        setPosts(postsArray);
+      }
+    } catch (error) {
+      console.error("Error cargando posts:", error);
+    }
+  };
 
   useEffect(() => {
-    fetch("http://localhost:3000/posts")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Error en la respuesta de la API");
+    // Cargar posts (obligatorio) y opcionalmente eventos y estadísticas
+    const fetchData = async () => {
+      try {
+        // Posts (obligatorio)
+        await fetchPosts();
+
+        // Eventos (opcional)
+        try {
+          const eventsResponse = await fetch("http://localhost:3000/api/events/upcoming");
+          if (eventsResponse.ok) {
+            const eventsData = await eventsResponse.json();
+            console.log("Events response:", eventsData);
+            const eventsArray = Array.isArray(eventsData) ? eventsData : eventsData.data?.events || eventsData.events || eventsData.data || [];
+            if (eventsArray.length > 0) {
+              setUpcomingEvents(eventsArray);
+            }
+          }
+        } catch (eventError) {
+          console.warn("Events endpoint not available:", eventError);
         }
-        return response.json();
-      })
-      .then((raw) => {
-        console.log("API response:", raw);
-        const arr = Array.isArray(raw) ? raw : raw.posts || raw.data || [];
-        setPosts(arr);
+
+        // Estadísticas (opcional)
+        try {
+          const statsResponse = await fetch("http://localhost:3000/api/users/me/stats");
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json();
+            console.log("Stats response:", statsData);
+            if (statsData && statsData.data) {
+              setUserStats({
+                projects: Number(statsData.data.projects) || 0,
+                contacts: Number(statsData.data.contacts) || 0,
+                visits: Number(statsData.data.visits) || 0
+              });
+            }
+          }
+        } catch (statsError) {
+          console.warn("Stats endpoint not available:", statsError);
+        }
+
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error al cargar los posts:", err);
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
         setError(true);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   if (loading) return (
@@ -40,7 +195,7 @@ const Home = () => {
       <div className="loading">Cargando...</div>
     </Layout>
   );
-  
+
   if (error) return (
     <Layout currentPage="home">
       <div className="error">Error al cargar los posts</div>
@@ -48,8 +203,8 @@ const Home = () => {
   );
 
   return (
-    <Layout 
-      currentPage="home" 
+    <Layout
+      currentPage="home"
       searchPlaceholder="Buscar publicaciones, proyectos o personas..."
     >
       <div className="content-layout">
@@ -59,24 +214,24 @@ const Home = () => {
             <h3>Tu Actividad</h3>
             <div className="stats-container">
               <div className="stat-item">
-                <span className="stat-value">12</span>
+                <span className="stat-value">{String(userStats.projects || 0)}</span>
                 <span className="stat-label">Proyectos</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">37</span>
+                <span className="stat-value">{String(userStats.contacts || 0)}</span>
                 <span className="stat-label">Contactos</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">5.2k</span>
+                <span className="stat-value">{String(userStats.visits || 0)}</span>
                 <span className="stat-label">Visitas</span>
               </div>
             </div>
           </div>
-          
+
           <div className="widget events-widget">
             <h3>Próximos Eventos</h3>
             <ul className="events-list">
-              {upcomingEvents.map((event) => (
+              {(upcomingEvents || []).map((event) => (
                 <li key={event.id} className="event-item">
                   <div className="event-date">{event.date}</div>
                   <div className="event-title">{event.title}</div>
@@ -99,22 +254,55 @@ const Home = () => {
               <span>Siguiendo</span>
             </div>
           </div>
-          
+
           <div className="create-post">
-            <div className="user-avatar">👤</div>
-            <input type="text" placeholder="¿Qué quieres compartir hoy?" />
-            <button className="post-btn">Publicar</button>
+            <div className="user-avatar">
+              {(() => {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                return user.avatar ?
+                  <img src={user.avatar} alt="Avatar" style={{ width: '40px', height: '40px', borderRadius: '50%' }} /> :
+                  '👤';
+              })()}
+            </div>
+            <div className="post-input-container">
+              <input
+                type="text"
+                placeholder="¿Qué quieres compartir hoy?"
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleCreatePost()}
+              />
+              <input
+                type="url"
+                placeholder="URL de imagen (opcional)"
+                value={newPostImageUrl}
+                onChange={(e) => setNewPostImageUrl(e.target.value)}
+                className="image-url-input"
+              />
+            </div>
+            <button
+              className="post-btn"
+              onClick={handleCreatePost}
+              disabled={!newPostContent.trim()}
+            >
+              Publicar
+            </button>
           </div>
-          
+
           <div className="posts-list">
-            {posts.map((post) => (
+            {Array.isArray(posts) ? posts.map((post) => (
               <div key={post.id} className="post-card">
                 <div className="post-header">
                   <div className="post-author">
-                    <span className="author-avatar">{post.avatar}</span>
+                    <span className="author-avatar">
+                      {post.author_avatar ?
+                        <img src={post.author_avatar} alt="Avatar" style={{ width: '40px', height: '40px', borderRadius: '50%' }} /> :
+                        '👤'
+                      }
+                    </span>
                     <div className="author-info">
-                      <span className="author-name">{post.author}</span>
-                      <span className="post-time">{post.time}</span>
+                      <span className="author-name">{post.author_name || post.author}</span>
+                      <span className="post-time">{new Date(post.created_at).toLocaleDateString() || post.time}</span>
                     </div>
                   </div>
                   <div className="post-menu">⋯</div>
@@ -122,15 +310,28 @@ const Home = () => {
                 <div className="post-content">
                   <h3 className="post-title">{post.title}</h3>
                   <p>{post.content}</p>
+                  {isValidImageUrl(post.image_url) ? (
+                    <div className="post-image">
+                      <img
+                        src={post.image_url}
+                        alt="Post"
+                        className="post-img"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  ) : null}
                 </div>
                 <div className="post-actions">
-                  <div className="action">
+                  <div className="action" onClick={() => handleLike(post.id)} style={{ cursor: 'pointer' }}>
                     <span className="action-icon">👍</span>
-                    <span className="action-count">{post.likes}</span>
+                    <span className="action-count">{post.likes_count || post.likes || 0}</span>
                   </div>
-                  <div className="action">
+                  <div className="action" style={{ cursor: 'pointer' }}>
                     <span className="action-icon">💬</span>
-                    <span className="action-count">{post.comments}</span>
+                    <span className="action-count">{post.comments_count || post.comments || 0}</span>
                   </div>
                   <div className="action">
                     <span className="action-icon">↗️</span>
@@ -140,11 +341,27 @@ const Home = () => {
                     <span className="action-icon">🔖</span>
                     <span className="action-label">Guardar</span>
                   </div>
+                  {/* Botón eliminar - solo para posts del usuario actual */}
+                  {isMyPost(post) && (
+                    <div
+                      className="action delete-action"
+                      onClick={() => handleDeletePost(post.id)}
+                      style={{ cursor: 'pointer', color: '#ef4444' }}
+                      title="Eliminar post"
+                    >
+                      <span className="action-icon">🗑️</span>
+                      <span className="action-label">Eliminar</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="empty-posts">
+                <p>No hay publicaciones disponibles</p>
+              </div>
+            )}
           </div>
-          
+
           <button className="load-more-btn">Cargar más publicaciones</button>
         </section>
 
@@ -156,7 +373,7 @@ const Home = () => {
             <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
             <button className="upgrade-btn">Conocer más</button>
           </div>
-          
+
           <div className="widget trending-topics">
             <h3>Tendencias</h3>
             <ul className="topics-list">
@@ -167,7 +384,7 @@ const Home = () => {
               <li>#MarketingDigital</li>
             </ul>
           </div>
-          
+
           <div className="widget suggested-contacts">
             <h3>Personas que quizás conozcas</h3>
             <div className="contact-suggestions">

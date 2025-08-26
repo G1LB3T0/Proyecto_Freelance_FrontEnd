@@ -35,6 +35,7 @@
   .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    justify-content: start;
     gap: 8px;
     margin-top: 1rem;
   }
@@ -48,7 +49,11 @@
   }
   
   .day-cell {
-    height: 80px;
+    height: var(--cal-cell-h);
+    min-height: var(--cal-cell-h);
+    max-height: var(--cal-cell-h);
+    box-sizing: border-box;
+    overflow: hidden;
     background-color: white;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
@@ -73,6 +78,7 @@
 .calendar-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  justify-content: start;
   gap: 8px;
 }
 
@@ -88,26 +94,43 @@
 .calendar-body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: var(--cal-cell-h);
+  justify-content: start;
   gap: 8px;
   margin-top: 0.5rem;
 }
 
 .calendar-cell {
-  height: 80px;
+  height: var(--cal-cell-h);
+  min-height: var(--cal-cell-h);
+  max-height: var(--cal-cell-h);
+  box-sizing: border-box;
   background-color: white;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
   text-align: right;
   padding: 6px 8px;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: #334155;
   position: relative;
   transition: background-color 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .calendar-cell:hover {
   background-color: #e0f2fe;
   cursor: pointer;
+}
+
+.event-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .evento-dia {
@@ -157,6 +180,8 @@
 
 .calendar-container {
   width: 100%;
+  overflow-x: auto;
+  --cal-cell-h: 110px;
 }
 
 .right-sidebar .widget {
@@ -216,4 +241,72 @@
 
 .add-event-button:hover {
   background-color: #0369a1;
+}
+
+@media (max-width: 768px) {
+  .content-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-form-container,
+  .calendar-header-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .calendar-header-controls select,
+  .formulario-evento input,
+  .formulario-evento button {
+    width: 100%;
+  }
+
+  .calendar-body {
+    grid-template-columns: repeat(7, 1fr);
+  }
+
+  .calendar-cell {
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .calendar-container { --cal-cell-h: 90px; }
+}
+
+@media (min-width: 1024px) {
+  .content-layout {
+    grid-template-columns: 3fr 1fr;
+    gap: 32px;
+  }
+
+  .calendar-container {
+    padding: 3rem;
+  }
+
+  .calendar-cell {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .formulario-evento {
+    padding: 2rem;
+    font-size: 1.1rem;
+  }
+
+  .formulario-evento input,
+  .formulario-evento select {
+    font-size: 1.1rem;
+  }
+
+  .calendar-container { --cal-cell-h: 110px; }
+}
+
+@media (min-width: 1440px) {
+  .main-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .calendar-container { --cal-cell-h: 120px; }
 }

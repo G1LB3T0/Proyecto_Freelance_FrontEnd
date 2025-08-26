@@ -207,9 +207,9 @@ const Home = () => {
       currentPage="home"
       searchPlaceholder="Buscar publicaciones, proyectos o personas..."
     >
-      <div className="content-layout">
+      <div className="home">
         {/* Sidebar Izquierdo */}
-        <section className="left-sidebar">
+        <section className="sidebar-left">
           <div className="widget profile-stats">
             <h3>Tu Actividad</h3>
             <div className="stats-container">
@@ -227,25 +227,20 @@ const Home = () => {
               </div>
             </div>
           </div>
-
-          <div className="widget events-widget">
-            <h3>Próximos Eventos</h3>
-            <ul className="events-list">
-              {(upcomingEvents || []).map((event) => (
-                <li key={event.id} className="event-item">
-                  <div className="event-date">{event.date}</div>
-                  <div className="event-title">{event.title}</div>
-                </li>
-              ))}
+          <div className="widget trending-topics">
+            <h3>Tendencias</h3>
+            <ul className="topics-list">
+              <li>#DiseñoUX</li>
+              <li>#ReactJS</li>
+              <li>#FreelanceRemoto</li>
+              <li>#IA</li>
+              <li>#MarketingDigital</li>
             </ul>
-            <button className="see-all-btn">
-              <Link to="/calendario">Ver Todos</Link>
-            </button>
           </div>
         </section>
 
-        {/* Sección Principal */}
-        <section className="posts-section">
+  {/* Sección Principal (centrada) */}
+  <section className="feed">
           <div className="section-header">
             <h2>Publicaciones de la Comunidad</h2>
             <div className="filters">
@@ -286,6 +281,22 @@ const Home = () => {
               disabled={!newPostContent.trim()}
             >
               Publicar
+            </button>
+          </div>
+
+          {/* Próximos Eventos centrado debajo de publicaciones */}
+          <div className="widget events-widget" style={{margin: '32px auto', maxWidth: '500px'}}>
+            <h3>Próximos Eventos</h3>
+            <ul className="events-list">
+              {(upcomingEvents || []).map((event) => (
+                <li key={event.id} className="event-item">
+                  <div className="event-date">{event.date}</div>
+                  <div className="event-title">{event.title}</div>
+                </li>
+              ))}
+            </ul>
+            <button className="see-all-btn">
+              <Link to="/calendario">Ver Todos</Link>
             </button>
           </div>
 
@@ -365,26 +376,14 @@ const Home = () => {
           <button className="load-more-btn">Cargar más publicaciones</button>
         </section>
 
-        {/* Sidebar Derecho */}
-        <section className="right-sidebar">
+  {/* Sidebar Derecho */}
+  <section className="sidebar-right">
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
             <h3>Potencia tu Carrera Freelance</h3>
             <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
             <button className="upgrade-btn">Conocer más</button>
           </div>
-
-          <div className="widget trending-topics">
-            <h3>Tendencias</h3>
-            <ul className="topics-list">
-              <li>#DiseñoUX</li>
-              <li>#ReactJS</li>
-              <li>#FreelanceRemoto</li>
-              <li>#IA</li>
-              <li>#MarketingDigital</li>
-            </ul>
-          </div>
-
           <div className="widget suggested-contacts">
             <h3>Personas que quizás conozcas</h3>
             <div className="contact-suggestions">

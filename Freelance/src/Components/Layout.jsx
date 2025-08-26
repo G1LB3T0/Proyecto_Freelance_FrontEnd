@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import '../styles/Layout.css';
 
 const Layout = ({ children, currentPage = '', searchPlaceholder = "Buscar..." }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const menuItems = [
-    { path: '/home', icon: '🏠', label: 'Inicio', key: 'home' },
-    { path: '/calendario', icon: '📅', label: 'Calendario', key: 'calendar' },
-    { path: '/proyectos', icon: '💼', label: 'Proyectos', key: 'projects' },
-    { path: '/finanzas', icon: '💰', label: 'Finanzas', key: 'finance' },
-    { path: '/clientes', icon: '👥', label: 'Clientes', key: 'clients' },
-    { path: '/estadisticas', icon: '📊', label: 'Estadísticas', key: 'stats' },
-    { path: '/configuracion', icon: '⚙️', label: 'Configuración', key: 'settings' }
+    { path: '/home', label: '🏠 Inicio', key: 'home' },
+    { path: '/calendario', label: '📅Calendario', key: 'calendar' },
+    { path: '/proyectos', label: '💼Proyectos', key: 'projects' },
+    { path: '/finanzas', label: '💰Finanzas', key: 'finance' },
+    { path: '/estadisticas', label: '📊Estadísticas', key: 'stats' },
+    { path: '/Settings', label: '⚙️Settings', key: 'Settings' }
   ];
 
   const notifications = [
@@ -20,6 +20,13 @@ const Layout = ({ children, currentPage = '', searchPlaceholder = "Buscar..." })
     "💼 Nueva oportunidad de trabajo",
     "⏸️ Has pausado el proyecto Sistema de Inventario"
   ];
+
+  // Handler para cerrar el popup al hacer clic fuera
+  const handleCloseNotifications = (e) => {
+    if (e.target.classList.contains('notification-modal-bg')) {
+      setShowNotifications(false);
+    }
+  };
 
   return (
     <div className="home-container">
@@ -40,7 +47,8 @@ const Layout = ({ children, currentPage = '', searchPlaceholder = "Buscar..." })
             {menuItems.map(item => (
               <li key={item.key} className={currentPage === item.key ? 'active' : ''}>
                 <Link to={item.path}>
-                  <span className="icon">{item.icon}</span> {item.label}
+                  <span className="icon">{item.icon}</span>
+                  <span className="label">{item.label}</span>
                 </Link>
               </li>
             ))}
@@ -71,16 +79,22 @@ const Layout = ({ children, currentPage = '', searchPlaceholder = "Buscar..." })
               <div 
                 className="notification-icon" 
                 onClick={() => setShowNotifications(!showNotifications)}
+                style={{ cursor: 'pointer' }}
+                title="Ver notificaciones"
               >
                 🔔
               </div>
               {showNotifications && (
-                <div className="notification-dropdown">
-                  <ul>
-                    {notifications.map((notification, index) => (
-                      <li key={index}>{notification}</li>
-                    ))}
-                  </ul>
+                <div className="notification-modal-bg" onClick={handleCloseNotifications}>
+                  <div className="notification-popup">
+                    <button className="notification-close-btn" onClick={() => setShowNotifications(false)} aria-label="Cerrar">✖️</button>
+                    <h4 className="notification-title">Notificaciones</h4>
+                    <ul className="notification-list">
+                      {notifications.map((notification, index) => (
+                        <li className="notification-item" key={index}>{notification}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
             </div>

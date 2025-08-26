@@ -14,6 +14,7 @@ import Home from "./Home";
 import PostsDeProyectos from "./PostsDeProyectos";
 import Calendario from "./Calendario";
 import Finanzas from "./Finanzas";
+import Settings from "./Settings";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/proyectos" element={<PostsDeProyectos />} />
         <Route path="/calendario" element={<Calendario />} />
         <Route path="/finanzas" element={<Finanzas />} />
+        <Route path="/Settings" element={<Settings />} />
       </Routes>
     </Router>
   );

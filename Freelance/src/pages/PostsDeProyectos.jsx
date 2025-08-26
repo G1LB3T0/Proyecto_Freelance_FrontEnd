@@ -334,9 +334,9 @@ const PostsDeProyectos = () => {
       currentPage="projects"
       searchPlaceholder="Buscar proyectos, clientes o tecnologías..."
     >
-      <div className="content-layout">
+  <div className="posts-grid">
         {/* Sidebar Izquierdo */}
-        <section className="left-sidebar">
+  <section className="sidebar-left">
           <div className="widget profile-stats">
             <h3>Resumen de Proyectos</h3>
             <div className="stats-container">
@@ -376,7 +376,7 @@ const PostsDeProyectos = () => {
         </section>
 
         {/* Sección Principal */}
-        <section className="posts-section">
+  <section className="feed">
           <div className="section-header">
             <h2>
               Mis Proyectos

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../Components/Layout.jsx";
+import useAuth from "../hooks/useAuth.js";
 import "../styles/Home.css";
 
 const Home = () => {
+  const { user, isAuthenticated, authenticatedFetch, logout } = useAuth();
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostImageUrl, setNewPostImageUrl] = useState("");
@@ -46,7 +48,7 @@ const Home = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:3000/api/posts", {
+      const response = await fetch("http://localhost:3000/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -103,7 +105,7 @@ const Home = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/api/posts/${postId}?user_id=${currentUser.id}`, {
+      const response = await fetch(`http://localhost:3000/posts/${postId}?user_id=${currentUser.id}`, {
         method: "DELETE",
       });
 
@@ -128,7 +130,7 @@ const Home = () => {
   // Función para obtener posts (separada para poder reutilizar)
   const fetchPosts = async () => {
     try {
-      const postsResponse = await fetch("http://localhost:3000/api/posts/");
+      const postsResponse = await fetch("http://localhost:3000/posts/");
       if (postsResponse.ok) {
         const postsData = await postsResponse.json();
         const postsArray = Array.isArray(postsData) ? postsData : postsData.data?.posts || postsData.posts || postsData.data || [];
@@ -161,7 +163,8 @@ const Home = () => {
           console.warn("Events endpoint not available:", eventError);
         }
 
-        // Estadísticas (opcional)
+        // Estadísticas (comentado porque la ruta no existe aún)
+        /* 
         try {
           const statsResponse = await fetch("http://localhost:3000/api/users/me/stats");
           if (statsResponse.ok) {
@@ -178,6 +181,7 @@ const Home = () => {
         } catch (statsError) {
           console.warn("Stats endpoint not available:", statsError);
         }
+        */
 
         setLoading(false);
       } catch (error) {

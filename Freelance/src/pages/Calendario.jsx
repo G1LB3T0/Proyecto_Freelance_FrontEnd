@@ -10,7 +10,38 @@ const Calendario = () => {
   const [nuevoEvento, setNuevoEvento] = React.useState({ title: '', day: '', month: 8, year: 2025 });
   const [eventoEditando, setEventoEditando] = React.useState(null);
   const [diaActivo, setDiaActivo] = React.useState(null); // e.g., '2025-8-4'
-  const dayKey = (d) => `${nuevoEvento.year}-${mesVisualizando}-${d}`;
+  const [showModal, setShowModal] = React.useState(false);
+  const [showMonthPicker, setShowMonthPicker] = React.useState(false);
+  const [yearPicker, setYearPicker] = React.useState(nuevoEvento.year);
+  const monthPickerRef = React.useRef(null);
+  const periodBtnRef = React.useRef(null);
+  const formRef = React.useRef(null);
+  const titleInputRef = React.useRef(null);
+
+  const [vista, setVista] = React.useState('month'); // 'month' | 'week'
+  const [anchorDate, setAnchorDate] = React.useState(() => new Date(2025, 8 - 1, 1));
+
+  // Helpers para semana
+  const startOfWeek = (date) => {
+    const d = new Date(date);
+    const day = d.getDay(); // 0=Dom..6=Sab
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - day);
+    return d;
+  };
+
+  const getWeekDays = (date) => {
+    const start = startOfWeek(date);
+    return Array.from({ length: 7 }, (_, i) => {
+      const dt = new Date(start);
+      dt.setDate(start.getDate() + i);
+      return { date: dt, day: dt.getDate(), month: dt.getMonth() + 1, year: dt.getFullYear() };
+    });
+  };
+
+  const weekDays = React.useMemo(() => getWeekDays(anchorDate), [anchorDate]);
+
+  const dayKey = (d, m = mesVisualizando, y = nuevoEvento.year) => `${y}-${m}-${d}`;
 
   const fetchEventos = React.useCallback(async () => {
     try {
@@ -43,6 +74,44 @@ const Calendario = () => {
       setNuevoEvento(prev => ({ ...prev, month: mesVisualizando }));
     }
   }, [mesVisualizando, eventoEditando]);
+
+  React.useEffect(() => {
+    if (vista === 'month') {
+      setAnchorDate(new Date(nuevoEvento.year, mesVisualizando - 1, 1));
+    }
+  }, [mesVisualizando, vista, nuevoEvento.year]);
+
+  // Cerrar el modal con ESC
+  React.useEffect(() => {
+    if (!showModal) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setShowModal(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showModal]);
+
+  // Cerrar el selector de mes con ESC
+  React.useEffect(() => {
+    if (!showMonthPicker) return;
+    const onKey = (e) => { if (e.key === 'Escape') setShowMonthPicker(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showMonthPicker]);
+
+  // Cerrar el selector de mes al hacer clic afuera
+  React.useEffect(() => {
+    if (!showMonthPicker) return;
+    const onDown = (e) => {
+      const pop = monthPickerRef.current;
+      const btn = periodBtnRef.current;
+      if (pop && !pop.contains(e.target) && btn && !btn.contains(e.target)) {
+        setShowMonthPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [showMonthPicker]);
 
   // Removed old fetchEventos function to avoid duplicate logic
 
@@ -90,6 +159,7 @@ const Calendario = () => {
       console.log('Response status:', response.status); // Para debugging
 
       if (response.ok) {
+        setShowModal(false);
         setNuevoEvento({ title: '', day: '', month: mesVisualizando, year: 2025 });
         setEventoEditando(null);
         await fetchEventos();
@@ -130,13 +200,73 @@ const Calendario = () => {
   const daysInMonth = (y, m) => new Date(y, m, 0).getDate(); // m: 1..12
   const diasMes = Array.from({ length: daysInMonth(nuevoEvento.year, mesVisualizando) }, (_, i) => i + 1);
   const hoy = new Date();
-  const esHoy = (d) =>
-    d === hoy.getDate() &&
-    mesVisualizando === (hoy.getMonth() + 1) &&
-    nuevoEvento.year === hoy.getFullYear();
+  const esHoy = (d, m = mesVisualizando, y = nuevoEvento.year) =>
+    d === hoy.getDate() && m === (hoy.getMonth() + 1) && y === hoy.getFullYear();
 
   const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const fechaCorta = (d, m, y) => `${d} ${MESES[m - 1]}`; // ejemplo: 15 mayo
+
+  const handlePrev = () => {
+    if (vista === 'month') {
+      setMesVisualizando((prev) => (prev === 1 ? 12 : prev - 1));
+    } else {
+      setAnchorDate((d) => {
+        const nd = new Date(d);
+        nd.setDate(nd.getDate() - 7);
+        return nd;
+      });
+    }
+  };
+
+  const handleNext = () => {
+    if (vista === 'month') {
+      setMesVisualizando((prev) => (prev === 12 ? 1 : prev + 1));
+    } else {
+      setAnchorDate((d) => {
+        const nd = new Date(d);
+        nd.setDate(nd.getDate() + 7);
+        return nd;
+      });
+    }
+  };
+
+  const periodoLabel = vista === 'month'
+    ? `${MESES[mesVisualizando - 1]} ${nuevoEvento.year}`
+    : `${MESES[anchorDate.getMonth()]} ${anchorDate.getFullYear()}`;
+
+  const goToday = () => {
+    const now = new Date();
+    setNuevoEvento((prev) => ({ ...prev, year: now.getFullYear() }));
+    setMesVisualizando(now.getMonth() + 1);
+    if (vista === 'week') setAnchorDate(now);
+  };
+
+  const handleNewEvent = () => {
+    setEventoEditando(null);
+    setNuevoEvento({ title: '', day: '', month: mesVisualizando, year: nuevoEvento.year });
+    setShowModal(true);
+    setTimeout(() => titleInputRef.current?.focus(), 100);
+  };
+
+  // Helpers para selector de mes/año
+  const toggleMonthPicker = () => {
+    const currentYear = vista === 'month' ? nuevoEvento.year : anchorDate.getFullYear();
+    setYearPicker(currentYear);
+    setShowMonthPicker((s) => !s);
+  };
+
+  const prevYear = () => setYearPicker((y) => y - 1);
+  const nextYear = () => setYearPicker((y) => y + 1);
+
+  const selectMonth = (idx) => {
+    if (vista === 'month') {
+      setMesVisualizando(idx + 1);
+      setNuevoEvento((prev) => ({ ...prev, year: yearPicker }));
+    } else {
+      setAnchorDate(new Date(yearPicker, idx, 1));
+    }
+    setShowMonthPicker(false);
+  };
 
   return (
     <Layout 
@@ -146,149 +276,312 @@ const Calendario = () => {
       <div className="content-layout">
 
         <section className="posts-section">
-          <div className="section-header">
-            <h2>Vista del Calendario</h2>
-            <div className="calendar-controls">
-              <label>Ver mes: </label>
-              <select
-                value={mesVisualizando}
-                onChange={(e) => setMesVisualizando(parseInt(e.target.value))}
-              >
-                <option value="1">Enero</option>
-                <option value="2">Febrero</option>
-                <option value="3">Marzo</option>
-                <option value="4">Abril</option>
-                <option value="5">Mayo</option>
-                <option value="6">Junio</option>
-                <option value="7">Julio</option>
-                <option value="8">Agosto</option>
-                <option value="9">Septiembre</option>
-                <option value="10">Octubre</option>
-                <option value="11">Noviembre</option>
-                <option value="12">Diciembre</option>
-              </select>
+          <div className="calendar-toolbar">
+            <div className="ct-left">
+              <button type="button" onClick={goToday}>Hoy</button>
+              <button type="button" onClick={handlePrev} title="Anterior">◀</button>
+              <button type="button" onClick={handleNext} title="Siguiente">▶</button>
+              <div className="period-picker" style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className="period-label"
+                  onClick={toggleMonthPicker}
+                  aria-haspopup="dialog"
+                  aria-expanded={showMonthPicker}
+                  ref={periodBtnRef}
+                >
+                  {periodoLabel} ▾
+                </button>
+                {showMonthPicker && (
+                  <div
+                    ref={monthPickerRef}
+                    className="month-popover"
+                    style={{
+                      position: 'absolute', left: 0, top: 'calc(100% + 8px)',
+                      zIndex: 1000, background: '#fff', border: '1px solid #e2e8f0',
+                      borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                      padding: '12px', width: 'min(320px, 92vw)'
+                    }}
+                  >
+                    <div className="year-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <button type="button" onClick={prevYear}>◀</button>
+                      <strong>{yearPicker}</strong>
+                      <button type="button" onClick={nextYear}>▶</button>
+                    </div>
+                    <div className="months-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                      {MESES.map((m, idx) => {
+                        const isSelected = vista === 'month'
+                          ? (mesVisualizando - 1 === idx && yearPicker === nuevoEvento.year)
+                          : (anchorDate.getMonth() === idx && yearPicker === anchorDate.getFullYear());
+                        return (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => selectMonth(idx)}
+                            style={{
+                              padding: '8px',
+                              borderRadius: '10px',
+                              border: '1px solid #cbd5e1',
+                              background: isSelected ? '#0284c7' : '#fff',
+                              color: isSelected ? '#fff' : '#334155',
+                              cursor: 'pointer'
+                            }}
+                            aria-pressed={isSelected}
+                          >
+                            {m[0].toUpperCase() + m.slice(1, 3)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="ct-right">
+              <div className="view-toggle">
+                <button type="button" onClick={() => setVista('month')} disabled={vista === 'month'}>
+                  Mes
+                </button>
+                <button type="button" onClick={() => setVista('week')} disabled={vista === 'week'}>
+                  Semana
+                </button>
+              </div>
+              <button type="button" className="add-event-btn" onClick={handleNewEvent}>Agregar evento</button>
             </div>
           </div>
-          
-          <form onSubmit={handleSubmit} className="formulario-evento">
-            <input
-              type="text"
-              placeholder="Título"
-              value={nuevoEvento.title}
-              onChange={(e) => setNuevoEvento({ ...nuevoEvento, title: e.target.value })}
-            />
-            <input
-              type="number"
-              placeholder="Día (1-31)"
-              min="1"
-              max="31"
-              value={nuevoEvento.day}
-              onChange={(e) => setNuevoEvento({ ...nuevoEvento, day: parseInt(e.target.value) || '' })}
-            />
-            <select
-              value={nuevoEvento.month}
-              onChange={(e) => setNuevoEvento({ ...nuevoEvento, month: parseInt(e.target.value) })}
+          <div className="section-header"></div>
+          {showModal && (
+            <div
+              className="modal-backdrop"
+              onClick={() => setShowModal(false)}
+              style={{
+                position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                zIndex: 1000
+              }}
             >
-              <option value="">Selecciona mes</option>
-              <option value="1">Enero</option>
-              <option value="2">Febrero</option>
-              <option value="3">Marzo</option>
-              <option value="4">Abril</option>
-              <option value="5">Mayo</option>
-              <option value="6">Junio</option>
-              <option value="7">Julio</option>
-              <option value="8">Agosto</option>
-              <option value="9">Septiembre</option>
-              <option value="10">Octubre</option>
-              <option value="11">Noviembre</option>
-              <option value="12">Diciembre</option>
-            </select>
-            <button type="submit">
-              {eventoEditando ? 'Actualizar evento' : 'Agregar evento'}
-            </button>
-          </form>
+              <div
+                className="modal-card"
+                role="dialog"
+                aria-modal="true"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  width: 'min(560px, 92vw)',
+                  background: '#ffffff',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                  padding: '20px'
+                }}
+              >
+                <h3 style={{ margin: '0 0 12px' }}>
+                  {eventoEditando ? 'Editar evento' : 'Agregar evento'}
+                </h3>
+                <form onSubmit={handleSubmit} className="formulario-evento" ref={formRef}>
+                  <input
+                    ref={titleInputRef}
+                    type="text"
+                    placeholder="Título"
+                    value={nuevoEvento.title}
+                    onChange={(e) => setNuevoEvento({ ...nuevoEvento, title: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Día (1-31)"
+                    min="1"
+                    max="31"
+                    value={nuevoEvento.day}
+                    onChange={(e) => setNuevoEvento({ ...nuevoEvento, day: parseInt(e.target.value) || '' })}
+                  />
+                  <select
+                    value={nuevoEvento.month}
+                    onChange={(e) => setNuevoEvento({ ...nuevoEvento, month: parseInt(e.target.value) })}
+                  >
+                    <option value="">Selecciona mes</option>
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                  </select>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
+                    <button type="button" onClick={() => setShowModal(false)}>Cancelar</button>
+                    <button type="submit">{eventoEditando ? 'Actualizar' : 'Guardar'}</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
           
           <div className="calendar-container">
             <div className="calendar-grid">
               {diasSemana.map((dia, idx) => (
                 <div key={idx} className="day-name">{dia}</div>
               ))}
-              {diasMes.map(dia => {
-                const eventosDelDia = Array.isArray(eventos)
-                  ? eventos.filter(e =>
-                      Number(e.day) === dia &&
-                      Number(e.month) === mesVisualizando &&
-                      Number(e.year) === Number(nuevoEvento.year)
-                    )
-                  : [];
+              {vista === 'month'
+                ? (
+                  diasMes.map(dia => {
+                    const eventosDelDia = Array.isArray(eventos)
+                      ? eventos.filter(e =>
+                          Number(e.day) === dia &&
+                          Number(e.month) === mesVisualizando &&
+                          Number(e.year) === Number(nuevoEvento.year)
+                        )
+                      : [];
 
-                const clases = ['day-cell'];
-                if (esHoy(dia)) clases.push('hoy');
-                if (eventosDelDia.length > 0) clases.push('evento-dia');
-                const activo = diaActivo === dayKey(dia);
+                    const clases = ['day-cell'];
+                    if (esHoy(dia)) clases.push('hoy');
+                    if (eventosDelDia.length > 0) clases.push('evento-dia');
+                    const activo = diaActivo === dayKey(dia);
 
-                return (
-                  <div
-                    key={dia}
-                    className={clases.join(' ')}
-                    style={{ position: 'relative' }}
-                    onClick={() => setDiaActivo(prev => (prev === dayKey(dia) ? null : dayKey(dia)))}
-                  >
-                    <div>{dia}</div>
-                    {eventosDelDia.map((evento) => (
+                    return (
                       <div
-                        key={evento.id ?? `${evento.title}-${evento.day}-${evento.month}-${evento.year}`}
-                        className="evento"
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                        key={`m-${dia}`}
+                        className={clases.join(' ')}
+                        style={{ position: 'relative' }}
+                        onClick={() => setDiaActivo(prev => (prev === dayKey(dia) ? null : dayKey(dia)))}
                       >
-                        <span className="evento-title">{evento.title}</span>
-                        {activo && (
+                        <div>{dia}</div>
+                        {eventosDelDia.map((evento) => (
                           <div
-                            className="evento-actions-overlay"
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              right: 0,
-                              background: 'rgba(255,255,255,0.95)',
-                              borderRadius: '4px',
-                              padding: '2px 4px',
-                              display: 'flex',
-                              gap: '4px',
-                              boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-                              zIndex: 10
-                            }}
+                            key={evento.id ?? `${evento.title}-${evento.day}-${evento.month}-${evento.year}`}
+                            className="evento"
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                           >
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEventoEditando(evento);
-                                setNuevoEvento({
-                                  title: evento.title,
-                                  day: Number(evento.day),
-                                  month: Number(evento.month),
-                                  year: Number(evento.year)
-                                });
-                              }}
-                              title="Editar"
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                eliminarEvento(evento.id);
-                              }}
-                              title="Eliminar"
-                            >
-                              🗑️
-                            </button>
+                            <span className="evento-title">{evento.title}</span>
+                            {activo && (
+                              <div
+                                className="evento-actions-overlay"
+                                style={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  right: 0,
+                                  background: 'rgba(255,255,255,0.95)',
+                                  borderRadius: '4px',
+                                  padding: '2px 4px',
+                                  display: 'flex',
+                                  gap: '4px',
+                                  boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                                  zIndex: 10
+                                }}
+                              >
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEventoEditando(evento);
+                                    setNuevoEvento({
+                                      title: evento.title,
+                                      day: Number(evento.day),
+                                      month: Number(evento.month),
+                                      year: Number(evento.year)
+                                    });
+                                  }}
+                                  title="Editar"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    eliminarEvento(evento.id);
+                                  }}
+                                  title="Eliminar"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                );
-              })}
+                    );
+                  })
+                )
+                : (
+                  weekDays.map(({ day, month, year }) => {
+                    const eventosDelDia = Array.isArray(eventos)
+                      ? eventos.filter(e =>
+                          Number(e.day) === day &&
+                          Number(e.month) === month &&
+                          Number(e.year) === year
+                        )
+                      : [];
+
+                    const clases = ['day-cell'];
+                    if (esHoy(day, month, year)) clases.push('hoy');
+                    if (eventosDelDia.length > 0) clases.push('evento-dia');
+                    const key = dayKey(day, month, year);
+                    const activo = diaActivo === key;
+
+                    return (
+                      <div
+                        key={`w-${key}`}
+                        className={clases.join(' ')}
+                        style={{ position: 'relative' }}
+                        onClick={() => setDiaActivo(prev => (prev === key ? null : key))}
+                      >
+                        <div>{day}</div>
+                        {eventosDelDia.map((evento) => (
+                          <div
+                            key={evento.id ?? `${evento.title}-${evento.day}-${evento.month}-${evento.year}`}
+                            className="evento"
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            <span className="evento-title">{evento.title}</span>
+                            {activo && (
+                              <div
+                                className="evento-actions-overlay"
+                                style={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  right: 0,
+                                  background: 'rgba(255,255,255,0.95)',
+                                  borderRadius: '4px',
+                                  padding: '2px 4px',
+                                  display: 'flex',
+                                  gap: '4px',
+                                  boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                                  zIndex: 10
+                                }}
+                              >
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEventoEditando(evento);
+                                    setNuevoEvento({
+                                      title: evento.title,
+                                      day: Number(evento.day),
+                                      month: Number(evento.month),
+                                      year: Number(evento.year)
+                                    });
+                                  }}
+                                  title="Editar"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    eliminarEvento(evento.id);
+                                  }}
+                                  title="Eliminar"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })
+                )}
             </div>
           </div>
         </section>

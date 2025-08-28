@@ -1,10 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Layout.css';
 
 const Layout = ({ children, currentPage = '', searchPlaceholder = "Buscar..." }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Obtener datos del usuario del localStorage
+  useEffect(() => {
+    try {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+      }
+    } catch (error) {
+      console.error('Error al obtener datos del usuario:', error);
+    }
+  }, []);
 
   const menuItems = [
     { path: '/home', label: '🏠 Inicio', key: 'home' },
@@ -37,9 +51,33 @@ const Layout = ({ children, currentPage = '', searchPlaceholder = "Buscar..." })
         </div>
         
         <div className="user-profile">
-          <div className="avatar">👤</div>
+          <div className="avatar">
+            {currentUser?.avatar ? (
+              <img 
+                src={currentUser.avatar} 
+                alt="Avatar" 
+                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
+              />
+            ) : (
+              '👤'
+            )}
+          </div>
           <p>Bienvenido/a</p>
-          <h3>Miguel Sánchez</h3>
+          <h3>
+            {currentUser?.full_name || 
+             (currentUser?.first_name && currentUser?.last_name 
+               ? `${currentUser.first_name} ${currentUser.last_name}`
+               : currentUser?.name || currentUser?.username || 'Usuario')}
+          </h3>
+          {currentUser?.user_type && (
+            <p style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {currentUser.user_type === 'project_manager' ? 'Project Manager' : 
+               currentUser.user_type === 'freelancer' ? 'Freelancer' : 
+               currentUser.user_type === 'client' ? 'Cliente' : 
+               currentUser.user_type}
+            </p>
+          )}
+
         </div>
         
         <nav className="sidebar-nav">
@@ -100,7 +138,17 @@ const Layout = ({ children, currentPage = '', searchPlaceholder = "Buscar..." })
             </div>
             <div className="messages-icon">✉️</div>
             <div className="user-menu">
-              <span className="user-avatar">👤</span>
+              <span className="user-avatar">
+                {currentUser?.avatar ? (
+                  <img 
+                    src={currentUser.avatar} 
+                    alt="Avatar" 
+                    style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} 
+                  />
+                ) : (
+                  '👤'
+                )}
+              </span>
               <span className="dropdown-arrow">▼</span>
             </div>
           </div>

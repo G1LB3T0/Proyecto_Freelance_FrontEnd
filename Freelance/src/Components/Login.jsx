@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import authService from "../services/authService";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,68 +16,25 @@ const Login = () => {
     setIsSubmitting(true);
     setMessage("");
 
-    // TEMPORAL: Mientras arreglas el backend, usa esto para probar el frontend
-    if (email === "demo@test.com" && password === "demo123") {
-      setMessage("Login exitoso (modo demo)");
-      setTimeout(() => navigate("/home"), 1000);
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      console.log("Enviando datos:", { email, password });
+      // Usar el AuthService para hacer login
+      const result = await authService.login(email, password);
 
-      const response = await fetch("http://localhost:3000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-
-      const data = await response.json();
-      console.log("Response data:", data);
-
-      if (response.ok) {
-        // Guardar token y datos del usuario (si existen)
-        if (data.token) {
-          console.log("Login con JWT - guardando token y usuario");
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-        } else {
-          // Login temporal sin JWT - guardar datos ficticios para que funcione
-          console.log("Login sin JWT - usando datos temporales");
-          const tempUser = {
-            id: 1, // ID temporal - deberías usar el ID real del usuario
-            name: email.split('@')[0], // Nombre basado en el email
-            email: email,
-            avatar: null
-          };
-          localStorage.setItem('user', JSON.stringify(tempUser));
-          console.log("Usuario temporal guardado:", tempUser);
-        }
-
-        // Verificar que se guardó correctamente
-        const savedUser = localStorage.getItem('user');
-        console.log("Usuario guardado en localStorage:", savedUser);
-
-        navigate("/home");
+      if (result.success) {
+        setMessage("Login exitoso - Redirigiendo...");
+        console.log("Usuario autenticado:", result.data.user);
+        console.log("Token guardado en localStorage");
+        
+        // Redirigir después de un breve delay para mostrar el mensaje
+        setTimeout(() => {
+          navigate("/home");
+        }, 1000);
       } else {
-        setMessage(
-          `Backend Error ${response.status}: ${data.error || "Error en el inicio de sesión"
-          }`
-        );
+        setMessage(result.message || "Error al iniciar sesión");
       }
     } catch (error) {
-      console.error("Error completo:", error);
-      setMessage(
-        "Error de conexión: " +
-        error.message +
-        " (usa demo@test.com / demo123 para probar)"
-      );
+      console.error("Error en login:", error);
+      setMessage("Error de conexión con el servidor");
     } finally {
       setIsSubmitting(false);
     }

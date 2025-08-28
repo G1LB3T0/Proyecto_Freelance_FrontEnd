@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../Components/Layout.jsx";
+import useAuth from "../hooks/useAuth.js";
 import "../styles/Home.css";
 
 const Home = () => {
+  const { user, isAuthenticated, authenticatedFetch, logout } = useAuth();
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostImageUrl, setNewPostImageUrl] = useState("");
@@ -36,27 +38,21 @@ const Home = () => {
     if (!newPostContent.trim()) return;
 
     try {
-      // Obtener el usuario actual (temporal)
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      console.log("Usuario actual al crear post:", currentUser);
-
-      if (!currentUser.id) {
+      // Usar el usuario del hook useAuth
+      if (!user?.id) {
         alert('Debes estar logueado para publicar');
-        console.log("No hay currentUser.id:", currentUser);
+        console.log("No hay usuario autenticado:", user);
         return;
       }
 
-      const response = await fetch("http://localhost:3000/api/posts", {
+      const response = await authenticatedFetch("http://localhost:3000/posts", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
         body: JSON.stringify({
           title: newPostContent.substring(0, 50) + (newPostContent.length > 50 ? "..." : ""),
           content: newPostContent,
-          user_id: currentUser.id, // Enviar user_id temporalmente
+          user_id: user.id,
           category_id: 1,
-          image_url: newPostImageUrl.trim() || null // Incluir imagen URL si existe
+          image_url: newPostImageUrl.trim() || null
         })
       });
 
@@ -93,17 +89,14 @@ const Home = () => {
   // Función para eliminar un post
   const handleDeletePost = async (postId) => {
     try {
-      // Obtener el usuario actual
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      console.log("Usuario actual al eliminar post:", currentUser);
-
-      if (!currentUser.id) {
+      // Usar el usuario del hook useAuth
+      if (!user?.id) {
         alert('Debes estar logueado para eliminar posts');
-        console.log("No hay currentUser.id para eliminar:", currentUser);
+        console.log("No hay usuario autenticado para eliminar:", user);
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/api/posts/${postId}?user_id=${currentUser.id}`, {
+      const response = await authenticatedFetch(`http://localhost:3000/posts/${postId}?user_id=${user.id}`, {
         method: "DELETE",
       });
 
@@ -121,14 +114,13 @@ const Home = () => {
 
   // Función para verificar si el post pertenece al usuario actual
   const isMyPost = (post) => {
-    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-    return currentUser.id && (post.user_id === currentUser.id || post.author_name === currentUser.name);
+    return user?.id && (post.user_id === user.id || post.author_name === user.username);
   };
 
   // Función para obtener posts (separada para poder reutilizar)
   const fetchPosts = async () => {
     try {
-      const postsResponse = await fetch("http://localhost:3000/api/posts/");
+      const postsResponse = await fetch("http://localhost:3000/posts/");
       if (postsResponse.ok) {
         const postsData = await postsResponse.json();
         const postsArray = Array.isArray(postsData) ? postsData : postsData.data?.posts || postsData.posts || postsData.data || [];
@@ -161,7 +153,8 @@ const Home = () => {
           console.warn("Events endpoint not available:", eventError);
         }
 
-        // Estadísticas (opcional)
+        // Estadísticas (comentado porque la ruta no existe aún)
+        /* 
         try {
           const statsResponse = await fetch("http://localhost:3000/api/users/me/stats");
           if (statsResponse.ok) {
@@ -178,6 +171,7 @@ const Home = () => {
         } catch (statsError) {
           console.warn("Stats endpoint not available:", statsError);
         }
+        */
 
         setLoading(false);
       } catch (error) {
@@ -252,17 +246,24 @@ const Home = () => {
 
           <div className="create-post">
             <div className="user-avatar">
-              {(() => {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                return user.avatar ?
-                  <img src={user.avatar} alt="Avatar" style={{ width: '40px', height: '40px', borderRadius: '50%' }} /> :
-                  '👤';
-              })()}
+              {user?.avatar ? (
+                <img 
+                  src={user.avatar} 
+                  alt="Avatar" 
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
+                />
+              ) : (
+                '👤'
+              )}
             </div>
             <div className="post-input-container">
               <input
                 type="text"
-                placeholder="¿Qué quieres compartir hoy?"
+                placeholder={
+                  user?.first_name 
+                    ? `¿Qué quieres compartir hoy, ${user.first_name}?`
+                    : "¿Qué quieres compartir hoy?"
+                }
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleCreatePost()}

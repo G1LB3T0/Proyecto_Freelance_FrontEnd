@@ -1,8 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "../styles/App.css";
 
 // Componentes
@@ -15,6 +11,7 @@ import PostsDeProyectos from "./PostsDeProyectos";
 import Calendario from "./Calendario";
 import Finanzas from "./Finanzas";
 import Settings from "./Settings";
+import Statistics from "./Statistics.jsx";
 
 const App = () => {
   return (
@@ -27,6 +24,7 @@ const App = () => {
         <Route path="/calendario" element={<Calendario />} />
         <Route path="/finanzas" element={<Finanzas />} />
         <Route path="/Settings" element={<Settings />} />
+        <Route path="/statistics" element={<Statistics />} />
       </Routes>
     </Router>
   );

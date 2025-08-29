@@ -4,6 +4,7 @@
   --cal-gap: 8px;
   --cal-cell-w: 110px; /* ancho mínimo por columna */
   --cal-cell-w-max: 130px; /* ancho máximo por columna */
+  --header-h: 64px; /* altura del header global para la barra sticky */
 
   width: 100%;
   padding: 2rem;
@@ -49,8 +50,8 @@
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(var(--cal-cell-w), var(--cal-cell-w-max)));
-  justify-content: center;
+  grid-template-columns: repeat(7, minmax(var(--cal-cell-w), 1fr));
+  justify-content: start;
   gap: var(--cal-gap);
   grid-auto-rows: var(--cal-cell-h);
 }
@@ -90,8 +91,8 @@
 
 .calendar-header {
   display: grid;
-  grid-template-columns: repeat(7, minmax(var(--cal-cell-w), var(--cal-cell-w-max)));
-  justify-content: center;
+  grid-template-columns: repeat(7, minmax(var(--cal-cell-w), 1fr));
+  justify-content: start;
   gap: var(--cal-gap);
 }
 
@@ -106,9 +107,9 @@
 
 .calendar-body {
   display: grid;
-  grid-template-columns: repeat(7, minmax(var(--cal-cell-w), var(--cal-cell-w-max)));
+  grid-template-columns: repeat(7, minmax(var(--cal-cell-w), 1fr));
   grid-auto-rows: var(--cal-cell-h);
-  justify-content: center;
+  justify-content: start;
   gap: var(--cal-gap);
   margin-top: 0.5rem;
 }
@@ -161,6 +162,11 @@
   grid-template-columns: 1fr 320px;
   gap: 20px;
   align-items: start;
+}
+
+.content-layout > :first-child {
+  position: relative;
+  z-index: 20; /* eleva la columna del calendario sobre la derecha sin tocar el anuncio */
 }
 
 .formulario-evento {
@@ -232,8 +238,8 @@
 /* ===== Calendar Toolbar ===== */
 .calendar-toolbar {
   position: sticky;
-  top: 0;
-  z-index: 10;
+  top: var(--header-h, 0);
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -270,10 +276,8 @@
 
 /* Popover de meses/año (debajo del label) */
 .month-popover {
-  position: absolute;
-  left: 0;
-  top: calc(100% + 8px);
-  z-index: 1000;
+  position: fixed;
+  z-index: 2000;
   width: min(320px, 92vw);
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -382,7 +386,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* sobre la barra sticky */
+  z-index: 3000; /* sobre todo el layout */
 }
 
 .modal-card {
@@ -500,7 +504,7 @@
   .month-popover { width: 96vw; }
 
   .calendar-body {
-    grid-template-columns: repeat(7, minmax(var(--cal-cell-w), 1fr));
+    grid-template-columns: repeat(7, minmax(var(--cal-cell-w), var(--cal-cell-w-max)));
   }
 
   .calendar-cell {

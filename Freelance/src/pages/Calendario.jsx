@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import Layout from '../Components/Layout.jsx';
 import '../styles/Calendario.css';
 
@@ -20,6 +21,8 @@ const Calendario = () => {
 
   const [vista, setVista] = React.useState('month'); // 'month' | 'week'
   const [anchorDate, setAnchorDate] = React.useState(() => new Date(2025, 8 - 1, 1));
+
+  const [monthPickerPos, setMonthPickerPos] = React.useState({ left: 0, top: 0, width: 0 });
 
   // Helpers para semana
   const startOfWeek = (date) => {
@@ -268,6 +271,36 @@ const Calendario = () => {
     setShowMonthPicker(false);
   };
 
+  // --- Month picker (portal) positioning helpers ---
+  const updateMonthPickerPos = React.useCallback(() => {
+    const btn = periodBtnRef.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const popWidth = Math.min(320, Math.floor(vw * 0.92));
+    const left = Math.min(Math.max(8, rect.left), vw - popWidth - 8);
+    const top = Math.max(8, rect.bottom + 8);
+    setMonthPickerPos({ left, top, width: popWidth });
+  }, []);
+
+  React.useEffect(() => {
+    if (!showMonthPicker) return;
+    updateMonthPickerPos();
+  }, [showMonthPicker, updateMonthPickerPos]);
+
+  React.useEffect(() => {
+    if (!showMonthPicker) return;
+    const onResize = () => updateMonthPickerPos();
+    const onScroll = () => updateMonthPickerPos();
+    window.addEventListener('resize', onResize);
+    // use capture to catch scroll on ancestors too
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScroll, true);
+    };
+  }, [showMonthPicker, updateMonthPickerPos]);
+
   return (
     <Layout 
       currentPage="calendar" 
@@ -275,7 +308,7 @@ const Calendario = () => {
     >
       <div className="content-layout">
 
-        <section className="posts-section">
+        <section className="posts-section" style={{ position: 'relative', zIndex: 20, gridColumn: '1 / -1' }}>
           <div className="calendar-toolbar">
             <div className="ct-left">
               <button type="button" onClick={goToday}>Hoy</button>
@@ -292,15 +325,21 @@ const Calendario = () => {
                 >
                   {periodoLabel} ▾
                 </button>
-                {showMonthPicker && (
+                {showMonthPicker && createPortal(
                   <div
                     ref={monthPickerRef}
                     className="month-popover"
                     style={{
-                      position: 'absolute', left: 0, top: 'calc(100% + 8px)',
-                      zIndex: 1000, background: '#fff', border: '1px solid #e2e8f0',
-                      borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-                      padding: '12px', width: 'min(320px, 92vw)'
+                      position: 'fixed',
+                      left: monthPickerPos.left,
+                      top: monthPickerPos.top,
+                      zIndex: 2000,
+                      background: '#fff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                      padding: '12px',
+                      width: monthPickerPos.width
                     }}
                   >
                     <div className="year-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -333,7 +372,8 @@ const Calendario = () => {
                         );
                       })}
                     </div>
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
             </div>
@@ -350,14 +390,14 @@ const Calendario = () => {
             </div>
           </div>
           <div className="section-header"></div>
-          {showModal && (
+          {showModal && createPortal(
             <div
               className="modal-backdrop"
               onClick={() => setShowModal(false)}
               style={{
                 position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                zIndex: 1000
+                zIndex: 3000
               }}
             >
               <div
@@ -416,10 +456,11 @@ const Calendario = () => {
                   </div>
                 </form>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
           
-          <div className="calendar-container">
+          <div className="calendar-container" style={{ '--header-h': '64px' }}>
             <div className="calendar-grid">
               {diasSemana.map((dia, idx) => (
                 <div key={idx} className="day-name">{dia}</div>
@@ -468,7 +509,7 @@ const Calendario = () => {
                                   display: 'flex',
                                   gap: '4px',
                                   boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-                                  zIndex: 10
+                                  zIndex: 1500
                                 }}
                               >
                                 <button
@@ -547,7 +588,7 @@ const Calendario = () => {
                                   display: 'flex',
                                   gap: '4px',
                                   boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-                                  zIndex: 10
+                                  zIndex: 1500
                                 }}
                               >
                                 <button
@@ -593,7 +634,7 @@ const Calendario = () => {
             <p>Accede a un calendario completo y gestiona tus tareas fácilmente.</p>
             <button className="upgrade-btn">Descubrir más</button>
           </div>
-          
+
           <div className="widget trending-topics">
             <h3>Eventos Recientes</h3>
             <ul className="topics-list">

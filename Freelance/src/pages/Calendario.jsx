@@ -22,6 +22,16 @@ const Calendario = () => {
   const RAIL_W = 340; // ancho del right-rail fijo (siempre visible)
   const [railTop, setRailTop] = React.useState(140);
 
+  const [isNarrow, setIsNarrow] = React.useState(false);
+
+  // Breakpoint listener for responsiveness
+  React.useEffect(() => {
+    const onResize = () => setIsNarrow(window.innerWidth < 1200); // single column under 1200px
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const [vista, setVista] = React.useState('month'); // 'month' | 'week'
   const [anchorDate, setAnchorDate] = React.useState(() => new Date(2025, 8 - 1, 1));
 
@@ -333,89 +343,153 @@ const Calendario = () => {
       currentPage="calendar" 
       searchPlaceholder="Buscar eventos..."
     >
-      <div className="content-layout content-layout--with-rail" style={{ display: 'grid', gridTemplateColumns: `1fr ${RAIL_W}px`, gap: '24px', alignItems: 'start' }}>
+      <div className="content-layout content-layout--with-rail" style={{ display: 'grid', gridTemplateColumns: isNarrow ? '1fr' : `1fr ${RAIL_W}px`, gap: '24px', alignItems: 'start' }}>
 
-        <section className="posts-section" style={{ position: 'relative', minWidth: 0 }}>
-          <div className="calendar-toolbar" ref={toolbarRef} style={{ zIndex: 600, background: '#f8fafc' }}>
+        <div
+          className="calendar-toolbar-row"
+          style={{
+            gridColumn: '1 / -1',
+            background: '#f8fafc',
+            position: 'relative',
+            /* Full-bleed row so it spans the entire viewport width (like the top bar) */
+            marginLeft: 'calc(-50vw + 50%)',
+            marginRight: 'calc(-50vw + 50%)',
+            paddingLeft: 'calc(50vw - 50%)',
+            paddingRight: 'calc(50vw - 50%)'
+          }}
+        >
+          <div className="calendar-toolbar" ref={toolbarRef} style={{ zIndex: 600, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: isNarrow ? 'wrap' : 'nowrap', gap: isNarrow ? '8px' : '16px' }}>
             <div className="ct-left">
               <button type="button" onClick={goToday}>Hoy</button>
-              <button type="button" onClick={handlePrev} title="Anterior">◀</button>
-              <button type="button" onClick={handleNext} title="Siguiente">▶</button>
-              <div className="period-picker" style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  className="period-label"
-                  onClick={toggleMonthPicker}
-                  aria-haspopup="dialog"
-                  aria-expanded={showMonthPicker}
-                  ref={periodBtnRef}
-                >
-                  {periodoLabel} ▾
+              <div className="period-nav" style={{ display: 'flex', alignItems: 'center', gap: isNarrow ? '6px' : '8px' }}>
+                <button type="button" onClick={handlePrev} title="Anterior" aria-label="Anterior">
+                  <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" style={{ display: 'block' }}>
+                    <path d="M15 6l-6 6 6 6z" fill="currentColor" />
+                  </svg>
                 </button>
-                {showMonthPicker && createPortal(
-                  <div
-                    ref={monthPickerRef}
-                    className="month-popover"
-                    style={{
-                      position: 'fixed',
-                      left: monthPickerPos.left,
-                      top: monthPickerPos.top,
-                      zIndex: 2600,
-                      background: '#fff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-                      padding: '12px',
-                      width: monthPickerPos.width
-                    }}
+
+                <div className="period-picker" style={{ position: 'relative' }}>
+                  <button
+                    type="button"
+                    className="period-label"
+                    onClick={toggleMonthPicker}
+                    aria-haspopup="dialog"
+                    aria-expanded={showMonthPicker}
+                    ref={periodBtnRef}
                   >
-                    <div className="year-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <button type="button" onClick={prevYear}>◀</button>
-                      <strong>{yearPicker}</strong>
-                      <button type="button" onClick={nextYear}>▶</button>
-                    </div>
-                    <div className="months-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                      {MESES.map((m, idx) => {
-                        const isSelected = vista === 'month'
-                          ? (mesVisualizando - 1 === idx && yearPicker === nuevoEvento.year)
-                          : (anchorDate.getMonth() === idx && yearPicker === anchorDate.getFullYear());
-                        return (
-                          <button
-                            key={m}
-                            type="button"
-                            onClick={() => selectMonth(idx)}
-                            style={{
-                              padding: '8px',
-                              borderRadius: '10px',
-                              border: '1px solid #cbd5e1',
-                              background: isSelected ? '#0284c7' : '#fff',
-                              color: isSelected ? '#fff' : '#334155',
-                              cursor: 'pointer'
-                            }}
-                            aria-pressed={isSelected}
-                          >
-                            {m[0].toUpperCase() + m.slice(1, 3)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>,
-                  document.body
-                )}
+                    {periodoLabel} ▾
+                  </button>
+                  {showMonthPicker && createPortal(
+                    <div
+                      ref={monthPickerRef}
+                      className="month-popover"
+                      style={{
+                        position: 'fixed',
+                        left: monthPickerPos.left,
+                        top: monthPickerPos.top,
+                        zIndex: 2600,
+                        background: '#fff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                        padding: '12px',
+                        width: monthPickerPos.width
+                      }}
+                    >
+                      <div className="year-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <button type="button" onClick={prevYear}>◀</button>
+                        <strong>{yearPicker}</strong>
+                        <button type="button" onClick={nextYear}>▶</button>
+                      </div>
+                      <div className="months-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                        {MESES.map((m, idx) => {
+                          const isSelected = vista === 'month'
+                            ? (mesVisualizando - 1 === idx && yearPicker === nuevoEvento.year)
+                            : (anchorDate.getMonth() === idx && yearPicker === anchorDate.getFullYear());
+                          return (
+                            <button
+                              key={m}
+                              type="button"
+                              onClick={() => selectMonth(idx)}
+                              style={{
+                                padding: '8px',
+                                borderRadius: '10px',
+                                border: '1px solid #cbd5e1',
+                                background: isSelected ? '#0284c7' : '#fff',
+                                color: isSelected ? '#fff' : '#334155',
+                                cursor: 'pointer'
+                              }}
+                              aria-pressed={isSelected}
+                            >
+                              {m[0].toUpperCase() + m.slice(1, 3)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>,
+                    document.body
+                  )}
+                </div>
+
+                <button type="button" onClick={handleNext} title="Siguiente" aria-label="Siguiente">
+                  <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" style={{ display: 'block' }}>
+                    <path d="M9 6l6 6-6 6z" fill="currentColor" />
+                  </svg>
+                </button>
               </div>
             </div>
-            <div className="ct-right">
-              <div className="view-toggle">
-                <button type="button" onClick={() => setVista('month')} disabled={vista === 'month'}>
+            <div
+              className="ct-right"
+              style={{ display: 'flex', alignItems: 'center', gap: isNarrow ? '8px' : '12px', flexWrap: isNarrow ? 'wrap' : 'nowrap', justifyContent: isNarrow ? 'flex-start' : 'flex-end' }}
+            >
+              <div
+                className="view-switch"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  border: '1px solid #dbe2ea',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 12px rgba(2, 8, 23, 0.06)'
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setVista('month')}
+                  aria-pressed={vista === 'month'}
+                  style={{
+                    padding: isNarrow ? '8px 14px' : '10px 18px',
+                    border: 'none',
+                    background: vista === 'month' ? '#1e3a8a' : '#fff',
+                    color: vista === 'month' ? '#fff' : '#334155',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
                   Mes
                 </button>
-                <button type="button" onClick={() => setVista('week')} disabled={vista === 'week'}>
+                <button
+                  type="button"
+                  onClick={() => setVista('week')}
+                  aria-pressed={vista === 'week'}
+                  style={{
+                    padding: isNarrow ? '8px 14px' : '10px 18px',
+                    border: 'none',
+                    background: vista === 'week' ? '#1e3a8a' : '#fff',
+                    color: vista === 'week' ? '#fff' : '#334155',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
                   Semana
                 </button>
               </div>
               <button type="button" className="add-event-btn" onClick={handleNewEvent}>Agregar evento</button>
             </div>
           </div>
+        </div>
+
+        <section className="posts-section" style={{ position: 'relative', minWidth: 0 }}>
           <div className="section-header" style={{ position: 'static', zIndex: 'auto', pointerEvents: 'none' }}></div>
           {showModal && createPortal(
             <div
@@ -450,6 +524,15 @@ const Calendario = () => {
                     placeholder="Título"
                     value={nuevoEvento.title}
                     onChange={(e) => setNuevoEvento({ ...nuevoEvento, title: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: '10px',
+                      background: '#ffffff',
+                      color: '#0f172a',
+                      outline: 'none'
+                    }}
                   />
                   <input
                     type="number"
@@ -458,10 +541,28 @@ const Calendario = () => {
                     max="31"
                     value={nuevoEvento.day}
                     onChange={(e) => setNuevoEvento({ ...nuevoEvento, day: parseInt(e.target.value) || '' })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: '10px',
+                      background: '#ffffff',
+                      color: '#0f172a',
+                      outline: 'none'
+                    }}
                   />
                   <select
                     value={nuevoEvento.month}
                     onChange={(e) => setNuevoEvento({ ...nuevoEvento, month: parseInt(e.target.value) })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: '10px',
+                      background: '#ffffff',
+                      color: '#0f172a',
+                      outline: 'none'
+                    }}
                   >
                     <option value="">Selecciona mes</option>
                     <option value="1">Enero</option>
@@ -478,8 +579,36 @@ const Calendario = () => {
                     <option value="12">Diciembre</option>
                   </select>
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
-                    <button type="button" onClick={() => setShowModal(false)}>Cancelar</button>
-                    <button type="submit">{eventoEditando ? 'Actualizar' : 'Guardar'}</button>
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        background: '#f1f5f9',
+                        border: '1px solid #e2e8f0',
+                        color: '#334155',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: '10px',
+                        background: '#1e3a8a',
+                        border: 'none',
+                        color: '#ffffff',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        boxShadow: '0 6px 14px rgba(30, 58, 138, 0.25)'
+                      }}
+                    >
+                      {eventoEditando ? 'Actualizar' : 'Guardar'}
+                    </button>
                   </div>
                 </form>
               </div>
@@ -488,10 +617,27 @@ const Calendario = () => {
           )}
           
           <div className="calendar-container" style={{ '--header-h': '64px' }}>
-            <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', width: '100%' }}>
+            <div
+              className="calendar-head"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+                width: '100%',
+                alignItems: 'center'
+              }}
+            >
               {diasSemana.map((dia, idx) => (
-                <div key={idx} className="day-name">{dia}</div>
+                <div
+                  key={idx}
+                  className="day-name"
+                  style={{ padding: '8px 0', height: 'auto', lineHeight: '1.2' }}
+                >
+                  {dia}
+                </div>
               ))}
+            </div>
+
+            <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', width: '100%' }}>
               {vista === 'month'
                 ? (
                   diasMes.map(dia => {
@@ -512,7 +658,7 @@ const Calendario = () => {
                       <div
                         key={`m-${dia}`}
                         className={clases.join(' ')}
-                        style={{ position: 'relative', minWidth: 0 }}
+                        style={{ position: 'relative', minWidth: 0, overflow: 'visible' }}
                         onClick={() => setDiaActivo(prev => (prev === dayKey(dia) ? null : dayKey(dia)))}
                       >
                         <div>{dia}</div>
@@ -528,15 +674,16 @@ const Calendario = () => {
                                 className="evento-actions-overlay"
                                 style={{
                                   position: 'absolute',
-                                  top: 0,
-                                  right: 0,
-                                  background: 'rgba(255,255,255,0.95)',
-                                  borderRadius: '4px',
-                                  padding: '2px 4px',
+                                  top: -8,
+                                  right: -8,
+                                  background: 'rgba(255,255,255,0.98)',
+                                  borderRadius: '8px',
+                                  padding: '6px 8px',
                                   display: 'flex',
-                                  gap: '4px',
-                                  boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-                                  zIndex: 2600
+                                  gap: '8px',
+                                  boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
+                                  zIndex: 3000,
+                                  pointerEvents: 'auto'
                                 }}
                               >
                                 <button
@@ -549,6 +696,7 @@ const Calendario = () => {
                                       month: Number(evento.month),
                                       year: Number(evento.year)
                                     });
+                                    setShowModal(true);
                                   }}
                                   title="Editar"
                                 >
@@ -591,7 +739,7 @@ const Calendario = () => {
                       <div
                         key={`w-${key}`}
                         className={clases.join(' ')}
-                        style={{ position: 'relative', minWidth: 0 }}
+                        style={{ position: 'relative', minWidth: 0, overflow: 'visible' }}
                         onClick={() => setDiaActivo(prev => (prev === key ? null : key))}
                       >
                         <div>{day}</div>
@@ -607,15 +755,16 @@ const Calendario = () => {
                                 className="evento-actions-overlay"
                                 style={{
                                   position: 'absolute',
-                                  top: 0,
-                                  right: 0,
-                                  background: 'rgba(255,255,255,0.95)',
-                                  borderRadius: '4px',
-                                  padding: '2px 4px',
+                                  top: -8,
+                                  right: -8,
+                                  background: 'rgba(255,255,255,0.98)',
+                                  borderRadius: '8px',
+                                  padding: '6px 8px',
                                   display: 'flex',
-                                  gap: '4px',
-                                  boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-                                  zIndex: 2600
+                                  gap: '8px',
+                                  boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
+                                  zIndex: 3000,
+                                  pointerEvents: 'auto'
                                 }}
                               >
                                 <button
@@ -628,6 +777,7 @@ const Calendario = () => {
                                       month: Number(evento.month),
                                       year: Number(evento.year)
                                     });
+                                    setShowModal(true);
                                   }}
                                   title="Editar"
                                 >
@@ -657,11 +807,11 @@ const Calendario = () => {
         <aside
           className="right-rail"
           style={{
-            position: 'sticky',
-            top: railTop,
+            position: isNarrow ? 'static' : 'sticky',
+            top: isNarrow ? undefined : 16,
             width: '100%',
-            maxHeight: 'calc(100vh - 24px)',
-            overflow: 'auto'
+            maxHeight: isNarrow ? 'none' : 'calc(100vh - 24px)',
+            overflow: isNarrow ? 'visible' : 'auto'
           }}
         >
           <div className="widget premium-ad">
@@ -671,7 +821,7 @@ const Calendario = () => {
             <button className="upgrade-btn">Descubrir más</button>
           </div>
 
-          <div className="widget trending-topics">
+          <div className="widget trending-topics" style={{ marginTop: 16 }}>
             <h3>Eventos Recientes</h3>
             <ul className="topics-list">
               {(() => {

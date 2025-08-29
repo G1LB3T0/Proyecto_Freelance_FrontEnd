@@ -18,6 +18,9 @@ const Calendario = () => {
   const periodBtnRef = React.useRef(null);
   const formRef = React.useRef(null);
   const titleInputRef = React.useRef(null);
+  const toolbarRef = React.useRef(null);
+  const RAIL_W = 340; // ancho del right-rail fijo (siempre visible)
+  const [railTop, setRailTop] = React.useState(140);
 
   const [vista, setVista] = React.useState('month'); // 'month' | 'week'
   const [anchorDate, setAnchorDate] = React.useState(() => new Date(2025, 8 - 1, 1));
@@ -301,6 +304,30 @@ const Calendario = () => {
     };
   }, [showMonthPicker, updateMonthPickerPos]);
 
+  // --- Right rail (anuncio + recientes) fijo, fuera del flujo ---
+  const updateRailTop = React.useCallback(() => {
+    const tb = toolbarRef.current;
+    if (!tb) return;
+    const rect = tb.getBoundingClientRect();
+    const top = Math.max(64, rect.bottom + 8); // debajo del header y de la toolbar
+    setRailTop(top);
+  }, []);
+
+  React.useEffect(() => {
+    updateRailTop();
+  }, [updateRailTop, vista, mesVisualizando]);
+
+  React.useEffect(() => {
+    const onResize = () => updateRailTop();
+    const onScroll = () => updateRailTop();
+    window.addEventListener('resize', onResize);
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScroll, true);
+    };
+  }, [updateRailTop]);
+
   return (
     <Layout 
       currentPage="calendar" 
@@ -308,8 +335,8 @@ const Calendario = () => {
     >
       <div className="content-layout">
 
-        <section className="posts-section" style={{ position: 'relative', zIndex: 20, gridColumn: '1 / -1' }}>
-          <div className="calendar-toolbar">
+        <section className="posts-section" style={{ position: 'relative', zIndex: 20, gridColumn: '1 / -1', paddingRight: `${RAIL_W + 32}px` }}>
+          <div className="calendar-toolbar" ref={toolbarRef}>
             <div className="ct-left">
               <button type="button" onClick={goToday}>Hoy</button>
               <button type="button" onClick={handlePrev} title="Anterior">◀</button>
@@ -627,7 +654,21 @@ const Calendario = () => {
           </div>
         </section>
 
-        <section className="right-sidebar">
+      
+      </div>
+      {createPortal(
+        <aside
+          className="right-rail"
+          style={{
+            position: 'fixed',
+            right: 24,
+            top: railTop,
+            width: RAIL_W,
+            zIndex: 1100,
+            maxHeight: `calc(100vh - ${railTop + 24}px)`,
+            overflow: 'auto'
+          }}
+        >
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
             <h3>Mejora tu organización</h3>
@@ -652,8 +693,9 @@ const Calendario = () => {
               })()}
             </ul>
           </div>
-        </section>
-      </div>
+        </aside>,
+        document.body
+      )}
     </Layout>
   );
 };

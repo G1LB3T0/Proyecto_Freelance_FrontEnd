@@ -333,10 +333,10 @@ const Calendario = () => {
       currentPage="calendar" 
       searchPlaceholder="Buscar eventos..."
     >
-      <div className="content-layout">
+      <div className="content-layout content-layout--with-rail" style={{ display: 'grid', gridTemplateColumns: `1fr ${RAIL_W}px`, gap: '24px', alignItems: 'start' }}>
 
-        <section className="posts-section" style={{ position: 'relative', zIndex: 20, gridColumn: '1 / -1', paddingRight: `${RAIL_W + 32}px` }}>
-          <div className="calendar-toolbar" ref={toolbarRef}>
+        <section className="posts-section" style={{ position: 'relative', minWidth: 0 }}>
+          <div className="calendar-toolbar" ref={toolbarRef} style={{ zIndex: 600, background: '#f8fafc' }}>
             <div className="ct-left">
               <button type="button" onClick={goToday}>Hoy</button>
               <button type="button" onClick={handlePrev} title="Anterior">◀</button>
@@ -360,7 +360,7 @@ const Calendario = () => {
                       position: 'fixed',
                       left: monthPickerPos.left,
                       top: monthPickerPos.top,
-                      zIndex: 2000,
+                      zIndex: 2600,
                       background: '#fff',
                       border: '1px solid #e2e8f0',
                       borderRadius: '12px',
@@ -416,7 +416,7 @@ const Calendario = () => {
               <button type="button" className="add-event-btn" onClick={handleNewEvent}>Agregar evento</button>
             </div>
           </div>
-          <div className="section-header"></div>
+          <div className="section-header" style={{ position: 'static', zIndex: 'auto', pointerEvents: 'none' }}></div>
           {showModal && createPortal(
             <div
               className="modal-backdrop"
@@ -488,7 +488,7 @@ const Calendario = () => {
           )}
           
           <div className="calendar-container" style={{ '--header-h': '64px' }}>
-            <div className="calendar-grid">
+            <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', width: '100%' }}>
               {diasSemana.map((dia, idx) => (
                 <div key={idx} className="day-name">{dia}</div>
               ))}
@@ -512,7 +512,7 @@ const Calendario = () => {
                       <div
                         key={`m-${dia}`}
                         className={clases.join(' ')}
-                        style={{ position: 'relative' }}
+                        style={{ position: 'relative', minWidth: 0 }}
                         onClick={() => setDiaActivo(prev => (prev === dayKey(dia) ? null : dayKey(dia)))}
                       >
                         <div>{dia}</div>
@@ -536,7 +536,7 @@ const Calendario = () => {
                                   display: 'flex',
                                   gap: '4px',
                                   boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-                                  zIndex: 1500
+                                  zIndex: 2600
                                 }}
                               >
                                 <button
@@ -591,7 +591,7 @@ const Calendario = () => {
                       <div
                         key={`w-${key}`}
                         className={clases.join(' ')}
-                        style={{ position: 'relative' }}
+                        style={{ position: 'relative', minWidth: 0 }}
                         onClick={() => setDiaActivo(prev => (prev === key ? null : key))}
                       >
                         <div>{day}</div>
@@ -615,7 +615,7 @@ const Calendario = () => {
                                   display: 'flex',
                                   gap: '4px',
                                   boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-                                  zIndex: 1500
+                                  zIndex: 2600
                                 }}
                               >
                                 <button
@@ -654,18 +654,13 @@ const Calendario = () => {
           </div>
         </section>
 
-      
-      </div>
-      {createPortal(
         <aside
           className="right-rail"
           style={{
-            position: 'fixed',
-            right: 24,
+            position: 'sticky',
             top: railTop,
-            width: RAIL_W,
-            zIndex: 1100,
-            maxHeight: `calc(100vh - ${railTop + 24}px)`,
+            width: '100%',
+            maxHeight: 'calc(100vh - 24px)',
             overflow: 'auto'
           }}
         >
@@ -693,9 +688,8 @@ const Calendario = () => {
               })()}
             </ul>
           </div>
-        </aside>,
-        document.body
-      )}
+        </aside>
+      </div>
     </Layout>
   );
 };

@@ -20,6 +20,7 @@ const Calendario = () => {
   const titleInputRef = React.useRef(null);
   const toolbarRef = React.useRef(null);
   const RAIL_W = 340; // ancho del right-rail fijo (siempre visible)
+  const CELL_H = 132; // altura consistente de cada celda del calendario (mes y semana)
   const [railTop, setRailTop] = React.useState(140);
 
   const [isNarrow, setIsNarrow] = React.useState(false);
@@ -350,15 +351,10 @@ const Calendario = () => {
           style={{
             gridColumn: '1 / -1',
             background: '#f8fafc',
-            position: 'relative',
-            /* Full-bleed row so it spans the entire viewport width (like the top bar) */
-            marginLeft: 'calc(-50vw + 50%)',
-            marginRight: 'calc(-50vw + 50%)',
-            paddingLeft: 'calc(50vw - 50%)',
-            paddingRight: 'calc(50vw - 50%)'
+            width: '100%'
           }}
         >
-          <div className="calendar-toolbar" ref={toolbarRef} style={{ zIndex: 600, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: isNarrow ? 'wrap' : 'nowrap', gap: isNarrow ? '8px' : '16px' }}>
+          <div className="calendar-toolbar" ref={toolbarRef} style={{ zIndex: 600, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: isNarrow ? 'wrap' : 'nowrap', gap: isNarrow ? '8px' : '16px', width: '100%' }}>
             <div className="ct-left">
               <button type="button" onClick={goToday}>Hoy</button>
               <div className="period-nav" style={{ display: 'flex', alignItems: 'center', gap: isNarrow ? '6px' : '8px' }}>
@@ -637,7 +633,7 @@ const Calendario = () => {
               ))}
             </div>
 
-            <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', width: '100%' }}>
+            <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gridAutoRows: `${CELL_H}px`, width: '100%' }}>
               {vista === 'month'
                 ? (
                   diasMes.map(dia => {

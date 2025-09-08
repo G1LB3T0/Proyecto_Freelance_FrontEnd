@@ -419,7 +419,9 @@ const Home = () => {
             <div className="ad-badge">Premium</div>
             <h3>Potencia tu Carrera Freelance</h3>
             <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
-            <button className="upgrade-btn">Conocer más</button>
+            <Link to="/premium">
+              <button className="upgrade-btn">Conocer más</button>
+            </Link>
           </div>
           <div className="widget suggested-contacts">
             <h3>Personas que quizás conozcas</h3>

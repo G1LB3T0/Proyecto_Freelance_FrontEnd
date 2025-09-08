@@ -11,6 +11,9 @@ const PostsDeProyectos = () => {
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAllActivity, setShowAllActivity] = useState(false);
+  const [showAllDeadlines, setShowAllDeadlines] = useState(false);
+  const [loadingMoreProjects, setLoadingMoreProjects] = useState(false);
 
   // Todas las funciones de API se mantienen igual...
   const fetchProjectById = async (projectId) => {
@@ -102,6 +105,25 @@ const PostsDeProyectos = () => {
     console.log('➕ Creando nuevo proyecto');
     setShowCreateModal(true);
     alert('Crear nuevo proyecto\n(Modal de creación pendiente)');
+  };
+
+  // Funciones para manejar los botones
+  const handleLoadMoreProjects = () => {
+    setLoadingMoreProjects(true);
+    // Simular carga de más proyectos
+    setTimeout(() => {
+      // Aquí podrías cargar más proyectos desde la API
+      console.log('Cargando más proyectos...');
+      setLoadingMoreProjects(false);
+    }, 1000);
+  };
+
+  const handleShowAllActivity = () => {
+    setShowAllActivity(!showAllActivity);
+  };
+
+  const handleShowAllDeadlines = () => {
+    setShowAllDeadlines(!showAllDeadlines);
   };
 
   const getApiUrl = () => {
@@ -334,9 +356,9 @@ const PostsDeProyectos = () => {
       currentPage="projects"
       searchPlaceholder="Buscar proyectos, clientes o tecnologías..."
     >
-  <div className="posts-grid">
+      <div className="posts-grid">
         {/* Sidebar Izquierdo */}
-  <section className="sidebar-left">
+        <section className="sidebar-left">
           <div className="widget profile-stats">
             <h3>Resumen de Proyectos</h3>
             <div className="stats-container">
@@ -370,13 +392,27 @@ const PostsDeProyectos = () => {
                 <div className="event-date">Hace 2 semanas</div>
                 <div className="event-title">Nuevo proyecto iniciado</div>
               </li>
+              {showAllActivity && (
+                <>
+                  <li className="event-item">
+                    <div className="event-date">Hace 3 semanas</div>
+                    <div className="event-title">Cliente aprobó propuesta</div>
+                  </li>
+                  <li className="event-item">
+                    <div className="event-date">Hace 1 mes</div>
+                    <div className="event-title">Reunión de seguimiento</div>
+                  </li>
+                </>
+              )}
             </ul>
-            <button className="see-all-btn">Ver Todos</button>
+            <button className="see-all-btn" onClick={handleShowAllActivity}>
+              {showAllActivity ? "Ver menos" : "Ver Todos"}
+            </button>
           </div>
         </section>
 
         {/* Sección Principal */}
-  <section className="feed">
+        <section className="feed">
           <div className="section-header">
             <h2>
               Mis Proyectos
@@ -539,7 +575,13 @@ const PostsDeProyectos = () => {
             </div>
           )}
 
-          <button className="load-more-btn">Ver más proyectos</button>
+          <button
+            className="load-more-btn"
+            onClick={handleLoadMoreProjects}
+            disabled={loadingMoreProjects}
+          >
+            {loadingMoreProjects ? "Cargando..." : "Ver más proyectos"}
+          </button>
         </section>
 
         {/* Sidebar Derecho */}
@@ -548,7 +590,9 @@ const PostsDeProyectos = () => {
             <div className="ad-badge">Premium</div>
             <h3>Potencia tu Carrera Freelance</h3>
             <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
-            <button className="upgrade-btn">Conocer más</button>
+            <Link to="/premium">
+              <button className="upgrade-btn">Conocer más</button>
+            </Link>
           </div>
 
           <div className="widget trending-topics">
@@ -589,8 +633,30 @@ const PostsDeProyectos = () => {
                 </div>
                 <button className="connect-btn">✅</button>
               </div>
+              {showAllDeadlines && (
+                <>
+                  <div className="contact-item">
+                    <div className="contact-avatar">🛍️</div>
+                    <div className="contact-info">
+                      <div className="contact-name">E-commerce Artesanías</div>
+                      <div className="contact-role">En 6 semanas</div>
+                    </div>
+                    <button className="connect-btn">📅</button>
+                  </div>
+                  <div className="contact-item">
+                    <div className="contact-avatar">👥</div>
+                    <div className="contact-info">
+                      <div className="contact-name">Sistema CRM</div>
+                      <div className="contact-role">En 2 meses</div>
+                    </div>
+                    <button className="connect-btn">✅</button>
+                  </div>
+                </>
+              )}
             </div>
-            <button className="see-all-btn">Ver más</button>
+            <button className="see-all-btn" onClick={handleShowAllDeadlines}>
+              {showAllDeadlines ? "Ver menos" : "Ver más"}
+            </button>
           </div>
         </section>
       </div>

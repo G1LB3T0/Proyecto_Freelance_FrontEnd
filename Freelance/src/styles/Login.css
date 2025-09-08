@@ -1,0 +1,20 @@
+/* Mensaje de login */
+.message {
+    margin-top: 16px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #e6f9ec;
+    color: #218838;
+    border: 1px solid #218838;
+}
+
+.message.error {
+    background-color: #fdeaea;
+    color: #c82333;
+    border: 1px solid #c82333;
+}

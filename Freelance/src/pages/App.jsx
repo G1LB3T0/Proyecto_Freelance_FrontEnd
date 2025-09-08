@@ -12,6 +12,7 @@ import Calendario from "./Calendario";
 import Finanzas from "./Finanzas";
 import Settings from "./Settings";
 import Statistics from "./Statistics.jsx";
+import Premium from "./Premium.jsx";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/finanzas" element={<Finanzas />} />
         <Route path="/Settings" element={<Settings />} />
         <Route path="/estadisticas" element={<Statistics />} />
+        <Route path="/premium" element={<Premium />} />
       </Routes>
     </Router>
   );

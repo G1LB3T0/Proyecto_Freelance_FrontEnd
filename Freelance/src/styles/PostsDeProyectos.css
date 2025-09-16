@@ -1,4 +1,5 @@
-v/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
+v
+/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
 
 /* ==========================
    VARIABLES (Heredadas)
@@ -22,7 +23,8 @@ v/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
 ========================== */
 .posts-grid {
   display: grid;
-  grid-template-columns: 1fr 2.5fr 1fr; /* Izquierda, Centro, Derecha */
+  grid-template-columns: 1fr 2.5fr 1fr;
+  /* Izquierda, Centro, Derecha */
   gap: 20px;
   padding: 20px;
   width: 100%;
@@ -48,15 +50,18 @@ v/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
 }
 
 .profile-stats .stat-item:nth-child(1) .stat-value {
-  color: var(--color-success); /* Completados en verde */
+  color: var(--color-success);
+  /* Completados en verde */
 }
 
 .profile-stats .stat-item:nth-child(2) .stat-value {
-  color: var(--color-accent); /* En progreso en azul */
+  color: var(--color-accent);
+  /* En progreso en azul */
 }
 
 .profile-stats .stat-item:nth-child(3) .stat-value {
-  color: var(--color-primary); /* Total en azul oscuro */
+  color: var(--color-primary);
+  /* Total en azul oscuro */
 }
 
 /* Lista de eventos/actividad */
@@ -676,35 +681,35 @@ v/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
     gap: 12px;
     padding: 12px;
   }
-  
+
   .sidebar-left,
   .right-sidebar {
     min-width: 200px;
   }
-  
+
   .widget {
     padding: 16px;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .filters {
     gap: 8px;
   }
-  
+
   .filters span {
     font-size: 0.8rem;
     padding: 5px 10px;
   }
-  
+
   .project-technologies {
     gap: 4px;
   }
-  
+
   .tech-tag,
   .tech-more {
     font-size: 0.75rem;
@@ -719,72 +724,72 @@ v/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
     gap: 10px;
     padding: 10px;
   }
-  
+
   .sidebar-left,
   .right-sidebar {
     min-width: 160px;
   }
-  
+
   .widget {
     padding: 12px;
   }
-  
+
   .widget h3 {
     font-size: 0.95rem;
     margin-bottom: 10px;
   }
-  
+
   .stat-item {
     padding: 10px;
   }
-  
+
   .stat-value {
     font-size: 1.3rem;
   }
-  
+
   .stat-label {
     font-size: 0.8rem;
   }
-  
+
   .event-item {
     padding: 8px 0;
   }
-  
+
   .event-title {
     font-size: 0.85rem;
   }
-  
+
   .event-date {
     font-size: 0.75rem;
   }
-  
+
   .create-post {
     padding: 12px;
   }
-  
+
   .project-card-content {
     padding: 16px;
   }
-  
+
   .post-actions {
     gap: 12px;
   }
-  
+
   .action {
     padding: 4px 8px;
     font-size: 0.8rem;
   }
-  
+
   .contact-suggestions .contact-avatar {
     width: 28px;
     height: 28px;
     font-size: 1rem;
   }
-  
+
   .contact-suggestions .contact-name {
     font-size: 0.85rem;
   }
-  
+
   .contact-suggestions .contact-role {
     font-size: 0.75rem;
   }
@@ -797,88 +802,88 @@ v/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
     gap: 8px;
     padding: 8px;
   }
-  
+
   .sidebar-left,
   .right-sidebar {
     min-width: 120px;
   }
-  
+
   .widget {
     padding: 10px;
   }
-  
+
   .widget h3 {
     font-size: 0.9rem;
     margin-bottom: 8px;
   }
-  
+
   .stat-item {
     padding: 8px;
   }
-  
+
   .stat-value {
     font-size: 1.2rem;
   }
-  
+
   .stat-label {
     font-size: 0.75rem;
   }
-  
+
   .section-header h2 {
     font-size: 1.2rem;
   }
-  
+
   .filters span {
     font-size: 0.75rem;
     padding: 4px 8px;
   }
-  
+
   .create-post {
     padding: 10px;
   }
-  
+
   .project-card-content {
     padding: 14px;
   }
-  
+
   .author-name {
     font-size: 0.9rem;
   }
-  
+
   .post-time {
     font-size: 0.8rem;
   }
-  
+
   .post-content p {
     font-size: 0.9rem;
   }
-  
+
   .project-technologies {
     gap: 3px;
   }
-  
+
   .tech-tag,
   .tech-more {
     font-size: 0.7rem;
     padding: 2px 6px;
   }
-  
+
   .progress-label,
   .progress-percentage {
     font-size: 0.8rem;
   }
-  
+
   .action {
     padding: 4px 6px;
     font-size: 0.75rem;
   }
-  
+
   .contact-suggestions .contact-avatar {
     width: 24px;
     height: 24px;
     font-size: 0.9rem;
   }
-  
+
   .contact-suggestions .connect-btn {
     width: 24px;
     height: 24px;
@@ -892,120 +897,122 @@ v/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
     gap: 6px;
     padding: 6px;
   }
-  
+
   .sidebar-left,
   .right-sidebar {
     min-width: 90px;
   }
-  
+
   .widget {
     padding: 8px;
   }
-  
+
   .widget h3 {
     font-size: 0.8rem;
     margin-bottom: 6px;
     text-align: center;
   }
-  
+
   .stat-item {
     padding: 6px;
   }
-  
+
   .stat-value {
     font-size: 1rem;
   }
-  
+
   .stat-label {
     font-size: 0.7rem;
   }
-  
+
   .event-title {
     font-size: 0.8rem;
   }
-  
+
   .event-date {
     font-size: 0.7rem;
   }
-  
+
   .section-header h2 {
     font-size: 1.1rem;
   }
-  
+
   .section-header h2 small {
     font-size: 0.75rem;
   }
-  
+
   .filters {
     gap: 4px;
   }
-  
+
   .filters span {
     font-size: 0.7rem;
     padding: 3px 6px;
   }
-  
+
   .create-post {
     flex-direction: column;
     gap: 8px;
     padding: 8px;
   }
-  
+
   .create-post input {
     width: 100%;
   }
-  
+
   .post-btn {
     width: 100%;
     align-self: stretch;
   }
-  
+
   .project-card-content {
     padding: 12px;
   }
-  
+
   .post-actions {
     justify-content: space-between;
     gap: 8px;
   }
-  
+
   .action-label {
-    display: none; /* Solo mostrar iconos */
+    display: none;
+    /* Solo mostrar iconos */
   }
-  
+
   .contact-suggestions .contact-info {
-    display: none; /* Solo mostrar avatares y botones */
+    display: none;
+    /* Solo mostrar avatares y botones */
   }
-  
+
   .contact-suggestions .contact-item {
     justify-content: space-between;
     padding: 6px 0;
   }
-  
+
   .contact-suggestions .contact-avatar {
     width: 20px;
     height: 20px;
     font-size: 0.8rem;
   }
-  
+
   .contact-suggestions .connect-btn {
     width: 20px;
     height: 20px;
     font-size: 0.8rem;
   }
-  
+
   .empty-state {
     padding: 40px 16px;
   }
-  
+
   .empty-icon {
     font-size: 2rem;
   }
-  
+
   .empty-state h3 {
     font-size: 1rem;
   }
-  
+
   .empty-state p {
     font-size: 0.9rem;
   }
@@ -1030,14 +1037,197 @@ v/* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
 
 /* Alto contraste */
 @media (prefers-contrast: high) {
+
   .project-card-content,
   .widget,
   .create-post {
     border: 2px solid #000;
   }
-  
+
   .action:hover {
     background: #000;
     color: #fff;
+  }
+}
+
+/* ==========================
+   MODAL PARA CREAR PROYECTO
+========================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
+  color: var(--color-dark);
+}
+
+.project-form {
+  padding: 24px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--color-dark);
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.cancel-btn {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.submit-btn {
+  background: var(--color-accent);
+  color: white;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--color-secondary);
+  transform: translateY(-1px);
+}
+
+.submit-btn:disabled,
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive para modal */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-content {
+    max-height: 95vh;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .modal-header,
+  .project-form {
+    padding: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .submit-btn {
+    width: 100%;
   }
 }

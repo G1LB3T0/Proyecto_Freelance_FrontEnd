@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../Components/Layout.jsx';
+import { useAuth } from '../hooks/useAuth.js';
 import '../styles/PostsDeProyectos.css';
 
 const PostsDeProyectos = () => {
+  const { user, isAuthenticated, authenticatedFetch } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,10 +17,22 @@ const PostsDeProyectos = () => {
   const [showAllDeadlines, setShowAllDeadlines] = useState(false);
   const [loadingMoreProjects, setLoadingMoreProjects] = useState(false);
 
+  // Estados para el formulario de crear proyecto
+  const [newProject, setNewProject] = useState({
+    title: '',
+    description: '',
+    budget: '',
+    deadline: '',
+    skills_required: '',
+    priority: 'medium',
+    category_id: ''
+  });
+  const [creatingProject, setCreatingProject] = useState(false);
+
   // Todas las funciones de API se mantienen igual...
   const fetchProjectById = async (projectId) => {
     try {
-      const response = await fetch(`http://localhost:3000/projects/${projectId}`);
+      const response = await authenticatedFetch(`http://localhost:3000/projects/${projectId}`);
       if (!response.ok) throw new Error('Error al obtener el proyecto');
       const project = await response.json();
       console.log('📄 Proyecto obtenido:', project);
@@ -31,9 +45,8 @@ const PostsDeProyectos = () => {
 
   const createProject = async (projectData) => {
     try {
-      const response = await fetch('http://localhost:3000/projects', {
+      const response = await authenticatedFetch('http://localhost:3000/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectData)
       });
       if (!response.ok) throw new Error('Error al crear el proyecto');
@@ -49,9 +62,8 @@ const PostsDeProyectos = () => {
 
   const updateProject = async (projectId, projectData) => {
     try {
-      const response = await fetch(`http://localhost:3000/projects/${projectId}`, {
+      const response = await authenticatedFetch(`http://localhost:3000/projects/${projectId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectData)
       });
       if (!response.ok) throw new Error('Error al actualizar el proyecto');
@@ -67,7 +79,7 @@ const PostsDeProyectos = () => {
 
   const deleteProject = async (projectId) => {
     try {
-      const response = await fetch(`http://localhost:3000/projects/${projectId}`, {
+      const response = await authenticatedFetch(`http://localhost:3000/projects/${projectId}`, {
         method: 'DELETE'
       });
       if (!response.ok) throw new Error('Error al eliminar el proyecto');
@@ -104,7 +116,78 @@ const PostsDeProyectos = () => {
   const handleCreateProject = () => {
     console.log('➕ Creando nuevo proyecto');
     setShowCreateModal(true);
-    alert('Crear nuevo proyecto\n(Modal de creación pendiente)');
+  };
+
+  // Función para manejar cambios en el formulario
+  const handleInputChange = (field, value) => {
+    setNewProject(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Función para enviar el formulario
+  const handleSubmitProject = async (e) => {
+    e.preventDefault();
+
+    // Verificar autenticación
+    if (!isAuthenticated || !user) {
+      alert('Debes estar logueado para crear un proyecto');
+      return;
+    }
+
+    if (!newProject.title.trim() || !newProject.description.trim() || !newProject.budget) {
+      alert('Por favor, completa los campos requeridos: título, descripción y presupuesto');
+      return;
+    }
+
+    setCreatingProject(true);
+    try {
+      // Adaptar los datos al formato que espera el backend
+      const projectData = {
+        title: newProject.title,
+        description: newProject.description,
+        budget: parseFloat(newProject.budget),
+        deadline: newProject.deadline ? new Date(newProject.deadline).toISOString() : null,
+        category_id: newProject.category_id ? parseInt(newProject.category_id) : null,
+        skills_required: newProject.skills_required.split(',').map(skill => skill.trim()).filter(skill => skill),
+        priority: newProject.priority
+      };
+
+      await createProject(projectData);
+
+      // Limpiar el formulario
+      setNewProject({
+        title: '',
+        description: '',
+        budget: '',
+        deadline: '',
+        skills_required: '',
+        priority: 'medium',
+        category_id: ''
+      });
+      setShowCreateModal(false);
+      alert('¡Proyecto creado exitosamente!');
+    } catch (error) {
+      console.error('Error creando proyecto:', error);
+      alert('Error al crear el proyecto. Inténtalo de nuevo.');
+    } finally {
+      setCreatingProject(false);
+    }
+  };
+
+  // Función para cerrar el modal
+  const handleCloseModal = () => {
+    setShowCreateModal(false);
+    setNewProject({
+      title: '',
+      description: '',
+      budget: '',
+      deadline: '',
+      skills_required: '',
+      priority: 'medium',
+      category_id: ''
+    });
   };
 
   // Funciones para manejar los botones
@@ -179,7 +262,7 @@ const PostsDeProyectos = () => {
 
       const apiUrl = getApiUrl();
       console.log('🌐 URL de la API:', apiUrl);
-      const response = await fetch(apiUrl);
+      const response = await authenticatedFetch(apiUrl);
       console.log('📡 Status de respuesta:', response.status);
 
       if (!response.ok) {
@@ -660,6 +743,129 @@ const PostsDeProyectos = () => {
           </div>
         </section>
       </div>
+
+      {/* Modal para crear nuevo proyecto */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Crear Nuevo Proyecto</h3>
+              <button className="close-btn" onClick={handleCloseModal}>×</button>
+            </div>
+
+            <form onSubmit={handleSubmitProject} className="project-form">
+              <div className="form-group">
+                <label htmlFor="title">Título del Proyecto *</label>
+                <input
+                  type="text"
+                  id="title"
+                  value={newProject.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  placeholder="Ej: Desarrollo de App Móvil"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="description">Descripción *</label>
+                <textarea
+                  id="description"
+                  value={newProject.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Describe los objetivos y alcance del proyecto..."
+                  rows="4"
+                  required
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="budget">Presupuesto ($) *</label>
+                  <input
+                    type="number"
+                    id="budget"
+                    value={newProject.budget}
+                    onChange={(e) => handleInputChange('budget', e.target.value)}
+                    placeholder="5000"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="priority">Prioridad</label>
+                  <select
+                    id="priority"
+                    value={newProject.priority}
+                    onChange={(e) => handleInputChange('priority', e.target.value)}
+                  >
+                    <option value="low">Baja</option>
+                    <option value="medium">Media</option>
+                    <option value="high">Alta</option>
+                    <option value="urgent">Urgente</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="deadline">Fecha Límite</label>
+                  <input
+                    type="date"
+                    id="deadline"
+                    value={newProject.deadline}
+                    onChange={(e) => handleInputChange('deadline', e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="category_id">Categoría</label>
+                  <select
+                    id="category_id"
+                    value={newProject.category_id}
+                    onChange={(e) => handleInputChange('category_id', e.target.value)}
+                  >
+                    <option value="">Selecciona una categoría</option>
+                    <option value="1">Desarrollo Web</option>
+                    <option value="2">Desarrollo Móvil</option>
+                    <option value="3">Diseño</option>
+                    <option value="4">Marketing</option>
+                    <option value="5">Redacción</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="skills_required">Habilidades Requeridas</label>
+                <input
+                  type="text"
+                  id="skills_required"
+                  value={newProject.skills_required}
+                  onChange={(e) => handleInputChange('skills_required', e.target.value)}
+                  placeholder="React, Node.js, MongoDB (separadas por comas)"
+                />
+              </div>              <div className="form-actions">
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={handleCloseModal}
+                  disabled={creatingProject}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={creatingProject}
+                >
+                  {creatingProject ? 'Creando...' : 'Crear Proyecto'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

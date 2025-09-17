@@ -25,12 +25,12 @@ const Layout = ({
   }, []);
 
   const menuItems = [
-    { path: "/home", label: "Inicio", key: "home", icon: "ri-home-2-line" },
-    { path: "/calendario", label: "Calendario", key: "calendar", icon: "ri-calendar-line" },
-    { path: "/proyectos", label: "Proyectos", key: "projects", icon: "ri-briefcase-line" },
-    { path: "/finanzas", label: "Finanzas", key: "finance", icon: "ri-money-dollar-circle-line" },
-    { path: "/estadisticas", label: "Estadísticas", key: "stats", icon: "ri-bar-chart-2-line" },
-    { path: "/Settings", label: "Settings", key: "Settings", icon: "ri-settings-3-line" },
+    { path: "/home", label: " Inicio", key: "home", icon: "ri-home-2-line" },
+    { path: "/calendario", label: " Calendario", key: "calendar", icon: "ri-calendar-line" },
+    { path: "/proyectos", label: " Proyectos", key: "projects", icon: "ri-briefcase-line" },
+    { path: "/finanzas", label: " Finanzas", key: "finance", icon: "ri-money-dollar-circle-line" },
+    { path: "/estadisticas", label: " Estadísticas", key: "stats", icon: "ri-bar-chart-2-line" },
+    { path: "/Settings", label: " Settings", key: "Settings", icon: "ri-settings-3-line" },
   ];
 
   const notifications = [

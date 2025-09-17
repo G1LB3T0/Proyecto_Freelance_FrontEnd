@@ -148,13 +148,13 @@ const Statistics = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
-        return "✅";
+        return <i className="ri-check-line" aria-hidden="true"></i>;
       case "in-progress":
-        return "🔄";
+        return <i className="ri-loader-4-line" aria-hidden="true"></i>;
       case "pending":
-        return "⏳";
+        return <i className="ri-time-line" aria-hidden="true"></i>;
       default:
-        return "📋";
+        return <i className="ri-clipboard-line" aria-hidden="true"></i>;
     }
   };
 
@@ -173,7 +173,7 @@ const Statistics = () => {
       <div className="statistics-page">
         {/* Header */}
         <div className="statistics-header">
-          <h1 className="page-title">📊 Dashboard de Productividad</h1>
+          <h1 className="page-title"><i className="ri-bar-chart-2-line" aria-hidden="true"></i> Dashboard de Productividad</h1>
           <p className="page-description">
             Seguimiento completo de tareas, rendimiento y métricas como
             freelancer
@@ -183,7 +183,7 @@ const Statistics = () => {
         {/* Métricas principales */}
         <div className="metrics-grid">
           <div className="metric-card completed">
-            <div className="metric-icon">✅</div>
+            <div className="metric-icon"><i className="ri-check-line" aria-hidden="true"></i></div>
             <div className="metric-value">{taskStats.completedTasks}</div>
             <div className="metric-label">Tareas Completadas</div>
             <div className="metric-subtitle">
@@ -192,7 +192,7 @@ const Statistics = () => {
           </div>
 
           <div className="metric-card in-progress">
-            <div className="metric-icon">🔄</div>
+            <div className="metric-icon"><i className="ri-loader-4-line" aria-hidden="true"></i></div>
             <div className="metric-value">{taskStats.inProgressTasks}</div>
             <div className="metric-label">En Progreso</div>
             <div className="metric-subtitle">
@@ -204,14 +204,14 @@ const Statistics = () => {
           </div>
 
           <div className="metric-card pending">
-            <div className="metric-icon">⏳</div>
+            <div className="metric-icon"><i className="ri-time-line" aria-hidden="true"></i></div>
             <div className="metric-value">{taskStats.pendingTasks}</div>
             <div className="metric-label">Pendientes</div>
             <div className="metric-subtitle">Por hacer esta semana</div>
           </div>
 
           <div className="metric-card efficiency">
-            <div className="metric-icon">⚡</div>
+            <div className="metric-icon"><i className="ri-flashlight-line" aria-hidden="true"></i></div>
             <div className="metric-value">
               {productivityMetrics.efficiency}%
             </div>
@@ -226,7 +226,7 @@ const Statistics = () => {
         <div className="charts-layout">
           {/* Rendimiento semanal - Visualización alternativa */}
           <div className="chart-container">
-            <h3 className="chart-title">📈 Rendimiento Semanal</h3>
+            <h3 className="chart-title"><i className="ri-line-chart-line" aria-hidden="true"></i> Rendimiento Semanal</h3>
             <div className="weekly-bars">
               {weeklyPerformance.map((day, index) => (
                 <div key={index} className="day-column">
@@ -278,7 +278,7 @@ const Statistics = () => {
 
           {/* Distribución de tareas - Visualización circular CSS */}
           <div className="chart-container">
-            <h3 className="chart-title">🎯 Estado de Tareas</h3>
+            <h3 className="chart-title"><i className="ri-target-line" aria-hidden="true"></i> Estado de Tareas</h3>
             <div className="pie-chart-alternative">
               <div className="circular-progress">
                 <div
@@ -318,7 +318,7 @@ const Statistics = () => {
 
         {/* Progreso por proyecto */}
         <div className="projects-progress">
-          <h3 className="section-title">🚀 Progreso por Proyecto</h3>
+          <h3 className="section-title"><i className="ri-rocket-line" aria-hidden="true"></i> Progreso por Proyecto</h3>
           <div className="projects-grid">
             {tasksByProject.map((project, index) => {
               const completionRate = (project.completed / project.total) * 100;
@@ -354,19 +354,19 @@ const Statistics = () => {
 
                   <div className="project-stats">
                     <div className="project-stat">
-                      <span className="stat-icon completed">✅</span>
+                      <span className="stat-icon completed"><i className="ri-check-line" aria-hidden="true"></i></span>
                       <span className="stat-text">
                         {project.completed} completadas
                       </span>
                     </div>
                     <div className="project-stat">
-                      <span className="stat-icon in-progress">🔄</span>
+                      <span className="stat-icon in-progress"><i className="ri-loader-4-line" aria-hidden="true"></i></span>
                       <span className="stat-text">
                         {project.inProgress} en progreso
                       </span>
                     </div>
                     <div className="project-stat">
-                      <span className="stat-icon pending">⏳</span>
+                      <span className="stat-icon pending"><i className="ri-time-line" aria-hidden="true"></i></span>
                       <span className="stat-text">
                         {project.pending} pendientes
                       </span>
@@ -380,7 +380,7 @@ const Statistics = () => {
 
         {/* Actividad del día */}
         <div className="today-activity">
-          <h3 className="section-title">🕐 Actividad de Hoy</h3>
+          <h3 className="section-title"><i className="ri-time-line" aria-hidden="true"></i> Actividad de Hoy</h3>
           <div className="timeline-container">
             <div className="timeline-line"></div>
 
@@ -401,7 +401,7 @@ const Statistics = () => {
                         <span className="activity-task">{activity.task}</span>
                       </div>
                       <div className="activity-project">
-                        📁 {activity.project}
+                        <i className="ri-folder-2-line" aria-hidden="true"></i> {activity.project}
                       </div>
                     </div>
                     <div className="activity-time">{activity.time}</div>

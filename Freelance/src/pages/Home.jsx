@@ -253,7 +253,7 @@ const Home = () => {
                   style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
                 />
               ) : (
-                '👤'
+                <i className="ri-user-line" aria-hidden="true"></i>
               )}
             </div>
             <div className="post-input-container">
@@ -309,7 +309,7 @@ const Home = () => {
                     <span className="author-avatar">
                       {post.author_avatar ?
                         <img src={post.author_avatar} alt="Avatar" style={{ width: '40px', height: '40px', borderRadius: '50%' }} /> :
-                        '👤'
+                        <i className="ri-user-line" aria-hidden="true"></i>
                       }
                     </span>
                     <div className="author-info">
@@ -338,19 +338,19 @@ const Home = () => {
                 </div>
                 <div className="post-actions">
                   <div className="action" onClick={() => handleLike(post.id)} style={{ cursor: 'pointer' }}>
-                    <span className="action-icon">👍</span>
+                    <span className="action-icon"><i className="ri-thumb-up-line" aria-hidden="true"></i></span>
                     <span className="action-count">{post.likes_count || post.likes || 0}</span>
                   </div>
                   <div className="action" style={{ cursor: 'pointer' }}>
-                    <span className="action-icon">💬</span>
+                    <span className="action-icon"><i className="ri-chat-3-line" aria-hidden="true"></i></span>
                     <span className="action-count">{post.comments_count || post.comments || 0}</span>
                   </div>
                   <div className="action">
-                    <span className="action-icon">↗️</span>
+                    <span className="action-icon"><i className="ri-share-forward-line" aria-hidden="true"></i></span>
                     <span className="action-label">Compartir</span>
                   </div>
                   <div className="action">
-                    <span className="action-icon">🔖</span>
+                    <span className="action-icon"><i className="ri-bookmark-line" aria-hidden="true"></i></span>
                     <span className="action-label">Guardar</span>
                   </div>
                   {/* Botón eliminar - solo para posts del usuario actual */}
@@ -361,7 +361,7 @@ const Home = () => {
                       style={{ cursor: 'pointer', color: '#ef4444' }}
                       title="Eliminar post"
                     >
-                      <span className="action-icon">🗑️</span>
+                      <span className="action-icon"><i className="ri-delete-bin-6-line" aria-hidden="true"></i></span>
                       <span className="action-label">Eliminar</span>
                     </div>
                   )}
@@ -389,7 +389,7 @@ const Home = () => {
             <h3>Personas que quizás conozcas</h3>
             <div className="contact-suggestions">
               <div className="contact-item">
-                <div className="contact-avatar">👩‍🎨</div>
+                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">Ana Rivera</div>
                   <div className="contact-role">Diseñadora UX/UI</div>
@@ -397,7 +397,7 @@ const Home = () => {
                 <button className="connect-btn">+</button>
               </div>
               <div className="contact-item">
-                <div className="contact-avatar">👨‍💻</div>
+                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">David Torres</div>
                   <div className="contact-role">Desarrollador Frontend</div>
@@ -405,7 +405,7 @@ const Home = () => {
                 <button className="connect-btn">+</button>
               </div>
               <div className="contact-item">
-                <div className="contact-avatar">👩‍💼</div>
+                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">Patricia López</div>
                   <div className="contact-role">Marketing Manager</div>

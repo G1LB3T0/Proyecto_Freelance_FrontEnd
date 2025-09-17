@@ -183,7 +183,7 @@ const PostsDeProyectos = () => {
           startDate: project.start_date || project.startDate,
           endDate: project.end_date || project.endDate,
           budget: project.budget ? `$${project.budget}` : 'No especificado',
-          image: getProjectIcon(project.category || project.title),
+          icon: getProjectIcon(project.category || project.title),
           image_url: project.image_url || null, // Agregar campo para imagen opcional
           progress: calculateProgress(project.status, project.start_date || project.startDate, project.end_date || project.endDate)
         };
@@ -236,14 +236,14 @@ const PostsDeProyectos = () => {
 
   const getProjectIcon = (categoryOrTitle) => {
     const text = categoryOrTitle?.toLowerCase() || '';
-    if (text.includes('ecommerce') || text.includes('store')) return '🛍️';
-    if (text.includes('dashboard') || text.includes('analytics')) return '📊';
-    if (text.includes('fitness') || text.includes('gym')) return '💪';
-    if (text.includes('landing') || text.includes('website')) return '🚀';
-    if (text.includes('inventory') || text.includes('inventario')) return '📦';
-    if (text.includes('blog') || text.includes('cms')) return '✍️';
-    if (text.includes('mobile') || text.includes('app')) return '📱';
-    return '💼';
+    if (text.includes('ecommerce') || text.includes('store')) return 'ri-shopping-bag-3-line';
+    if (text.includes('dashboard') || text.includes('analytics')) return 'ri-bar-chart-2-line';
+    if (text.includes('fitness') || text.includes('gym')) return 'ri-run-line';
+    if (text.includes('landing') || text.includes('website')) return 'ri-rocket-line';
+    if (text.includes('inventory') || text.includes('inventario')) return 'ri-archive-2-line';
+    if (text.includes('blog') || text.includes('cms')) return 'ri-quill-pen-line';
+    if (text.includes('mobile') || text.includes('app')) return 'ri-smartphone-line';
+    return 'ri-briefcase-line';
   };
 
   const calculateProgress = (status, startDate, endDate) => {
@@ -424,7 +424,7 @@ const PostsDeProyectos = () => {
           </div>
 
           <div className="create-post">
-            <div className="user-avatar">💼</div>
+            <div className="user-avatar"><i className="ri-briefcase-line"></i></div>
             <input
               type="text"
               placeholder="Crear nuevo proyecto..."
@@ -444,7 +444,7 @@ const PostsDeProyectos = () => {
               <div key={project.id} className="post-card project-card-content">
                 <div className="post-header">
                   <div className="post-author">
-                    <span className="author-avatar">{project.image}</span>
+                    <span className="author-avatar"><i className={project.icon}></i></span>
                     <div className="author-info">
                       <span className="author-name">{project.title}</span>
                       <span className="post-time">{project.client}</span>
@@ -487,13 +487,13 @@ const PostsDeProyectos = () => {
 
                 <div className="post-actions">
                   <div className="action">
-                    <span className="action-icon">📊</span>
+                    <span className="action-icon"><i className="ri-bar-chart-2-line"></i></span>
                     <span className="action-label" style={{ color: getStatusColor(project.status) }}>
                       {getStatusText(project.status)}
                     </span>
                   </div>
                   <div className="action">
-                    <span className="action-icon">💰</span>
+                    <span className="action-icon"><i className="ri-money-dollar-circle-line"></i></span>
                     <span className="action-label">{project.budget}</span>
                   </div>
                   <div
@@ -501,7 +501,7 @@ const PostsDeProyectos = () => {
                     style={{ cursor: 'pointer' }}
                     onClick={() => handleViewProject(project)}
                   >
-                    <span className="action-icon">👁️</span>
+                    <span className="action-icon"><i className="ri-eye-line"></i></span>
                     <span className="action-label">Ver</span>
                   </div>
                   <div
@@ -509,7 +509,7 @@ const PostsDeProyectos = () => {
                     style={{ cursor: 'pointer' }}
                     onClick={() => handleEditProject(project)}
                   >
-                    <span className="action-icon">✏️</span>
+                    <span className="action-icon"><i className="ri-edit-line"></i></span>
                     <span className="action-label">Editar</span>
                   </div>
                   <div
@@ -517,7 +517,7 @@ const PostsDeProyectos = () => {
                     style={{ cursor: 'pointer', color: '#ef4444' }}
                     onClick={() => handleDeleteProject(project.id)}
                   >
-                    <span className="action-icon">🗑️</span>
+                    <span className="action-icon"><i className="ri-delete-bin-6-line"></i></span>
                     <span className="action-label">Eliminar</span>
                   </div>
                 </div>
@@ -527,7 +527,7 @@ const PostsDeProyectos = () => {
 
           {filteredProjects.length === 0 && (
             <div className="empty-state">
-              <div className="empty-icon">📋</div>
+              <div className="empty-icon"><i className="ri-file-list-3-line"></i></div>
               <h3>No se encontraron proyectos</h3>
               <p>Intenta cambiar los filtros o crear un nuevo proyecto</p>
               <button
@@ -566,28 +566,28 @@ const PostsDeProyectos = () => {
             <h3>Próximos Vencimientos</h3>
             <div className="contact-suggestions">
               <div className="contact-item">
-                <div className="contact-avatar">💪</div>
+                <div className="contact-avatar"><i className="ri-run-line"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">App Móvil Fitness</div>
                   <div className="contact-role">En 5 días</div>
                 </div>
-                <button className="connect-btn">⚠️</button>
+                <button className="connect-btn"><i className="ri-alert-line"></i></button>
               </div>
               <div className="contact-item">
-                <div className="contact-avatar">📊</div>
+                <div className="contact-avatar"><i className="ri-bar-chart-2-line"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">Dashboard Analytics</div>
                   <div className="contact-role">En 2 semanas</div>
                 </div>
-                <button className="connect-btn">📅</button>
+                <button className="connect-btn"><i className="ri-calendar-line"></i></button>
               </div>
               <div className="contact-item">
-                <div className="contact-avatar">✍️</div>
+                <div className="contact-avatar"><i className="ri-quill-pen-line"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">Blog Personal</div>
                   <div className="contact-role">En 1 mes</div>
                 </div>
-                <button className="connect-btn">✅</button>
+                <button className="connect-btn"><i className="ri-check-line"></i></button>
               </div>
             </div>
             <button className="see-all-btn">Ver más</button>

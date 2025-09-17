@@ -57,13 +57,13 @@ class AuthService {
             // Decodificar el token para verificar expiración
             const payload = JSON.parse(atob(token.split('.')[1]));
             const currentTime = Math.floor(Date.now() / 1000);
-            
+
             // Verificar si el token ha expirado
             if (payload.exp && payload.exp < currentTime) {
                 this.logout();
                 return false;
             }
-            
+
             return true;
         } catch (error) {
             console.error('Error al verificar token:', error);
@@ -97,7 +97,7 @@ class AuthService {
                 // Guardar token y datos del usuario
                 this.setToken(data.data.token);
                 this.setUser(data.data.user);
-                
+
                 console.log('✅ Login exitoso:', data.message);
                 return {
                     success: true,
@@ -114,7 +114,7 @@ class AuthService {
         } catch (error) {
             console.error('🚨 Error de conexión completo:', error);
             console.error('🚨 Error message:', error.message);
-            console.error('🚨 URL intentada:', `${this.baseURL}/login/login`);
+            console.error('🚨 URL intentada:', `${this.baseURL}/api/login`);
             return {
                 success: false,
                 message: 'Error de conexión con el servidor. Verifica que el backend esté corriendo en ' + this.baseURL
@@ -128,7 +128,7 @@ class AuthService {
             localStorage.removeItem(this.tokenKey);
             localStorage.removeItem(this.userKey);
             console.log('Sesión cerrada exitosamente');
-            
+
             // Opcional: Redirigir al login
             window.location.href = '/login';
         } catch (error) {
@@ -142,7 +142,7 @@ class AuthService {
         if (!token) return false;
 
         try {
-            const response = await fetch(`${this.baseURL}/login/verify`, {
+            const response = await fetch(`${this.baseURL}/api/verify-token`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -164,7 +164,7 @@ class AuthService {
         if (!token) return false;
 
         try {
-            const response = await fetch(`${this.baseURL}/login/refresh`, {
+            const response = await fetch(`${this.baseURL}/api/refresh-token`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -193,7 +193,7 @@ class AuthService {
     // Hacer peticiones autenticadas
     async authenticatedFetch(url, options = {}) {
         const token = this.getToken();
-        
+
         if (!token) {
             throw new Error('No hay token de autenticación');
         }
@@ -213,11 +213,11 @@ class AuthService {
 
         try {
             const response = await fetch(url, config);
-            
+
             // Si el token ha expirado, intentar renovarlo
             if (response.status === 401 || response.status === 403) {
                 const refreshed = await this.refreshToken();
-                
+
                 if (refreshed) {
                     // Reintentar la petición con el nuevo token
                     config.headers.Authorization = `Bearer ${this.getToken()}`;
@@ -245,10 +245,10 @@ class AuthService {
             const expirationTime = payload.exp * 1000; // Convertir a milliseconds
             const currentTime = Date.now();
             const timeUntilExpiry = expirationTime - currentTime;
-            
+
             // Renovar el token 5 minutos antes de que expire
             const refreshTime = timeUntilExpiry - (5 * 60 * 1000);
-            
+
             if (refreshTime > 0) {
                 setTimeout(() => {
                     this.refreshToken();

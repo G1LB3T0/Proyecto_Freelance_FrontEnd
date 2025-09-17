@@ -845,7 +845,8 @@ const PostsDeProyectos = () => {
                   onChange={(e) => handleInputChange('skills_required', e.target.value)}
                   placeholder="React, Node.js, MongoDB (separadas por comas)"
                 />
-              </div>              <div className="form-actions">
+              </div>
+              <div className="form-actions">
                 <button
                   type="button"
                   className="cancel-btn"

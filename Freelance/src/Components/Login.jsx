@@ -11,6 +11,47 @@ const Login = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
+  // Inline styles to fix icon overlap without external CSS
+  const styles = {
+    inputContainer: {
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+    },
+    leftIcon: {
+      position: 'absolute',
+      left: 12,
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: 20,
+      height: 20,
+      color: '#64748b',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      pointerEvents: 'none',
+    },
+    inputWithIcon: {
+      paddingLeft: 44, // leaves room for the left icon
+    },
+    eyeToggle: {
+      position: 'absolute',
+      right: 12,
+      top: '50%',
+      transform: 'translateY(-50%)',
+      background: 'none',
+      border: 'none',
+      padding: 0,
+      cursor: 'pointer',
+      color: '#64748b',
+      width: 24,
+      height: 24,
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -51,8 +92,8 @@ const Login = () => {
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Correo electrónico</label>
-            <div className="input-container">
-              <span className="icon email-icon">
+            <div className="input-container" style={styles.inputContainer}>
+              <span className="icon email-icon" style={styles.leftIcon}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
@@ -70,6 +111,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="usuario@ejemplo.com"
                 required
+                style={styles.inputWithIcon}
               />
             </div>
           </div>
@@ -81,8 +123,8 @@ const Login = () => {
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
-            <div className="input-container">
-              <span className="icon password-icon">
+            <div className="input-container" style={styles.inputContainer}>
+              <span className="icon password-icon" style={styles.leftIcon}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
@@ -103,11 +145,13 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                style={styles.inputWithIcon}
               />
               <button
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                style={styles.eyeToggle}
               >
                 {showPassword ? (
                   <svg

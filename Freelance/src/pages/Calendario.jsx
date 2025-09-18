@@ -47,16 +47,14 @@ const Calendario = () => {
     return d;
   };
 
-  const getWeekDays = (date) => {
-    const start = startOfWeek(date);
+  const weekDays = React.useMemo(() => {
+    const start = startOfWeek(anchorDate);
     return Array.from({ length: 7 }, (_, i) => {
       const dt = new Date(start);
       dt.setDate(start.getDate() + i);
       return { date: dt, day: dt.getDate(), month: dt.getMonth() + 1, year: dt.getFullYear() };
     });
-  };
-
-  const weekDays = React.useMemo(() => getWeekDays(anchorDate), [anchorDate]);
+  }, [anchorDate]);
 
   const dayKey = (d, m = mesVisualizando, y = nuevoEvento.year) => `${y}-${m}-${d}`;
 
@@ -130,8 +128,6 @@ const Calendario = () => {
     return () => document.removeEventListener('mousedown', onDown);
   }, [showMonthPicker]);
 
-  // Removed old fetchEventos function to avoid duplicate logic
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -154,17 +150,11 @@ const Calendario = () => {
     const url = eventoEditando ? `${API}/api/events/${eventoEditando.id}` : `${API}/api/events`;
     const method = eventoEditando ? 'PUT' : 'POST';
 
-    console.log('Enviando evento:', nuevoEvento); // Para debugging
-    console.log('URL:', url); // Para debugging
-    console.log('Method:', method); // Para debugging
-
     // Agregar user_id al evento antes de enviarlo
     const eventoParaEnviar = {
       ...nuevoEvento,
       user_id: 1 // Por ahora hardcodeado, después puedes obtenerlo del contexto de usuario
     };
-
-    console.log('Evento final a enviar:', eventoParaEnviar); // Para debugging
 
     try {
       const response = await fetch(url, {
@@ -172,8 +162,6 @@ const Calendario = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(eventoParaEnviar),
       });
-
-      console.log('Response status:', response.status); // Para debugging
 
       if (response.ok) {
         setShowModal(false);
@@ -221,7 +209,7 @@ const Calendario = () => {
     d === hoy.getDate() && m === (hoy.getMonth() + 1) && y === hoy.getFullYear();
 
   const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  const fechaCorta = (d, m, y) => `${d} ${MESES[m - 1]}`; // ejemplo: 15 mayo
+  const fechaCorta = (d, m, _y) => `${d} ${MESES[m - 1]}`; // ejemplo: 15 mayo
 
   const handlePrev = () => {
     if (vista === 'month') {
@@ -696,7 +684,7 @@ const Calendario = () => {
                                   }}
                                   title="Editar"
                                 >
-                                  ✏️
+                                  <i className="ri-pencil-line" aria-hidden="true"></i>
                                 </button>
                                 <button
                                   onClick={(e) => {
@@ -705,7 +693,7 @@ const Calendario = () => {
                                   }}
                                   title="Eliminar"
                                 >
-                                  🗑️
+                                  <i className="ri-delete-bin-6-line" aria-hidden="true"></i>
                                 </button>
                               </div>
                             )}
@@ -777,7 +765,7 @@ const Calendario = () => {
                                   }}
                                   title="Editar"
                                 >
-                                  ✏️
+                                  <i className="ri-pencil-line" aria-hidden="true"></i>
                                 </button>
                                 <button
                                   onClick={(e) => {
@@ -786,7 +774,7 @@ const Calendario = () => {
                                   }}
                                   title="Eliminar"
                                 >
-                                  🗑️
+                                  <i className="ri-delete-bin-6-line" aria-hidden="true"></i>
                                 </button>
                               </div>
                             )}
@@ -804,7 +792,7 @@ const Calendario = () => {
           className="right-rail"
           style={{
             position: isNarrow ? 'static' : 'sticky',
-            top: isNarrow ? undefined : 16,
+            top: isNarrow ? undefined : railTop,
             width: '100%',
             maxHeight: isNarrow ? 'none' : 'calc(100vh - 24px)',
             overflow: isNarrow ? 'visible' : 'auto'

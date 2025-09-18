@@ -5,7 +5,7 @@ import "../styles/Finanzas.css";
 
 const Finanzas = () => {
   // Datos quemados para mostrar
-  const [resumenFinanciero, setResumenFinanciero] = useState({
+  const [resumenFinanciero, _setResumenFinanciero] = useState({
     ingresosMes: 5250.0,
     gastosMes: 1200.0,
     balanceMes: 4050.0,
@@ -125,7 +125,7 @@ const Finanzas = () => {
     >
       {/* Header específico de Finanzas */}
       <div className="finanzas-header">
-        <h1 className="page-title"><i className="ri-money-dollar-circle-line"></i> Finanzas</h1>
+        <h1 className="page-title"><i className="ri-money-dollar-circle-line" aria-hidden="true"></i> Finanzas</h1>
         <button
           className="btn-nueva-transaccion"
           onClick={() => setMostrarFormulario(!mostrarFormulario)}
@@ -138,7 +138,7 @@ const Finanzas = () => {
       <div className="resumen-cards">
         <div className="card-resumen ingresos">
           <div className="card-header">
-            <span className="card-icon"><i className="ri-wallet-3-line"></i></span>
+            <span className="card-icon"><i className="ri-wallet-3-line" aria-hidden="true"></i></span>
             <h3>Ingresos del Mes</h3>
           </div>
           <p className="card-monto">
@@ -149,7 +149,7 @@ const Finanzas = () => {
 
         <div className="card-resumen gastos">
           <div className="card-header">
-            <span className="card-icon"><i className="ri-exchange-dollar-line"></i></span>
+            <span className="card-icon"><i className="ri-exchange-dollar-line" aria-hidden="true"></i></span>
             <h3>Gastos del Mes</h3>
           </div>
           <p className="card-monto">
@@ -160,7 +160,7 @@ const Finanzas = () => {
 
         <div className="card-resumen balance">
           <div className="card-header">
-            <span className="card-icon"><i className="ri-bar-chart-2-line"></i></span>
+            <span className="card-icon"><i className="ri-bar-chart-2-line" aria-hidden="true"></i></span>
             <h3>Balance del Mes</h3>
           </div>
           <p className="card-monto">
@@ -171,7 +171,7 @@ const Finanzas = () => {
 
         <div className="card-resumen anual">
           <div className="card-header">
-            <span className="card-icon"><i className="ri-line-chart-line"></i></span>
+            <span className="card-icon"><i className="ri-line-chart-line" aria-hidden="true"></i></span>
             <h3>Ingresos Anuales</h3>
           </div>
           <p className="card-monto">
@@ -345,9 +345,9 @@ const Finanzas = () => {
                   <div className="transaccion-info">
                     <span className="transaccion-icono">
                       {transaccion.tipo === "ingreso" ? (
-                        <i className="ri-money-dollar-circle-line"></i>
+                        <i className="ri-money-dollar-circle-line" aria-hidden="true"></i>
                       ) : (
-                        <i className="ri-bank-card-line"></i>
+                        <i className="ri-bank-card-line" aria-hidden="true"></i>
                       )}
                     </span>
                     <div className="transaccion-detalles">
@@ -380,7 +380,7 @@ const Finanzas = () => {
         {/* Right Sidebar */}
         <section className="right-sidebar">
           <div className="widget chart-widget">
-            <h3><i className="ri-bar-chart-2-line"></i> Gráfico de Ingresos vs Gastos</h3>
+            <h3><i className="ri-bar-chart-2-line" aria-hidden="true"></i> Gráfico de Ingresos vs Gastos</h3>
             <div className="mini-chart">
               <div className="chart-bars">
                 <div className="chart-month">
@@ -435,7 +435,7 @@ const Finanzas = () => {
           </div>
 
           <div className="widget tips-widget">
-            <h3><i className="ri-lightbulb-flash-line"></i> Consejos Financieros</h3>
+            <h3><i className="ri-lightbulb-flash-line" aria-hidden="true"></i> Consejos Financieros</h3>
             <ul className="tips-list">
               <li>Mantén un fondo de emergencia de 3-6 meses</li>
               <li>Separa el 30% para impuestos</li>
@@ -445,7 +445,7 @@ const Finanzas = () => {
           </div>
 
           <div className="widget export-widget">
-            <h3><i className="ri-download-2-line"></i> Exportar Datos</h3>
+            <h3><i className="ri-download-2-line" aria-hidden="true"></i> Exportar Datos</h3>
             <button className="export-btn">Descargar Reporte PDF</button>
             <button className="export-btn">Exportar a Excel</button>
           </div>

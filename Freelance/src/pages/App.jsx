@@ -3,6 +3,7 @@ import "../styles/App.css";
 
 // Componentes
 import Login from "../Components/Login.jsx";
+import RoleBasedRoute from "../Components/RoleBasedRoute.jsx";
 
 // Páginas
 import Register from "./Register";
@@ -13,20 +14,95 @@ import Finanzas from "./Finanzas";
 import Settings from "./Settings";
 import Statistics from "./Statistics.jsx";
 import Premium from "./Premium.jsx";
+import FreelancerHome from "./FreelancerHome.jsx";
 
 const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Rutas públicas */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/proyectos" element={<PostsDeProyectos />} />
-        <Route path="/calendario" element={<Calendario />} />
-        <Route path="/finanzas" element={<Finanzas />} />
-        <Route path="/Settings" element={<Settings />} />
-        <Route path="/estadisticas" element={<Statistics />} />
-        <Route path="/premium" element={<Premium />} />
+
+        {/* Rutas EXCLUSIVAS para Project Managers/Emprendedores */}
+        <Route
+          path="/home"
+          element={
+            <RoleBasedRoute
+              allowedUserTypes={["project_manager", "emprendedor"]}
+            >
+              <Home />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/proyectos"
+          element={
+            <RoleBasedRoute
+              allowedUserTypes={["project_manager", "emprendedor"]}
+            >
+              <PostsDeProyectos />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/calendario"
+          element={
+            <RoleBasedRoute
+              allowedUserTypes={["project_manager", "emprendedor"]}
+            >
+              <Calendario />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/finanzas"
+          element={
+            <RoleBasedRoute
+              allowedUserTypes={["project_manager", "emprendedor"]}
+            >
+              <Finanzas />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/estadisticas"
+          element={
+            <RoleBasedRoute
+              allowedUserTypes={["project_manager", "emprendedor"]}
+            >
+              <Statistics />
+            </RoleBasedRoute>
+          }
+        />
+
+        {/* Ruta EXCLUSIVA para Freelancers */}
+        <Route
+          path="/freelancer-home"
+          element={
+            <RoleBasedRoute allowedUserTypes={["freelancer"]}>
+              <FreelancerHome />
+            </RoleBasedRoute>
+          }
+        />
+
+        {/* Rutas compartidas (ambos roles) */}
+        <Route
+          path="/Settings"
+          element={
+            <RoleBasedRoute>
+              <Settings />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/premium"
+          element={
+            <RoleBasedRoute>
+              <Premium />
+            </RoleBasedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

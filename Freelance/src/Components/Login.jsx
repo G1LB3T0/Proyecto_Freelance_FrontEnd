@@ -16,41 +16,41 @@ const Login = () => {
   // Inline styles to fix icon overlap without external CSS
   const styles = {
     inputContainer: {
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
+      position: "relative",
+      display: "flex",
+      alignItems: "center",
     },
     leftIcon: {
-      position: 'absolute',
+      position: "absolute",
       left: 12,
-      top: '50%',
-      transform: 'translateY(-50%)',
+      top: "50%",
+      transform: "translateY(-50%)",
       width: 20,
       height: 20,
-      color: '#64748b',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      pointerEvents: 'none',
+      color: "#64748b",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
     },
     inputWithIcon: {
       paddingLeft: 44, // leaves room for the left icon
     },
     eyeToggle: {
-      position: 'absolute',
+      position: "absolute",
       right: 12,
-      top: '50%',
-      transform: 'translateY(-50%)',
-      background: 'none',
-      border: 'none',
+      top: "50%",
+      transform: "translateY(-50%)",
+      background: "none",
+      border: "none",
       padding: 0,
-      cursor: 'pointer',
-      color: '#64748b',
+      cursor: "pointer",
+      color: "#64748b",
       width: 24,
       height: 24,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
     },
   };
 
@@ -69,8 +69,21 @@ const Login = () => {
         setMessageType("success");
         console.log("Usuario autenticado:", result.data.user);
         console.log("Token guardado en localStorage");
+
+        // Redirigir según el tipo de usuario
+        const userType = result.data.user.user_type;
         setTimeout(() => {
-          navigate("/home");
+          if (userType === "freelancer") {
+            navigate("/freelancer-home");
+          } else if (
+            userType === "project_manager" ||
+            userType === "emprendedor"
+          ) {
+            navigate("/home");
+          } else {
+            // Por defecto, ir al home
+            navigate("/home");
+          }
         }, 1000);
       } else {
         setMessage(result.message || "Error al iniciar sesión");
@@ -208,9 +221,7 @@ const Login = () => {
           </button>
         </form>
 
-        {message && (
-          <div className={`message ${messageType}`}>{message}</div>
-        )}
+        {message && <div className={`message ${messageType}`}>{message}</div>}
 
         <div className="register-link">
           <p>

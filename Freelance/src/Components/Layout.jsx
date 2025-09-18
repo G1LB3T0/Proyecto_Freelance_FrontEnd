@@ -25,18 +25,18 @@ const Layout = ({
   }, []);
 
   const menuItems = [
-    { path: "/home", label: "🏠 Inicio", key: "home" },
-    { path: "/calendario", label: "📅Calendario", key: "calendar" },
-    { path: "/proyectos", label: "💼Proyectos", key: "projects" },
-    { path: "/finanzas", label: "💰Finanzas", key: "finance" },
-    { path: "/estadisticas", label: "📊Estadísticas", key: "stats" },
-    { path: "/Settings", label: "⚙️Settings", key: "Settings" },
+    { path: "/home", label: " Inicio", key: "home", icon: "ri-home-2-line" },
+    { path: "/calendario", label: " Calendario", key: "calendar", icon: "ri-calendar-line" },
+    { path: "/proyectos", label: " Proyectos", key: "projects", icon: "ri-briefcase-line" },
+    { path: "/finanzas", label: " Finanzas", key: "finance", icon: "ri-money-dollar-circle-line" },
+    { path: "/estadisticas", label: " Estadísticas", key: "stats", icon: "ri-bar-chart-2-line" },
+    { path: "/Settings", label: " Settings", key: "Settings", icon: "ri-settings-3-line" },
   ];
 
   const notifications = [
-    "📩 Pancho te envió un mensaje",
-    "💼 Nueva oportunidad de trabajo",
-    "⏸️ Has pausado el proyecto Sistema de Inventario",
+    { icon: "ri-mail-line", text: "Pancho te envió un mensaje" },
+    { icon: "ri-briefcase-line", text: "Nueva oportunidad de trabajo" },
+    { icon: "ri-pause-circle-line", text: "Has pausado el proyecto Sistema de Inventario" },
   ];
 
   // Handler para cerrar el popup al hacer clic fuera
@@ -63,7 +63,7 @@ const Layout = ({
                 style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
               />
             ) : (
-              '👤'
+              <i className="ri-user-line" aria-hidden="true"></i>
             )}
           </div>
           <p>Bienvenido/a</p>
@@ -92,7 +92,7 @@ const Layout = ({
                 className={currentPage === item.key ? "active" : ""}
               >
                 <Link to={item.path}>
-                  <span className="icon">{item.icon}</span>
+                  <span className="icon"><i className={item.icon} aria-hidden="true"></i></span>
                   <span className="label">{item.label}</span>
                 </Link>
               </li>
@@ -110,7 +110,7 @@ const Layout = ({
         {/* Top Bar */}
         <header className="top-bar">
           <div className="search-container">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon"><i className="ri-search-line" aria-hidden="true"></i></span>
             <input
               type="text"
               placeholder={searchPlaceholder}
@@ -127,7 +127,7 @@ const Layout = ({
                 style={{ cursor: "pointer" }}
                 title="Ver notificaciones"
               >
-                🔔
+                <i className="ri-notification-3-line" aria-hidden="true"></i>
               </div>
               {showNotifications && (
                 <div
@@ -140,13 +140,14 @@ const Layout = ({
                       onClick={() => setShowNotifications(false)}
                       aria-label="Cerrar"
                     >
-                      ✖️
+                      <i className="ri-close-line" aria-hidden="true"></i>
                     </button>
                     <h4 className="notification-title">Notificaciones</h4>
                     <ul className="notification-list">
                       {notifications.map((notification, index) => (
                         <li className="notification-item" key={index}>
-                          {notification}
+                          <i className={notification.icon} aria-hidden="true" style={{ marginRight: '8px' }}></i>
+                          {notification.text}
                         </li>
                       ))}
                     </ul>
@@ -154,7 +155,7 @@ const Layout = ({
                 </div>
               )}
             </div>
-            <div className="messages-icon">✉️</div>
+            <div className="messages-icon"><i className="ri-mail-line" aria-hidden="true"></i></div>
             <div className="user-menu">
               <span className="user-avatar">
                 {currentUser?.avatar ? (
@@ -164,10 +165,10 @@ const Layout = ({
                     style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} 
                   />
                 ) : (
-                  '👤'
+                  <i className="ri-user-line" aria-hidden="true"></i>
                 )}
               </span>
-              <span className="dropdown-arrow">▼</span>
+              <span className="dropdown-arrow"><i className="ri-arrow-down-s-line" aria-hidden="true"></i></span>
             </div>
           </div>
         </header>

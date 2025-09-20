@@ -35,7 +35,7 @@ const Statistics = () => {
   const pieChartRef = useRef(null);
   const hourlyChartRef = useRef(null);
   const monthlyChartRef = useRef(null);
-  
+
   // Referencias para las instancias de los gráficos
   const weeklyChartInstance = useRef(null);
   const pieChartInstance = useRef(null);
@@ -248,7 +248,7 @@ const Statistics = () => {
     if (!weeklyChartRef.current || !weeklyPerformance.length) return;
 
     const ctx = weeklyChartRef.current.getContext('2d');
-    
+
     // Destruir instancia previa si existe
     if (weeklyChartInstance.current) {
       weeklyChartInstance.current.destroy();
@@ -332,7 +332,7 @@ const Statistics = () => {
     if (!pieChartRef.current || !taskDistribution.length) return;
 
     const ctx = pieChartRef.current.getContext('2d');
-    
+
     if (pieChartInstance.current) {
       pieChartInstance.current.destroy();
     }
@@ -368,7 +368,7 @@ const Statistics = () => {
             borderWidth: 1,
             cornerRadius: 8,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 const percentage = taskDistribution[context.dataIndex].percentage;
                 return `${context.label}: ${context.parsed} (${percentage}%)`;
               }
@@ -384,7 +384,7 @@ const Statistics = () => {
     if (!hourlyChartRef.current || !hourlyProductivity.length) return;
 
     const ctx = hourlyChartRef.current.getContext('2d');
-    
+
     if (hourlyChartInstance.current) {
       hourlyChartInstance.current.destroy();
     }
@@ -467,7 +467,7 @@ const Statistics = () => {
     if (!monthlyChartRef.current || !monthlyTrend.length) return;
 
     const ctx = monthlyChartRef.current.getContext('2d');
-    
+
     if (monthlyChartInstance.current) {
       monthlyChartInstance.current.destroy();
     }
@@ -650,7 +650,7 @@ const Statistics = () => {
         {/* Header */}
         <div className="statistics-header">
           <h1 className="page-title">
-            <i className="ri-bar-chart-2-line" aria-hidden="true"></i> 
+            <i className="ri-bar-chart-2-line" aria-hidden="true"></i>
             Dashboard de Productividad
           </h1>
           <p className="page-description">
@@ -710,7 +710,7 @@ const Statistics = () => {
           {/* Rendimiento semanal - Gráfico de barras */}
           <div className="chart-container">
             <h3 className="chart-title">
-              <i className="ri-line-chart-line" aria-hidden="true"></i> 
+              <i className="ri-line-chart-line" aria-hidden="true"></i>
               Rendimiento Semanal
             </h3>
             <div className="chart-wrapper">
@@ -721,7 +721,7 @@ const Statistics = () => {
           {/* Distribución de tareas - Gráfico circular */}
           <div className="chart-container">
             <h3 className="chart-title">
-              <i className="ri-target-line" aria-hidden="true"></i> 
+              <i className="ri-target-line" aria-hidden="true"></i>
               Estado de Tareas
             </h3>
             <div className="chart-wrapper">
@@ -753,7 +753,7 @@ const Statistics = () => {
           {/* Productividad por hora */}
           <div className="chart-container">
             <h3 className="chart-title">
-              <i className="ri-time-line" aria-hidden="true"></i> 
+              <i className="ri-time-line" aria-hidden="true"></i>
               Productividad por Hora
             </h3>
             <div className="chart-wrapper">
@@ -764,7 +764,7 @@ const Statistics = () => {
           {/* Tendencia mensual */}
           <div className="chart-container">
             <h3 className="chart-title">
-              <i className="ri-calendar-line" aria-hidden="true"></i> 
+              <i className="ri-calendar-line" aria-hidden="true"></i>
               Tendencia Mensual
             </h3>
             <div className="chart-wrapper">
@@ -776,7 +776,7 @@ const Statistics = () => {
         {/* Progreso por proyecto */}
         <div className="projects-progress">
           <h3 className="section-title">
-            <i className="ri-rocket-line" aria-hidden="true"></i> 
+            <i className="ri-rocket-line" aria-hidden="true"></i>
             Progreso por Proyecto
           </h3>
           <div className="projects-grid">
@@ -787,13 +787,12 @@ const Statistics = () => {
                   <div className="project-header">
                     <h4 className="project-name">{project.project}</h4>
                     <span
-                      className={`completion-badge ${
-                        completionRate >= 80
-                          ? "high"
-                          : completionRate >= 50
+                      className={`completion-badge ${completionRate >= 80
+                        ? "high"
+                        : completionRate >= 50
                           ? "medium"
                           : "low"
-                      }`}
+                        }`}
                     >
                       {Math.round(completionRate)}% completado
                     </span>
@@ -801,13 +800,12 @@ const Statistics = () => {
 
                   <div className="progress-bar-container">
                     <div
-                      className={`progress-bar ${
-                        completionRate >= 80
-                          ? "high"
-                          : completionRate >= 50
+                      className={`progress-bar ${completionRate >= 80
+                        ? "high"
+                        : completionRate >= 50
                           ? "medium"
                           : "low"
-                      }`}
+                        }`}
                       style={{ width: `${completionRate}%` }}
                     ></div>
                   </div>
@@ -841,7 +839,7 @@ const Statistics = () => {
         {/* Actividad del día */}
         <div className="today-activity">
           <h3 className="section-title">
-            <i className="ri-time-line" aria-hidden="true"></i> 
+            <i className="ri-time-line" aria-hidden="true"></i>
             Actividad de Hoy
           </h3>
           <div className="timeline-container">
@@ -864,7 +862,7 @@ const Statistics = () => {
                         <span className="activity-task">{activity.task}</span>
                       </div>
                       <div className="activity-project">
-                        <i className="ri-folder-2-line" aria-hidden="true"></i> 
+                        <i className="ri-folder-2-line" aria-hidden="true"></i>
                         {activity.project}
                       </div>
                     </div>

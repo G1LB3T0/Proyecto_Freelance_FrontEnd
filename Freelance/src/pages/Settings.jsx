@@ -62,13 +62,13 @@ const Settings = () => {
   });
 
   const tabs = [
-    { id: 'profile', label: 'Perfil', icon: '👤' },
-    { id: 'notifications', label: 'Notificaciones', icon: '🔔' },
-    { id: 'privacy', label: 'Privacidad', icon: '🛡️' },
-    { id: 'appearance', label: 'Apariencia', icon: '🎨' },
-    { id: 'language', label: 'Idioma', icon: '🌍' },
-    { id: 'billing', label: 'Facturación', icon: '💳' },
-    { id: 'data', label: 'Datos', icon: '📥' }
+    { id: 'profile', label: 'Perfil', icon: 'ri-user-3-line' },
+    { id: 'notifications', label: 'Notificaciones', icon: 'ri-notification-3-line' },
+    { id: 'privacy', label: 'Privacidad', icon: 'ri-shield-keyhole-line' },
+    { id: 'appearance', label: 'Apariencia', icon: 'ri-palette-line' },
+    { id: 'language', label: 'Idioma', icon: 'ri-earth-line' },
+    { id: 'billing', label: 'Facturación', icon: 'ri-bank-card-line' },
+    { id: 'data', label: 'Datos', icon: 'ri-download-2-line' }
   ];
 
   // Función para guardar cambios
@@ -127,7 +127,11 @@ const Settings = () => {
         {saveStatus && (
           <div className={`save-status ${saveStatus}`}>
             <span className="save-icon">
-              {saveStatus === 'saved' ? '✅' : '⏳'}
+              {saveStatus === 'saved' ? (
+                <i className="ri-check-line" aria-hidden="true"></i>
+              ) : (
+                <i className="ri-time-line" aria-hidden="true"></i>
+              )}
             </span>
             {saveStatus === 'saved' ? 'Guardado' : 'Guardando...'}
           </div>
@@ -149,7 +153,7 @@ const Settings = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`nav-button ${activeTab === tab.id ? 'active' : ''}`}
                 >
-                  <span className="nav-icon">{tab.icon}</span>
+                  <span className="nav-icon"><i className={tab.icon} aria-hidden="true"></i></span>
                   <span className="nav-label">{tab.label}</span>
                 </button>
               ))}
@@ -171,7 +175,7 @@ const Settings = () => {
                       {profileData.avatar ? (
                         <img src={profileData.avatar} alt="Avatar" />
                       ) : (
-                        <span className="avatar-placeholder">👤</span>
+                        <span className="avatar-placeholder"><i className="ri-user-3-line" aria-hidden="true"></i></span>
                       )}
                     </div>
                     <div className="avatar-actions">
@@ -183,7 +187,7 @@ const Settings = () => {
                         className="file-input"
                       />
                       <label htmlFor="avatar-upload" className="btn btn-primary">
-                        📸 Cambiar foto
+                        <i className="ri-camera-line" aria-hidden="true"></i> Cambiar foto
                       </label>
                       <p className="help-text">JPG, PNG o GIF. Máximo 2MB.</p>
                     </div>
@@ -205,7 +209,7 @@ const Settings = () => {
                   <div className="form-group">
                     <label>Email</label>
                     <div className="input-with-icon">
-                      <span className="input-icon">✉️</span>
+                      <span className="input-icon"><i className="ri-mail-line" aria-hidden="true"></i></span>
                       <input
                         type="email"
                         value={profileData.email}
@@ -218,7 +222,7 @@ const Settings = () => {
                   <div className="form-group">
                     <label>Teléfono</label>
                     <div className="input-with-icon">
-                      <span className="input-icon">📱</span>
+                      <span className="input-icon"><i className="ri-smartphone-line" aria-hidden="true"></i></span>
                       <input
                         type="tel"
                         value={profileData.phone}
@@ -285,7 +289,7 @@ const Settings = () => {
                     <div className="form-group">
                       <label>Contraseña actual</label>
                       <div className="password-input">
-                        <span className="input-icon">🔒</span>
+                        <span className="input-icon"><i className="ri-lock-2-line" aria-hidden="true"></i></span>
                         <input
                           type={showPassword ? 'text' : 'password'}
                           value={passwordData.currentPassword}
@@ -297,7 +301,11 @@ const Settings = () => {
                           onClick={() => setShowPassword(!showPassword)}
                           className="password-toggle"
                         >
-                          {showPassword ? '👁️' : '👁️‍🗨️'}
+                          {showPassword ? (
+                            <i className="ri-eye-line" aria-hidden="true"></i>
+                          ) : (
+                            <i className="ri-eye-off-line" aria-hidden="true"></i>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -305,7 +313,7 @@ const Settings = () => {
                     <div className="form-group">
                       <label>Nueva contraseña</label>
                       <div className="password-input">
-                        <span className="input-icon">🔒</span>
+                        <span className="input-icon"><i className="ri-lock-2-line" aria-hidden="true"></i></span>
                         <input
                           type={showNewPassword ? 'text' : 'password'}
                           value={passwordData.newPassword}
@@ -317,7 +325,11 @@ const Settings = () => {
                           onClick={() => setShowNewPassword(!showNewPassword)}
                           className="password-toggle"
                         >
-                          {showNewPassword ? '👁️' : '👁️‍🗨️'}
+                          {showNewPassword ? (
+                            <i className="ri-eye-line" aria-hidden="true"></i>
+                          ) : (
+                            <i className="ri-eye-off-line" aria-hidden="true"></i>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -340,7 +352,7 @@ const Settings = () => {
                 </div>
 
                 <button onClick={() => handleSave('profile')} className="btn btn-primary save-btn">
-                  💾 Guardar cambios
+                  <i className="ri-save-3-line" aria-hidden="true"></i> Guardar cambios
                 </button>
               </div>
             )}
@@ -406,7 +418,7 @@ const Settings = () => {
                 </div>
 
                 <button onClick={() => handleSave('notifications')} className="btn btn-primary save-btn">
-                  💾 Guardar preferencias
+                  <i className="ri-save-3-line" aria-hidden="true"></i> Guardar preferencias
                 </button>
               </div>
             )}
@@ -470,7 +482,7 @@ const Settings = () => {
                 </div>
 
                 <button onClick={() => handleSave('privacy')} className="btn btn-primary save-btn">
-                  💾 Guardar configuración
+                  <i className="ri-save-3-line" aria-hidden="true"></i> Guardar configuración
                 </button>
               </div>
             )}
@@ -547,7 +559,7 @@ const Settings = () => {
                   className="btn btn-primary save-btn"
                   style={{ backgroundColor: themeSettings.accentColor }}
                 >
-                  💾 Aplicar cambios
+                  <i className="ri-save-3-line" aria-hidden="true"></i> Aplicar cambios
                 </button>
               </div>
             )}
@@ -615,7 +627,7 @@ const Settings = () => {
                 </div>
 
                 <button onClick={() => handleSave('language')} className="btn btn-primary save-btn">
-                  💾 Guardar configuración
+                  <i className="ri-save-3-line" aria-hidden="true"></i> Guardar configuración
                 </button>
               </div>
             )}
@@ -639,10 +651,10 @@ const Settings = () => {
                   <div className="plan-features">
                     <p><strong>Tu plan incluye:</strong></p>
                     <ul className="features-list">
-                      <li className="included">✅ Hasta 5 proyectos</li>
-                      <li className="included">✅ 50 conexiones</li>
-                      <li className="included">✅ Soporte básico</li>
-                      <li className="not-included">❌ Análisis avanzados</li>
+                      <li className="included"><i className="ri-check-line" aria-hidden="true"></i> Hasta 5 proyectos</li>
+                      <li className="included"><i className="ri-check-line" aria-hidden="true"></i> 50 conexiones</li>
+                      <li className="included"><i className="ri-check-line" aria-hidden="true"></i> Soporte básico</li>
+                      <li className="not-included"><i className="ri-close-line" aria-hidden="true"></i> Análisis avanzados</li>
                     </ul>
                   </div>
 
@@ -672,7 +684,7 @@ const Settings = () => {
                   <h3>Métodos de Pago</h3>
                   <div className="payment-methods">
                     <div className="empty-state">
-                      <span className="empty-icon">💳</span>
+                      <span className="empty-icon"><i className="ri-bank-card-line" aria-hidden="true"></i></span>
                       <p>No tienes métodos de pago configurados</p>
                       <button className="btn btn-primary">
                         Agregar método de pago
@@ -692,21 +704,21 @@ const Settings = () => {
                 <div className="settings-sections">
                   {/* Exportar datos */}
                   <div className="data-card export-data">
-                    <h3>📥 Exportar Datos</h3>
+                    <h3><i className="ri-download-2-line" aria-hidden="true"></i> Exportar Datos</h3>
                     <p>Descarga una copia de todos tus datos en formato JSON</p>
                     <div className="export-actions">
                       <button className="btn btn-primary">
-                        📄 Exportar perfil
+                        <i className="ri-file-list-3-line" aria-hidden="true"></i> Exportar perfil
                       </button>
                       <button className="btn btn-success">
-                        📝 Exportar publicaciones
+                        <i className="ri-file-edit-line" aria-hidden="true"></i> Exportar publicaciones
                       </button>
                     </div>
                   </div>
 
                   {/* Zona peligrosa */}
                   <div className="data-card danger-zone">
-                    <h3>⚠️ Zona de Peligro</h3>
+                    <h3><i className="ri-alert-line" aria-hidden="true"></i> Zona de Peligro</h3>
                     <p>Estas acciones son irreversibles. Procede con precaución.</p>
                     
                     <div className="danger-actions">
@@ -716,7 +728,7 @@ const Settings = () => {
                           <p>Elimina permanentemente todas tus publicaciones</p>
                         </div>
                         <button className="btn btn-danger">
-                          🗑️ Eliminar
+                          <i className="ri-delete-bin-6-line" aria-hidden="true"></i> Eliminar
                         </button>
                       </div>
 
@@ -726,7 +738,7 @@ const Settings = () => {
                           <p>Elimina permanentemente tu cuenta y todos los datos asociados</p>
                         </div>
                         <button className="btn btn-danger-dark">
-                          🗑️ Eliminar cuenta
+                          <i className="ri-delete-bin-6-line" aria-hidden="true"></i> Eliminar cuenta
                         </button>
                       </div>
                     </div>

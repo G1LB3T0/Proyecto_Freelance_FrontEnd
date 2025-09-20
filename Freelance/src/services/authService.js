@@ -114,7 +114,7 @@ class AuthService {
         } catch (error) {
             console.error('🚨 Error de conexión completo:', error);
             console.error('🚨 Error message:', error.message);
-            console.error('🚨 URL intentada:', `${this.baseURL}/api/login`);
+            console.error('🚨 URL intentada:', `${this.baseURL}/login/login`);
             return {
                 success: false,
                 message: 'Error de conexión con el servidor. Verifica que el backend esté corriendo en ' + this.baseURL
@@ -142,7 +142,7 @@ class AuthService {
         if (!token) return false;
 
         try {
-            const response = await fetch(`${this.baseURL}/api/verify-token`, {
+            const response = await fetch(`${this.baseURL}/login/verify`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -164,7 +164,7 @@ class AuthService {
         if (!token) return false;
 
         try {
-            const response = await fetch(`${this.baseURL}/api/refresh-token`, {
+            const response = await fetch(`${this.baseURL}/login/refresh`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

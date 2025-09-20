@@ -17,6 +17,7 @@ const Register = () => {
     gender: '',
     country: '',
     postalCode: '',
+    userType: '', // Agregar campo para tipo de usuario
     agreeTerms: false
   });
 
@@ -57,7 +58,7 @@ const Register = () => {
         return formData.firstName && formData.lastName && formData.email && formData.username;
       case 2:
         return formData.phone && formData.dateOfBirth && formData.gender &&
-          formData.country && formData.postalCode;
+          formData.country && formData.postalCode && formData.userType;
       case 3:
         if (formData.password !== formData.confirmPassword) {
           setPasswordError('Las contraseñas no coinciden');
@@ -112,19 +113,48 @@ const Register = () => {
 
     setIsSubmitting(true);
 
+    // Validar que todos los campos requeridos estén llenos
+    const requiredFields = [
+      'firstName', 'lastName', 'email', 'username', 'password',
+      'phone', 'dateOfBirth', 'gender', 'country', 'postalCode', 'userType'
+    ];
+
+    const missingFields = requiredFields.filter(field => !formData[field] || formData[field].trim() === '');
+
+    if (missingFields.length > 0) {
+      console.error('Campos faltantes:', missingFields);
+      alert(`Por favor completa todos los campos: ${missingFields.join(', ')}`);
+      setIsSubmitting(false);
+      return;
+    }
+
     const requestData = {
-      email: formData.email,
+      email: formData.email.trim(),
       password: formData.password,
-      first_name: formData.firstName,
-      last_name: formData.lastName,
-      username: formData.username
+      first_name: formData.firstName.trim(),
+      last_name: formData.lastName.trim(),
+      username: formData.username.trim(),
+      phone: formData.phone.trim(),
+      date_of_birth: formData.dateOfBirth,
+      gender: formData.gender,
+      country: formData.country.trim(),
+      postal_code: formData.postalCode.trim(),
+      user_type: formData.userType
     };
 
     console.log('Datos que se envían al servidor:', requestData);
-    console.log('Username específicamente:', formData.username);
+    console.log('Validación completa - todos los campos presentes');
+
+    // Verificar específicamente el formato de fecha
+    if (!requestData.date_of_birth || requestData.date_of_birth === '') {
+      console.error('Fecha de nacimiento faltante');
+      alert('Por favor selecciona tu fecha de nacimiento');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
-      const response = await fetch('http://localhost:3000/api/register', {
+      const response = await fetch('http://localhost:3000/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,10 +163,43 @@ const Register = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Error desconocido del servidor' }));
-        console.error('Error del servidor:', errorData);
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (jsonError) {
+          errorData = {
+            message: `Error ${response.status}: ${response.statusText}`,
+            details: 'No se pudo parsear la respuesta del servidor'
+          };
+        }
+
+        console.error('=== ERROR DETALLADO DEL SERVIDOR ===');
         console.error('Status:', response.status);
-        console.error('Response:', errorData);
+        console.error('Status Text:', response.statusText);
+        console.error('URL llamada:', 'http://localhost:3000/register');
+        console.error('Método:', 'POST');
+        console.error('Headers enviados:', {
+          'Content-Type': 'application/json'
+        });
+        console.error('Error Data COMPLETO:', JSON.stringify(errorData, null, 2));
+        console.error('Datos enviados COMPLETO:', JSON.stringify(requestData, null, 2));
+
+        // Intentar obtener el texto crudo de la respuesta para más detalles
+        try {
+          const responseClone = response.clone();
+          const textResponse = await responseClone.text();
+          console.error('Respuesta RAW del servidor:', textResponse);
+        } catch (textError) {
+          console.error('No se pudo obtener la respuesta en texto:', textError);
+        }
+
+        console.error('=== FIN ERROR DETALLADO ===');
+
+        // Manejar errores específicos
+        if (response.status === 500) {
+          const errorMessage = errorData.error || errorData.message || 'Error interno del servidor. Verifica que todos los campos sean válidos.';
+          throw new Error(`Error 500 - ${errorMessage}`);
+        }
 
         // Manejar la estructura de error del servidor
         const errorMessage = errorData.error || errorData.message || `Error ${response.status}: ${response.statusText}`;
@@ -299,7 +362,7 @@ const Register = () => {
             type="tel"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="1234567890"
+            placeholder="+502123456789"
             required
           />
         </div>
@@ -364,6 +427,23 @@ const Register = () => {
             placeholder="Código Postal"
             required
           />
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="userType">Tipo de Usuario</label>
+        <div className="input-container">
+          <select
+            id="userType"
+            name="userType"
+            value={formData.userType}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Selecciona tu perfil</option>
+            <option value="freelancer">Freelancer</option>
+            <option value="project_manager">Project Manager</option>
+          </select>
         </div>
       </div>
 

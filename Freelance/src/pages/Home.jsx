@@ -21,10 +21,6 @@ const Home = () => {
   });
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showAllEvents, setShowAllEvents] = useState(false);
-  const [showAllContacts, setShowAllContacts] = useState(false);
-  const [postsPage, setPostsPage] = useState(1);
-  const [loadingMorePosts, setLoadingMorePosts] = useState(false);
 
   // Función para validar URL de imagen
   const isValidImageUrl = (url) => {
@@ -122,41 +118,17 @@ const Home = () => {
   };
 
   // Función para obtener posts (separada para poder reutilizar)
-  const fetchPosts = async (page = 1, append = false) => {
+  const fetchPosts = async () => {
     try {
-      const postsResponse = await fetch(`http://localhost:3000/posts/?page=${page}&limit=5`);
+      const postsResponse = await fetch("http://localhost:3000/posts/");
       if (postsResponse.ok) {
         const postsData = await postsResponse.json();
         const postsArray = Array.isArray(postsData) ? postsData : postsData.data?.posts || postsData.posts || postsData.data || [];
-
-        if (append) {
-          setPosts(prevPosts => [...prevPosts, ...postsArray]);
-        } else {
-          setPosts(postsArray);
-        }
+        setPosts(postsArray);
       }
     } catch (error) {
       console.error("Error cargando posts:", error);
     }
-  };
-
-  // Función para cargar más publicaciones
-  const handleLoadMorePosts = async () => {
-    setLoadingMorePosts(true);
-    const nextPage = postsPage + 1;
-    await fetchPosts(nextPage, true);
-    setPostsPage(nextPage);
-    setLoadingMorePosts(false);
-  };
-
-  // Función para mostrar todos los eventos
-  const handleShowAllEvents = () => {
-    setShowAllEvents(!showAllEvents);
-  };
-
-  // Función para mostrar todos los contactos
-  const handleShowAllContacts = () => {
-    setShowAllContacts(!showAllContacts);
   };
 
   useEffect(() => {
@@ -261,8 +233,8 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Sección Principal (centrada) */}
-        <section className="feed">
+  {/* Sección Principal (centrada) */}
+  <section className="feed">
           <div className="section-header">
             <h2>Publicaciones de la Comunidad</h2>
             <div className="filters">
@@ -275,10 +247,10 @@ const Home = () => {
           <div className="create-post">
             <div className="user-avatar">
               {user?.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt="Avatar"
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                <img 
+                  src={user.avatar} 
+                  alt="Avatar" 
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
                 />
               ) : (
                 <i className="ri-user-line" aria-hidden="true"></i>
@@ -288,7 +260,7 @@ const Home = () => {
               <input
                 type="text"
                 placeholder={
-                  user?.first_name
+                  user?.first_name 
                     ? `¿Qué quieres compartir hoy, ${user.first_name}?`
                     : "¿Qué quieres compartir hoy?"
                 }
@@ -314,20 +286,18 @@ const Home = () => {
           </div>
 
           {/* Próximos Eventos centrado debajo de publicaciones */}
-          <div className="widget events-widget" style={{ margin: '32px auto', maxWidth: '500px' }}>
+          <div className="widget events-widget" style={{margin: '32px auto', maxWidth: '500px'}}>
             <h3>Próximos Eventos</h3>
             <ul className="events-list">
-              {(upcomingEvents || [])
-                .slice(0, showAllEvents ? upcomingEvents.length : 3)
-                .map((event) => (
-                  <li key={event.id} className="event-item">
-                    <div className="event-date">{event.date}</div>
-                    <div className="event-title">{event.title}</div>
-                  </li>
-                ))}
+              {(upcomingEvents || []).map((event) => (
+                <li key={event.id} className="event-item">
+                  <div className="event-date">{event.date}</div>
+                  <div className="event-title">{event.title}</div>
+                </li>
+              ))}
             </ul>
-            <button className="see-all-btn" onClick={handleShowAllEvents}>
-              {showAllEvents ? "Ver menos" : "Ver Todos"}
+            <button className="see-all-btn">
+              <Link to="/calendario">Ver Todos</Link>
             </button>
           </div>
 
@@ -404,51 +374,46 @@ const Home = () => {
             )}
           </div>
 
-          <button
-            className="load-more-btn"
-            onClick={handleLoadMorePosts}
-            disabled={loadingMorePosts}
-          >
-            {loadingMorePosts ? "Cargando..." : "Cargar más publicaciones"}
-          </button>
+          <button className="load-more-btn">Cargar más publicaciones</button>
         </section>
 
-        {/* Sidebar Derecho */}
-        <section className="sidebar-right">
+  {/* Sidebar Derecho */}
+  <section className="sidebar-right">
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
             <h3>Potencia tu Carrera Freelance</h3>
             <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
-            <Link to="/premium">
-              <button className="upgrade-btn">Conocer más</button>
-            </Link>
+            <button className="upgrade-btn">Conocer más</button>
           </div>
           <div className="widget suggested-contacts">
             <h3>Personas que quizás conozcas</h3>
             <div className="contact-suggestions">
-              {[
-                { id: 1, name: "Ana Rivera", role: "Diseñadora UX/UI", avatar: "👩‍🎨" },
-                { id: 2, name: "David Torres", role: "Desarrollador Frontend", avatar: "👨‍💻" },
-                { id: 3, name: "Patricia López", role: "Marketing Manager", avatar: "👩‍💼" },
-                { id: 4, name: "Carlos Mendez", role: "Desarrollador Backend", avatar: "👨‍💼" },
-                { id: 5, name: "Sofia García", role: "Product Manager", avatar: "👩‍💻" },
-                { id: 6, name: "Miguel Rodríguez", role: "Data Scientist", avatar: "👨‍�" }
-              ]
-                .slice(0, showAllContacts ? 6 : 3)
-                .map((contact) => (
-                  <div key={contact.id} className="contact-item">
-                    <div className="contact-avatar">{contact.avatar}</div>
-                    <div className="contact-info">
-                      <div className="contact-name">{contact.name}</div>
-                      <div className="contact-role">{contact.role}</div>
-                    </div>
-                    <button className="connect-btn">+</button>
-                  </div>
-                ))}
+              <div className="contact-item">
+                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
+                <div className="contact-info">
+                  <div className="contact-name">Ana Rivera</div>
+                  <div className="contact-role">Diseñadora UX/UI</div>
+                </div>
+                <button className="connect-btn">+</button>
+              </div>
+              <div className="contact-item">
+                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
+                <div className="contact-info">
+                  <div className="contact-name">David Torres</div>
+                  <div className="contact-role">Desarrollador Frontend</div>
+                </div>
+                <button className="connect-btn">+</button>
+              </div>
+              <div className="contact-item">
+                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
+                <div className="contact-info">
+                  <div className="contact-name">Patricia López</div>
+                  <div className="contact-role">Marketing Manager</div>
+                </div>
+                <button className="connect-btn">+</button>
+              </div>
             </div>
-            <button className="see-all-btn" onClick={handleShowAllContacts}>
-              {showAllContacts ? "Ver menos" : "Ver más"}
-            </button>
+            <button className="see-all-btn">Ver más</button>
           </div>
         </section>
       </div>

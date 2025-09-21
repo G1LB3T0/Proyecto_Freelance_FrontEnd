@@ -10,8 +10,8 @@ const PostsDeProyectos = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterStatus, setFilterStatus] = useState('todos');
-  const [isFiltering, setIsFiltering] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [_isFiltering, setIsFiltering] = useState(false);
+  const [_selectedProject, setSelectedProject] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAllActivity, setShowAllActivity] = useState(false);
   const [showAllDeadlines, setShowAllDeadlines] = useState(false);
@@ -29,16 +29,13 @@ const PostsDeProyectos = () => {
   });
   const [creatingProject, setCreatingProject] = useState(false);
 
-  // Todas las funciones de API se mantienen igual...
   const fetchProjectById = async (projectId) => {
     try {
       const response = await authenticatedFetch(`http://localhost:3000/projects/${projectId}`);
       if (!response.ok) throw new Error('Error al obtener el proyecto');
       const project = await response.json();
-      console.log('📄 Proyecto obtenido:', project);
       return project;
     } catch (error) {
-      console.error('❌ Error obteniendo proyecto:', error);
       setError(error.message);
     }
   };
@@ -51,16 +48,14 @@ const PostsDeProyectos = () => {
       });
       if (!response.ok) throw new Error('Error al crear el proyecto');
       const newProject = await response.json();
-      console.log('✅ Proyecto creado:', newProject);
       fetchProjects();
       return newProject;
     } catch (error) {
-      console.error('❌ Error creando proyecto:', error);
       setError(error.message);
     }
   };
 
-  const updateProject = async (projectId, projectData) => {
+  const _updateProject = async (projectId, projectData) => {
     try {
       const response = await authenticatedFetch(`http://localhost:3000/projects/${projectId}`, {
         method: 'PUT',
@@ -68,11 +63,9 @@ const PostsDeProyectos = () => {
       });
       if (!response.ok) throw new Error('Error al actualizar el proyecto');
       const updatedProject = await response.json();
-      console.log('✅ Proyecto actualizado:', updatedProject);
       fetchProjects();
       return updatedProject;
     } catch (error) {
-      console.error('❌ Error actualizando proyecto:', error);
       setError(error.message);
     }
   };
@@ -83,42 +76,34 @@ const PostsDeProyectos = () => {
         method: 'DELETE'
       });
       if (!response.ok) throw new Error('Error al eliminar el proyecto');
-      console.log('✅ Proyecto eliminado');
       fetchProjects();
       return true;
     } catch (error) {
-      console.error('❌ Error eliminando proyecto:', error);
       setError(error.message);
     }
   };
 
-  // Funciones de manejo (se mantienen igual)
   const handleViewProject = async (project) => {
-    console.log('👁️ Viendo proyecto:', project);
     const fullProject = await fetchProjectById(project.id);
     setSelectedProject(fullProject || project);
     alert(`Ver proyecto: ${project.title}\nCliente: ${project.client}\nEstado: ${getStatusText(project.status)}`);
   };
 
   const handleEditProject = (project) => {
-    console.log('✏️ Editando proyecto:', project);
     setSelectedProject(project);
     alert(`Editar proyecto: ${project.title}\n(Funcionalidad de edición pendiente)`);
   };
 
   const handleDeleteProject = async (projectId) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este proyecto?')) {
-      console.log('🗑️ Eliminando proyecto:', projectId);
       await deleteProject(projectId);
     }
   };
 
   const handleCreateProject = () => {
-    console.log('➕ Creando nuevo proyecto');
     setShowCreateModal(true);
   };
 
-  // Función para manejar cambios en el formulario
   const handleInputChange = (field, value) => {
     setNewProject(prev => ({
       ...prev,
@@ -126,24 +111,18 @@ const PostsDeProyectos = () => {
     }));
   };
 
-  // Función para enviar el formulario
   const handleSubmitProject = async (e) => {
     e.preventDefault();
-
-    // Verificar autenticación
     if (!isAuthenticated || !user) {
       alert('Debes estar logueado para crear un proyecto');
       return;
     }
-
     if (!newProject.title.trim() || !newProject.description.trim() || !newProject.budget) {
       alert('Por favor, completa los campos requeridos: título, descripción y presupuesto');
       return;
     }
-
     setCreatingProject(true);
     try {
-      // Adaptar los datos al formato que espera el backend
       const projectData = {
         title: newProject.title,
         description: newProject.description,
@@ -153,10 +132,7 @@ const PostsDeProyectos = () => {
         skills_required: newProject.skills_required.split(',').map(skill => skill.trim()).filter(skill => skill),
         priority: newProject.priority
       };
-
       await createProject(projectData);
-
-      // Limpiar el formulario
       setNewProject({
         title: '',
         description: '',
@@ -169,14 +145,12 @@ const PostsDeProyectos = () => {
       setShowCreateModal(false);
       alert('¡Proyecto creado exitosamente!');
     } catch (error) {
-      console.error('Error creando proyecto:', error);
       alert('Error al crear el proyecto. Inténtalo de nuevo.');
     } finally {
       setCreatingProject(false);
     }
   };
 
-  // Función para cerrar el modal
   const handleCloseModal = () => {
     setShowCreateModal(false);
     setNewProject({
@@ -190,13 +164,9 @@ const PostsDeProyectos = () => {
     });
   };
 
-  // Funciones para manejar los botones
   const handleLoadMoreProjects = () => {
     setLoadingMoreProjects(true);
-    // Simular carga de más proyectos
     setTimeout(() => {
-      // Aquí podrías cargar más proyectos desde la API
-      console.log('Cargando más proyectos...');
       setLoadingMoreProjects(false);
     }, 1000);
   };
@@ -227,97 +197,74 @@ const PostsDeProyectos = () => {
     return baseUrl;
   };
 
-  // Función para verificar y renderizar imagen opcional
   const renderProjectImage = (project) => {
-    // Verificar si existe una URL de imagen válida
     if (project.image_url &&
-      project.image_url.trim() !== '' &&
-      project.image_url !== null &&
-      project.image_url !== undefined) {
+        project.image_url.trim() !== '' &&
+        project.image_url !== null &&
+        project.image_url !== undefined) {
       return (
         <div className="project-image">
           <img
             src={project.image_url}
             alt={project.title}
             onError={(e) => {
-              // Si la imagen falla al cargar, ocultar el contenedor
               e.target.parentElement.style.display = 'none';
             }}
             onLoad={(e) => {
-              // Asegurar que el contenedor sea visible si la imagen carga
               e.target.parentElement.style.display = 'block';
             }}
           />
         </div>
       );
     }
-    return null; // No renderizar nada si no hay imagen
+    return null;
   };
 
   const fetchProjects = async () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('🔄 Conectando a la API...');
-
       const apiUrl = getApiUrl();
-      console.log('🌐 URL de la API:', apiUrl);
       const response = await authenticatedFetch(apiUrl);
-      console.log('📡 Status de respuesta:', response.status);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Error de respuesta:', errorText);
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
+      const errorText = await response.text();
+      throw new Error(`Error ${response.status}: ${response.statusText} - ${errorText}`);
+    }
       const data = await response.json();
-      console.log('📦 Datos recibidos:', data);
-
-      const mapProject = (project) => {
-        console.log('🔄 Mapeando proyecto:', project);
+      const mapProject = (_) => {
         return {
-          id: project.id,
-          title: project.title || 'Sin título',
-          client: project.client_name || project.clientName || 'Cliente no especificado',
-          description: project.description || 'Sin descripción',
-          status: mapApiStatusToLocal(project.status),
-          technologies: project.technologies ?
-            (typeof project.technologies === 'string' ? JSON.parse(project.technologies) : project.technologies)
+          id: _.id,
+          title: _.title || 'Sin título',
+          client: _.client_name || _.clientName || 'Cliente no especificado',
+          description: _.description || 'Sin descripción',
+          status: mapApiStatusToLocal(_.status),
+          technologies: _.technologies ?
+            (typeof _.technologies === 'string' ? JSON.parse(_.technologies) : _.technologies)
             : [],
-          startDate: project.start_date || project.startDate,
-          endDate: project.end_date || project.endDate,
-          budget: project.budget ? `$${project.budget}` : 'No especificado',
-          icon: getProjectIcon(project.category || project.title),
-          image_url: project.image_url || null, // Agregar campo para imagen opcional
-          progress: calculateProgress(project.status, project.start_date || project.startDate, project.end_date || project.endDate)
+          startDate: _.start_date || _.startDate,
+          endDate: _.end_date || _.endDate,
+          budget: _.budget ? `$${_.budget}` : 'No especificado',
+          icon: getProjectIcon(_.category || _.title),
+          image_url: _.image_url || null,
+          progress: calculateProgress(_.status, _.start_date || _.startDate, _.end_date || _.endDate)
         };
       };
-
       if (!Array.isArray(data)) {
-        console.warn('⚠️ Los datos no son un array:', data);
         if (data && data.projects && Array.isArray(data.projects)) {
-          console.log('✅ Encontrados proyectos en data.projects');
           setProjects(data.projects.map(project => mapProject(project)));
           return;
         }
         if (data && data.data && Array.isArray(data.data)) {
-          console.log('✅ Encontrados proyectos en data.data');
           setProjects(data.data.map(project => mapProject(project)));
           return;
         }
         setProjects([]);
         return;
       }
-
       const mappedProjects = data.map(project => mapProject(project));
-      console.log('✅ Proyectos mapeados:', mappedProjects);
       setProjects(mappedProjects);
-
     } catch (error) {
-      console.error('❌ Error fetching projects:', error);
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        console.error('🌐 Error de conexión: No se puede conectar al servidor');
         setError('No se puede conectar al servidor. Verifica que esté corriendo en http://localhost:3000');
       } else {
         setError(error.message || 'Error al cargar los proyectos');
@@ -327,7 +274,6 @@ const PostsDeProyectos = () => {
     }
   };
 
-  // Funciones auxiliares (se mantienen igual)
   const mapApiStatusToLocal = (apiStatus) => {
     switch (apiStatus?.toLowerCase()) {
       case 'completed': return 'completado';
@@ -367,10 +313,12 @@ const PostsDeProyectos = () => {
     return 50;
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchProjects();
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (filterStatus !== 'todos') {
       setIsFiltering(true);
@@ -380,9 +328,8 @@ const PostsDeProyectos = () => {
     });
   }, [filterStatus]);
 
-  const filteredProjects = projects.filter(project => {
-    // Solo filtro por búsqueda ya que el filtro por estado se maneja en la API
-    return true; // Por ahora no hay searchQuery en este componente
+  const filteredProjects = projects.filter(_ => {
+    return true;
   });
 
   const getStatusColor = (status) => {
@@ -410,7 +357,7 @@ const PostsDeProyectos = () => {
   if (loading) return (
     <Layout currentPage="projects">
       <div className="loading">
-        <p>🔄 Cargando proyectos...</p>
+        <p><i className="ri-loader-4-line" aria-hidden="true"></i> Cargando proyectos...</p>
         <small>Conectando a: http://localhost:3000/projects</small>
       </div>
     </Layout>
@@ -419,7 +366,7 @@ const PostsDeProyectos = () => {
   if (error) return (
     <Layout currentPage="projects">
       <div className="error">
-        <h3>❌ Error al cargar los proyectos</h3>
+        <h3><i className="ri-close-circle-line" aria-hidden="true"></i> Error al cargar los proyectos</h3>
         <p>{error}</p>
         <div className="error-suggestions">
           <p><strong>Rutas disponibles:</strong></p>
@@ -429,7 +376,9 @@ const PostsDeProyectos = () => {
             <li>• <code>GET http://localhost:3000/projects/status/:status</code> - Por estado</li>
           </ul>
         </div>
-        <button onClick={fetchProjects} className="retry-btn">🔄 Reintentar</button>
+        <button onClick={fetchProjects} className="retry-btn" title="Reintentar">
+          <i className="ri-refresh-line" aria-hidden="true"></i> Reintentar
+        </button>
       </div>
     </Layout>
   );
@@ -459,7 +408,6 @@ const PostsDeProyectos = () => {
               </div>
             </div>
           </div>
-
           <div className="widget events-widget">
             <h3>Actividad Reciente</h3>
             <ul className="events-list">
@@ -493,7 +441,6 @@ const PostsDeProyectos = () => {
             </button>
           </div>
         </section>
-
         {/* Sección Principal */}
         <section className="feed">
           <div className="section-header">
@@ -504,7 +451,7 @@ const PostsDeProyectos = () => {
               </small>
               {filterStatus !== 'todos' && (
                 <small style={{ color: '#3B82F6', fontSize: '12px', marginLeft: '8px' }}>
-                  📡 Filtrado por API
+                  <i className="ri-radar-line" aria-hidden="true"></i> Filtrado por API
                 </small>
               )}
             </h2>
@@ -541,9 +488,8 @@ const PostsDeProyectos = () => {
               </span>
             </div>
           </div>
-
           <div className="create-post">
-            <div className="user-avatar"><i className="ri-briefcase-line"></i></div>
+            <div className="user-avatar"><i className="ri-briefcase-line" aria-hidden="true"></i></div>
             <input
               type="text"
               placeholder="Crear nuevo proyecto..."
@@ -557,27 +503,22 @@ const PostsDeProyectos = () => {
               + Nuevo Proyecto
             </button>
           </div>
-
           <div className="posts-list">
             {filteredProjects.map(project => (
               <div key={project.id} className="post-card project-card-content">
                 <div className="post-header">
                   <div className="post-author">
-                    <span className="author-avatar"><i className={project.icon}></i></span>
+                    <span className="author-avatar"><i className={project.icon} aria-hidden="true"></i></span>
                     <div className="author-info">
                       <span className="author-name">{project.title}</span>
                       <span className="post-time">{project.client}</span>
                     </div>
                   </div>
-                  <div className="post-menu">⋯</div>
+                  <div className="post-menu"><i className="ri-more-2-fill" aria-hidden="true" title="Opciones"></i></div>
                 </div>
-
                 <div className="post-content">
                   <p>{project.description}</p>
-
-                  {/* Imagen opcional del proyecto */}
                   {renderProjectImage(project)}
-
                   <div className="project-technologies">
                     {project.technologies.slice(0, 4).map((tech, index) => (
                       <span key={index} className="tech-tag">{tech}</span>
@@ -586,7 +527,6 @@ const PostsDeProyectos = () => {
                       <span className="tech-more">+{project.technologies.length - 4}</span>
                     )}
                   </div>
-
                   <div className="project-progress">
                     <div className="progress-header">
                       <span className="progress-label">Progreso</span>
@@ -603,16 +543,15 @@ const PostsDeProyectos = () => {
                     </div>
                   </div>
                 </div>
-
                 <div className="post-actions">
                   <div className="action">
-                    <span className="action-icon"><i className="ri-bar-chart-2-line"></i></span>
+                    <span className="action-icon"><i className="ri-bar-chart-2-line" aria-hidden="true"></i></span>
                     <span className="action-label" style={{ color: getStatusColor(project.status) }}>
                       {getStatusText(project.status)}
                     </span>
                   </div>
                   <div className="action">
-                    <span className="action-icon"><i className="ri-money-dollar-circle-line"></i></span>
+                    <span className="action-icon"><i className="ri-money-dollar-circle-line" aria-hidden="true"></i></span>
                     <span className="action-label">{project.budget}</span>
                   </div>
                   <div
@@ -620,7 +559,7 @@ const PostsDeProyectos = () => {
                     style={{ cursor: 'pointer' }}
                     onClick={() => handleViewProject(project)}
                   >
-                    <span className="action-icon"><i className="ri-eye-line"></i></span>
+                    <span className="action-icon"><i className="ri-eye-line" aria-hidden="true"></i></span>
                     <span className="action-label">Ver</span>
                   </div>
                   <div
@@ -628,7 +567,7 @@ const PostsDeProyectos = () => {
                     style={{ cursor: 'pointer' }}
                     onClick={() => handleEditProject(project)}
                   >
-                    <span className="action-icon"><i className="ri-edit-line"></i></span>
+                    <span className="action-icon"><i className="ri-edit-line" aria-hidden="true"></i></span>
                     <span className="action-label">Editar</span>
                   </div>
                   <div
@@ -636,17 +575,16 @@ const PostsDeProyectos = () => {
                     style={{ cursor: 'pointer', color: '#ef4444' }}
                     onClick={() => handleDeleteProject(project.id)}
                   >
-                    <span className="action-icon"><i className="ri-delete-bin-6-line"></i></span>
+                    <span className="action-icon"><i className="ri-delete-bin-6-line" aria-hidden="true"></i></span>
                     <span className="action-label">Eliminar</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-
           {filteredProjects.length === 0 && (
             <div className="empty-state">
-              <div className="empty-icon"><i className="ri-file-list-3-line"></i></div>
+              <div className="empty-icon"><i className="ri-file-list-3-line" aria-hidden="true"></i></div>
               <h3>No se encontraron proyectos</h3>
               <p>Intenta cambiar los filtros o crear un nuevo proyecto</p>
               <button
@@ -657,7 +595,6 @@ const PostsDeProyectos = () => {
               </button>
             </div>
           )}
-
           <button
             className="load-more-btn"
             onClick={handleLoadMoreProjects}
@@ -666,7 +603,6 @@ const PostsDeProyectos = () => {
             {loadingMoreProjects ? "Cargando..." : "Ver más proyectos"}
           </button>
         </section>
-
         {/* Sidebar Derecho */}
         <section className="right-sidebar">
           <div className="widget premium-ad">
@@ -677,7 +613,6 @@ const PostsDeProyectos = () => {
               <button className="upgrade-btn">Conocer más</button>
             </Link>
           </div>
-
           <div className="widget trending-topics">
             <h3>Tecnologías Más Usadas</h3>
             <ul className="topics-list">
@@ -688,51 +623,50 @@ const PostsDeProyectos = () => {
               <li>#Vue.js</li>
             </ul>
           </div>
-
           <div className="widget suggested-contacts">
             <h3>Próximos Vencimientos</h3>
             <div className="contact-suggestions">
               <div className="contact-item">
-                <div className="contact-avatar"><i className="ri-run-line"></i></div>
+                <div className="contact-avatar"><i className="ri-run-line" aria-hidden="true"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">App Móvil Fitness</div>
                   <div className="contact-role">En 5 días</div>
                 </div>
-                <button className="connect-btn"><i className="ri-alert-line"></i></button>
+                <button className="connect-btn"><i className="ri-alert-line" aria-hidden="true"></i></button>
               </div>
               <div className="contact-item">
-                <div className="contact-avatar"><i className="ri-bar-chart-2-line"></i></div>
+                <div className="contact-avatar"><i className="ri-bar-chart-2-line" aria-hidden="true"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">Dashboard Analytics</div>
                   <div className="contact-role">En 2 semanas</div>
                 </div>
-                <button className="connect-btn"><i className="ri-calendar-line"></i></button>
+                <button className="connect-btn" title="Calendario"><i className="ri-calendar-line" aria-hidden="true"></i></button>
               </div>
               <div className="contact-item">
-                <div className="contact-avatar"><i className="ri-quill-pen-line"></i></div>
+                <div className="contact-avatar"><i className="ri-quill-pen-line" aria-hidden="true"></i></div>
                 <div className="contact-info">
                   <div className="contact-name">Blog Personal</div>
                   <div className="contact-role">En 1 mes</div>
                 </div>
-                <button className="connect-btn"><i className="ri-check-line"></i></button>
+                <button className="connect-btn" title="Confirmar"><i className="ri-check-line" aria-hidden="true"></i></button>
               </div>
               {showAllDeadlines && (
                 <>
                   <div className="contact-item">
-                    <div className="contact-avatar">🛍️</div>
+                    <div className="contact-avatar"><i className="ri-shopping-bag-3-line" aria-hidden="true"></i></div>
                     <div className="contact-info">
                       <div className="contact-name">E-commerce Artesanías</div>
                       <div className="contact-role">En 6 semanas</div>
                     </div>
-                    <button className="connect-btn">📅</button>
+                    <button className="connect-btn" title="Calendario"><i className="ri-calendar-line" aria-hidden="true"></i></button>
                   </div>
                   <div className="contact-item">
-                    <div className="contact-avatar">👥</div>
+                    <div className="contact-avatar"><i className="ri-group-line" aria-hidden="true"></i></div>
                     <div className="contact-info">
                       <div className="contact-name">Sistema CRM</div>
                       <div className="contact-role">En 2 meses</div>
                     </div>
-                    <button className="connect-btn">✅</button>
+                    <button className="connect-btn" title="Confirmar"><i className="ri-check-line" aria-hidden="true"></i></button>
                   </div>
                 </>
               )}
@@ -743,7 +677,6 @@ const PostsDeProyectos = () => {
           </div>
         </section>
       </div>
-
       {/* Modal para crear nuevo proyecto */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
@@ -752,7 +685,6 @@ const PostsDeProyectos = () => {
               <h3>Crear Nuevo Proyecto</h3>
               <button className="close-btn" onClick={handleCloseModal}>×</button>
             </div>
-
             <form onSubmit={handleSubmitProject} className="project-form">
               <div className="form-group">
                 <label htmlFor="title">Título del Proyecto *</label>
@@ -765,7 +697,6 @@ const PostsDeProyectos = () => {
                   required
                 />
               </div>
-
               <div className="form-group">
                 <label htmlFor="description">Descripción *</label>
                 <textarea
@@ -777,7 +708,6 @@ const PostsDeProyectos = () => {
                   required
                 />
               </div>
-
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="budget">Presupuesto ($) *</label>
@@ -792,7 +722,6 @@ const PostsDeProyectos = () => {
                     required
                   />
                 </div>
-
                 <div className="form-group">
                   <label htmlFor="priority">Prioridad</label>
                   <select
@@ -807,7 +736,6 @@ const PostsDeProyectos = () => {
                   </select>
                 </div>
               </div>
-
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="deadline">Fecha Límite</label>
@@ -818,7 +746,6 @@ const PostsDeProyectos = () => {
                     onChange={(e) => handleInputChange('deadline', e.target.value)}
                   />
                 </div>
-
                 <div className="form-group">
                   <label htmlFor="category_id">Categoría</label>
                   <select
@@ -835,7 +762,6 @@ const PostsDeProyectos = () => {
                   </select>
                 </div>
               </div>
-
               <div className="form-group">
                 <label htmlFor="skills_required">Habilidades Requeridas</label>
                 <input

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import App from '../App'
+import '@testing-library/jest-dom/vitest'
 
 // Mock de useNavigate
 const mockNavigate = vi.fn()
@@ -15,7 +16,7 @@ vi.mock('react-router-dom', async () => {
 describe('Login Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    global.fetch = vi.fn()
+    globalThis.fetch = vi.fn()
   })
 
   it('renderiza el formulario de login', () => {
@@ -62,7 +63,7 @@ describe('Login Component', () => {
   })
 
   it('envía el formulario con datos válidos', async () => {
-    global.fetch.mockResolvedValueOnce({
+    globalThis.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ message: 'Login exitoso' })
     })
@@ -78,7 +79,7 @@ describe('Login Component', () => {
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:3000/api/login', {
+      expect(globalThis.fetch).toHaveBeenCalledWith('http://localhost:3000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +93,7 @@ describe('Login Component', () => {
   })
 
   it('maneja errores de login', async () => {
-    global.fetch.mockResolvedValueOnce({
+    globalThis.fetch.mockResolvedValueOnce({
       ok: false,
       json: async () => ({ error: { mensaje: 'Credenciales inválidas' } })
     })

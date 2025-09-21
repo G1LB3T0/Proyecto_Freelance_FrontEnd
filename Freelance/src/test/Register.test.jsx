@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import Register from '../Register'
+import '@testing-library/jest-dom/vitest'
 
 // Mock de useNavigate
 const mockNavigate = vi.fn()
@@ -16,7 +17,7 @@ vi.mock('react-router-dom', async () => {
 describe('Register Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    global.fetch = vi.fn()
+    globalThis.fetch = vi.fn()
   })
 
   it('renderiza el formulario de registro correctamente', () => {

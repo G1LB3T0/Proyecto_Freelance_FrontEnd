@@ -4,7 +4,7 @@ import "../styles/Statistics.css";
 
 const Statistics = () => {
   // Estado de tareas y productividad
-  const [taskStats, setTaskStats] = useState({
+  const [taskStats, _setTaskStats] = useState({
     totalTasks: 156,
     completedTasks: 98,
     inProgressTasks: 34,

@@ -1,4 +1,7 @@
+/* eslint-env jest */
+import { describe, test, expect } from '@jest/globals';
 import React from 'react';
+import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Home from '../Home';
@@ -77,4 +80,4 @@ describe('Home Component', () => {
       expect(screen.getByText('Cargar más publicaciones')).toBeInTheDocument();
     }, { timeout: 5000 });
   });
-}); 
+});

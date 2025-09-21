@@ -209,7 +209,7 @@ const Calendario = () => {
     d === hoy.getDate() && m === (hoy.getMonth() + 1) && y === hoy.getFullYear();
 
   const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  const fechaCorta = (d, m, _y) => `${d} ${MESES[m - 1]}`; // ejemplo: 15 mayo
+  const fechaCorta = (d, m) => `${d} ${MESES[m - 1]}`; // ejemplo: 15 mayo
 
   const handlePrev = () => {
     if (vista === 'month') {

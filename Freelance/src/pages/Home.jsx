@@ -5,7 +5,7 @@ import useAuth from "../hooks/useAuth.js";
 import "../styles/Home.css";
 
 const Home = () => {
-  const { user, isAuthenticated, authenticatedFetch, logout } = useAuth();
+  const { user, isAuthenticated: _isAuthenticated, authenticatedFetch, logout: _logout } = useAuth();
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostImageUrl, setNewPostImageUrl] = useState("");
@@ -14,7 +14,7 @@ const Home = () => {
     { id: 2, title: "Workshop de React", date: "21 Mayo, 16:30" },
     { id: 3, title: "Networking Online", date: "29 Mayo, 19:00" },
   ]);
-  const [userStats, setUserStats] = useState({
+  const [userStats, _setUserStats] = useState({
     projects: 12,
     contacts: 37,
     visits: "5.2k"
@@ -41,7 +41,6 @@ const Home = () => {
       // Usar el usuario del hook useAuth
       if (!user?.id) {
         alert('Debes estar logueado para publicar');
-        console.log("No hay usuario autenticado:", user);
         return;
       }
 
@@ -57,8 +56,7 @@ const Home = () => {
       });
 
       if (response.ok) {
-        const newPost = await response.json();
-        console.log("Post creado:", newPost);
+        await response.json();
         setNewPostContent("");
         setNewPostImageUrl("");
         // Recargar posts
@@ -143,7 +141,6 @@ const Home = () => {
           const eventsResponse = await fetch("http://localhost:3000/api/events/upcoming");
           if (eventsResponse.ok) {
             const eventsData = await eventsResponse.json();
-            console.log("Events response:", eventsData);
             const eventsArray = Array.isArray(eventsData) ? eventsData : eventsData.data?.events || eventsData.events || eventsData.data || [];
             if (eventsArray.length > 0) {
               setUpcomingEvents(eventsArray);
@@ -296,9 +293,7 @@ const Home = () => {
                 </li>
               ))}
             </ul>
-            <button className="see-all-btn">
-              <Link to="/calendario">Ver Todos</Link>
-            </button>
+            <Link className="see-all-btn" to="/calendario">Ver Todos</Link>
           </div>
 
           <div className="posts-list">
@@ -317,7 +312,7 @@ const Home = () => {
                       <span className="post-time">{new Date(post.created_at).toLocaleDateString() || post.time}</span>
                     </div>
                   </div>
-                  <div className="post-menu">⋯</div>
+                  <div className="post-menu"><i className="ri-more-2-fill" aria-hidden="true"></i></div>
                 </div>
                 <div className="post-content">
                   <h3 className="post-title">{post.title}</h3>

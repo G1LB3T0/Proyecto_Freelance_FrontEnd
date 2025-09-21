@@ -1,5 +1,5 @@
-import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import '@testing-library/jest-dom/vitest'
+import { vi, afterEach } from 'vitest'
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -17,14 +17,14 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock IntersectionObserver
-global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+globalThis.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }));
 
 // Mock de ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
+globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
@@ -33,4 +33,4 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 // Limpiar mocks después de cada test
 afterEach(() => {
   vi.clearAllMocks()
-}) 
+})

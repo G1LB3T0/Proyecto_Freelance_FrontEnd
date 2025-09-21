@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Layout from '../Components/Layout.jsx';
 import '../styles/Settings.css';
 
@@ -72,7 +72,7 @@ const Settings = () => {
   ];
 
   // Función para guardar cambios
-  const handleSave = async (section) => {
+  const handleSave = async () => {
     setSaveStatus('saving');
     // Simular llamada API
     setTimeout(() => {
@@ -659,7 +659,7 @@ const Settings = () => {
                   </div>
 
                   <button className="btn btn-upgrade">
-                    ⭐ Actualizar a Premium
+                    <i className="ri-star-line" aria-hidden="true"></i> Actualizar a Premium
                   </button>
                 </div>
 

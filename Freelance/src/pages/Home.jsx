@@ -45,7 +45,7 @@ const Home = () => {
         return;
       }
 
-      const response = await authenticatedFetch("http://localhost:3000/posts", {
+      const response = await authenticatedFetch("http://localhost:3000/api/posts", {
         method: "POST",
         body: JSON.stringify({
           title: newPostContent.substring(0, 50) + (newPostContent.length > 50 ? "..." : ""),
@@ -96,7 +96,7 @@ const Home = () => {
         return;
       }
 
-      const response = await authenticatedFetch(`http://localhost:3000/posts/${postId}?user_id=${user.id}`, {
+      const response = await authenticatedFetch(`http://localhost:3000/api/posts/${postId}?user_id=${user.id}`, {
         method: "DELETE",
       });
 
@@ -120,7 +120,7 @@ const Home = () => {
   // Función para obtener posts (separada para poder reutilizar)
   const fetchPosts = async () => {
     try {
-      const postsResponse = await fetch("http://localhost:3000/posts/");
+      const postsResponse = await fetch("http://localhost:3000/api/posts/");
       if (postsResponse.ok) {
         const postsData = await postsResponse.json();
         const postsArray = Array.isArray(postsData) ? postsData : postsData.data?.posts || postsData.posts || postsData.data || [];
@@ -233,8 +233,8 @@ const Home = () => {
           </div>
         </section>
 
-  {/* Sección Principal (centrada) */}
-  <section className="feed">
+        {/* Sección Principal (centrada) */}
+        <section className="feed">
           <div className="section-header">
             <h2>Publicaciones de la Comunidad</h2>
             <div className="filters">
@@ -247,10 +247,10 @@ const Home = () => {
           <div className="create-post">
             <div className="user-avatar">
               {user?.avatar ? (
-                <img 
-                  src={user.avatar} 
-                  alt="Avatar" 
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
+                <img
+                  src={user.avatar}
+                  alt="Avatar"
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
                 />
               ) : (
                 <i className="ri-user-line" aria-hidden="true"></i>
@@ -260,7 +260,7 @@ const Home = () => {
               <input
                 type="text"
                 placeholder={
-                  user?.first_name 
+                  user?.first_name
                     ? `¿Qué quieres compartir hoy, ${user.first_name}?`
                     : "¿Qué quieres compartir hoy?"
                 }
@@ -286,7 +286,7 @@ const Home = () => {
           </div>
 
           {/* Próximos Eventos centrado debajo de publicaciones */}
-          <div className="widget events-widget" style={{margin: '32px auto', maxWidth: '500px'}}>
+          <div className="widget events-widget" style={{ margin: '32px auto', maxWidth: '500px' }}>
             <h3>Próximos Eventos</h3>
             <ul className="events-list">
               {(upcomingEvents || []).map((event) => (
@@ -296,9 +296,10 @@ const Home = () => {
                 </li>
               ))}
             </ul>
-            <button className="see-all-btn">
-              <Link to="/calendario">Ver Todos</Link>
-            </button>
+            <Link to="/calendario">
+              <button className="see-all-btn">
+                Ver Todos</button>
+            </Link>
           </div>
 
           <div className="posts-list">
@@ -377,8 +378,8 @@ const Home = () => {
           <button className="load-more-btn">Cargar más publicaciones</button>
         </section>
 
-  {/* Sidebar Derecho */}
-  <section className="sidebar-right">
+        {/* Sidebar Derecho */}
+        <section className="sidebar-right">
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
             <h3>Potencia tu Carrera Freelance</h3>
@@ -416,8 +417,8 @@ const Home = () => {
             <button className="see-all-btn">Ver más</button>
           </div>
         </section>
-      </div>
-    </Layout>
+      </div >
+    </Layout >
   );
 };
 

@@ -2,10 +2,31 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import Layout from '../Components/Layout.jsx';
 import '../styles/Calendario.css';
+import { useAuth } from '../hooks/useAuth.js';
 
 const API = import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:3000';
 
 const Calendario = () => {
+  const { authenticatedFetch } = useAuth();
+  const [projects, setProjects] = React.useState([]);
+  const [loadingProjects, setLoadingProjects] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await authenticatedFetch(`${API}/projects`);
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
+        setProjects(list);
+      } catch (err) {
+        console.error('Error al cargar proyectos:', err);
+        setProjects([]);
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+    fetchProjects();
+  }, [authenticatedFetch]);
   const [eventos, setEventos] = React.useState([]);
   const [mesVisualizando, setMesVisualizando] = React.useState(8); // Agosto por defecto para ver los eventos existentes
   const [nuevoEvento, setNuevoEvento] = React.useState({ title: '', day: '', month: 8, year: 2025 });
@@ -833,6 +854,23 @@ const Calendario = () => {
                 ));
               })()}
             </ul>
+          </div>
+
+          <div className="widget projects-list" style={{ marginTop: 16 }}>
+            <h3>Proyectos</h3>
+            {loadingProjects ? (
+              <p>Cargando proyectos…</p>
+            ) : projects.length === 0 ? (
+              <p>No hay proyectos disponibles</p>
+            ) : (
+              <ul>
+                {projects.slice(0, 5).map((p) => (
+                  <li key={p.id}>
+                    <strong>{p.title}</strong> - 💰 {typeof p.budget === 'number' ? p.budget : p.budget ?? '-'}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </aside>
       </div>

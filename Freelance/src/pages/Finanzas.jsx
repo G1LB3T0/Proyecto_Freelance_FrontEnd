@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import Layout from "../Components/Layout.jsx";
 import "../styles/Finanzas.css";
 
 const Finanzas = () => {
   // Datos quemados para mostrar
-  const [resumenFinanciero, setResumenFinanciero] = useState({
+  const [resumenFinanciero] = useState({
     ingresosMes: 5250.0,
     gastosMes: 1200.0,
     balanceMes: 4050.0,
@@ -91,10 +90,10 @@ const Finanzas = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNuevaTransaccion({
-      ...nuevaTransaccion,
+    setNuevaTransaccion((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -105,9 +104,7 @@ const Finanzas = () => {
       monto: parseFloat(nuevaTransaccion.monto),
       estado: nuevaTransaccion.tipo === "ingreso" ? "pendiente" : "pagado",
     };
-
-    setTransacciones([transaccion, ...transacciones]);
-
+    setTransacciones((prev) => [transaccion, ...prev]);
     setNuevaTransaccion({
       tipo: "ingreso",
       concepto: "",

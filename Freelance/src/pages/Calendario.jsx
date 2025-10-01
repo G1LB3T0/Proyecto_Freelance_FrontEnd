@@ -44,6 +44,32 @@ const Calendario = () => {
   const CELL_H = 132; // altura consistente de cada celda del calendario (mes y semana)
   const [railTop, setRailTop] = React.useState(140);
 
+  // --- Project deadlines as calendar events ---
+  const projectEvents = React.useMemo(() => {
+    if (!Array.isArray(projects)) return [];
+    return projects
+      .filter((p) => p && p.deadline && p.title)
+      .map((p) => {
+        const d = new Date(p.deadline);
+        if (Number.isNaN(d.getTime())) return null;
+        return {
+          id: `proj-${p.id ?? Math.random().toString(36).slice(2)}`,
+          title: `💼 ${p.title}`,
+          day: d.getDate(),
+          month: d.getMonth() + 1,
+          year: d.getFullYear(),
+          type: 'project',
+        };
+      })
+      .filter(Boolean);
+  }, [projects]);
+
+  const eventosConProyectos = React.useMemo(() => {
+    return [...(Array.isArray(eventos) ? eventos : []), ...projectEvents];
+  }, [eventos, projectEvents]);
+
+  const isProjectEvent = (evento) => evento?.type === 'project' || String(evento?.id || '').startsWith('proj-');
+
   const [isNarrow, setIsNarrow] = React.useState(false);
 
   // Breakpoint listener for responsiveness
@@ -658,8 +684,8 @@ const Calendario = () => {
               {vista === 'month'
                 ? (
                   diasMes.map(dia => {
-                    const eventosDelDia = Array.isArray(eventos)
-                      ? eventos.filter(e =>
+                    const eventosDelDia = Array.isArray(eventosConProyectos)
+                      ? eventosConProyectos.filter(e =>
                           Number(e.day) === dia &&
                           Number(e.month) === mesVisualizando &&
                           Number(e.year) === Number(nuevoEvento.year)
@@ -686,7 +712,7 @@ const Calendario = () => {
                             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                           >
                             <span className="evento-title">{evento.title}</span>
-                            {activo && (
+                            {activo && !isProjectEvent(evento) && (
                               <div
                                 className="evento-actions-overlay"
                                 style={{
@@ -738,8 +764,8 @@ const Calendario = () => {
                 )
                 : (
                   weekDays.map(({ day, month, year }) => {
-                    const eventosDelDia = Array.isArray(eventos)
-                      ? eventos.filter(e =>
+                    const eventosDelDia = Array.isArray(eventosConProyectos)
+                      ? eventosConProyectos.filter(e =>
                           Number(e.day) === day &&
                           Number(e.month) === month &&
                           Number(e.year) === year
@@ -767,7 +793,7 @@ const Calendario = () => {
                             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                           >
                             <span className="evento-title">{evento.title}</span>
-                            {activo && (
+                            {activo && !isProjectEvent(evento) && (
                               <div
                                 className="evento-actions-overlay"
                                 style={{
@@ -842,7 +868,7 @@ const Calendario = () => {
             <h3>Eventos Recientes</h3>
             <ul className="topics-list">
               {(() => {
-                const recientes = [...eventos]
+                const recientes = [...eventosConProyectos]
                   .filter(e => e && e.title)
                   .sort((a, b) => new Date(b.year, b.month - 1, b.day) - new Date(a.year, a.month - 1, a.day))
                   .slice(0, 6);
@@ -856,21 +882,33 @@ const Calendario = () => {
             </ul>
           </div>
 
-          <div className="widget projects-list" style={{ marginTop: 16 }}>
-            <h3>Proyectos</h3>
-            {loadingProjects ? (
-              <p>Cargando proyectos…</p>
-            ) : projects.length === 0 ? (
-              <p>No hay proyectos disponibles</p>
-            ) : (
-              <ul>
-                {projects.slice(0, 5).map((p) => (
-                  <li key={p.id}>
-                    <strong>{p.title}</strong> - 💰 {typeof p.budget === 'number' ? p.budget : p.budget ?? '-'}
-                  </li>
-                ))}
-              </ul>
-            )}
+          <div className="section-divider" style={{ borderTop: '1px solid #e2e8f0', margin: '12px 0' }} />
+
+          <div className="widget trending-topics" style={{ marginTop: 16 }}>
+            <h3>Proyectos Recientes</h3>
+            <ul className="topics-list">
+              {(() => {
+                if (loadingProjects) return <li>Cargando proyectos…</li>;
+                const recientes = Array.isArray(projects)
+                  ? projects
+                      .filter(p => p && p.title && p.deadline)
+                      .sort((a, b) => new Date(b.deadline) - new Date(a.deadline))
+                      .slice(0, 6)
+                  : [];
+                if (recientes.length === 0) return <li>No hay proyectos recientes</li>;
+                return recientes.map(p => {
+                  const d = new Date(p.deadline);
+                  const day = d.getDate();
+                  const month = d.getMonth() + 1;
+                  const year = d.getFullYear();
+                  return (
+                    <li key={p.id ?? `${p.title}-${p.deadline}`}>
+                      {`💼 ${p.title}`} - {Number.isNaN(d.getTime()) ? '-' : fechaCorta(Number(day), Number(month), Number(year))}
+                    </li>
+                  );
+                });
+              })()}
+            </ul>
           </div>
         </aside>
       </div>

@@ -1,8 +1,10 @@
+import { API_BASE_URL } from '../config/api.js';
+
 // Servicio de autenticación para manejar tokens y localStorage
 class AuthService {
     constructor() {
-        // URL base del backend - ajustar según tu configuración
-        this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        // URL base del backend - obtenida de configuración centralizada
+        this.baseURL = API_BASE_URL;
         this.tokenKey = 'authToken';
         this.userKey = 'userData';
     }

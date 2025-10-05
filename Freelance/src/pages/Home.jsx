@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { buildApiUrl } from "../config/api.js";
 import Layout from "../Components/Layout.jsx";
 import useAuth from "../hooks/useAuth.js";
 import "../styles/Home.css";
@@ -45,7 +46,7 @@ const Home = () => {
         return;
       }
 
-      const response = await authenticatedFetch("http://localhost:3000/api/posts", {
+      const response = await authenticatedFetch(buildApiUrl("/api/posts"), {
         method: "POST",
         body: JSON.stringify({
           title: newPostContent.substring(0, 50) + (newPostContent.length > 50 ? "..." : ""),
@@ -96,7 +97,7 @@ const Home = () => {
         return;
       }
 
-      const response = await authenticatedFetch(`http://localhost:3000/api/posts/${postId}?user_id=${user.id}`, {
+      const response = await authenticatedFetch(buildApiUrl(`/api/posts/${postId}?user_id=${user.id}`), {
         method: "DELETE",
       });
 
@@ -120,7 +121,7 @@ const Home = () => {
   // Función para obtener posts (separada para poder reutilizar)
   const fetchPosts = async () => {
     try {
-      const postsResponse = await fetch("http://localhost:3000/api/posts/");
+      const postsResponse = await fetch(buildApiUrl("/api/posts/"));
       if (postsResponse.ok) {
         const postsData = await postsResponse.json();
         const postsArray = Array.isArray(postsData) ? postsData : postsData.data?.posts || postsData.posts || postsData.data || [];
@@ -140,7 +141,7 @@ const Home = () => {
 
         // Eventos (opcional)
         try {
-          const eventsResponse = await fetch("http://localhost:3000/api/events/upcoming");
+          const eventsResponse = await fetch(buildApiUrl("/api/events/upcoming"));
           if (eventsResponse.ok) {
             const eventsData = await eventsResponse.json();
             console.log("Events response:", eventsData);
@@ -156,7 +157,7 @@ const Home = () => {
         // Estadísticas (comentado porque la ruta no existe aún)
         /* 
         try {
-          const statsResponse = await fetch("http://localhost:3000/api/users/me/stats");
+          const statsResponse = await fetch(buildApiUrl("/api/users/me/stats"));
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
             console.log("Stats response:", statsData);

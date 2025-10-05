@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { buildApiUrl } from '../config/api.js';
 import '../styles/Register.css';
 
 const Register = () => {
@@ -154,7 +155,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/register', {
+      const response = await fetch(buildApiUrl('/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +177,7 @@ const Register = () => {
         console.error('=== ERROR DETALLADO DEL SERVIDOR ===');
         console.error('Status:', response.status);
         console.error('Status Text:', response.statusText);
-        console.error('URL llamada:', 'http://localhost:3000/register');
+        console.error('URL llamada:', buildApiUrl('/register'));
         console.error('Método:', 'POST');
         console.error('Headers enviados:', {
           'Content-Type': 'application/json'

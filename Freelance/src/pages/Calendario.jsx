@@ -1,10 +1,11 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
+import { API_BASE_URL, buildApiUrl } from '../config/api.js';
 import Layout from '../Components/Layout.jsx';
 import '../styles/Calendario.css';
 import { useAuth } from '../hooks/useAuth.js';
 
-const API = import.meta?.env?.VITE_API_BASE_URL || 'http://localhost:3000';
+const API = API_BASE_URL;
 
 const Calendario = () => {
   const { authenticatedFetch } = useAuth();
@@ -14,7 +15,7 @@ const Calendario = () => {
   React.useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await authenticatedFetch(`${API}/projects`);
+        const res = await authenticatedFetch(buildApiUrl('/projects'));
         const data = await res.json();
         const list = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
         setProjects(list);
@@ -109,7 +110,7 @@ const Calendario = () => {
 
   const fetchEventos = React.useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/events`);
+      const res = await fetch(buildApiUrl('/api/events'));
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const normalizados = Array.isArray(data)
@@ -198,7 +199,7 @@ const Calendario = () => {
       return;
     }
 
-    const url = eventoEditando ? `${API}/api/events/${eventoEditando.id}` : `${API}/api/events`;
+    const url = eventoEditando ? buildApiUrl(`/api/events/${eventoEditando.id}`) : buildApiUrl('/api/events');
     const method = eventoEditando ? 'PUT' : 'POST';
 
     console.log('Enviando evento:', nuevoEvento); // Para debugging
@@ -245,7 +246,7 @@ const Calendario = () => {
     }
 
     try {
-      const res = await fetch(`${API}/api/events/${id}`, { method: 'DELETE' });
+      const res = await fetch(buildApiUrl(`/api/events/${id}`), { method: 'DELETE' });
       if (res.ok) {
         await fetchEventos();
         alert('Evento eliminado correctamente');

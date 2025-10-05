@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { buildApiUrl } from '../config/api.js';
 import Layout from '../Components/Layout.jsx';
 import { useAuth } from '../hooks/useAuth.js';
 import '../styles/PostsDeProyectos.css';
@@ -32,7 +33,7 @@ const PostsDeProyectos = () => {
   // Todas las funciones de API se mantienen igual...
   const fetchProjectById = async (projectId) => {
     try {
-      const response = await authenticatedFetch(`http://localhost:3000/projects/${projectId}`);
+      const response = await authenticatedFetch(buildApiUrl(`/projects/${projectId}`));
       if (!response.ok) throw new Error('Error al obtener el proyecto');
       const project = await response.json();
       console.log('📄 Proyecto obtenido:', project);
@@ -45,7 +46,7 @@ const PostsDeProyectos = () => {
 
   const createProject = async (projectData) => {
     try {
-      const response = await authenticatedFetch('http://localhost:3000/projects', {
+      const response = await authenticatedFetch(buildApiUrl('/projects'), {
         method: 'POST',
         body: JSON.stringify(projectData)
       });
@@ -62,7 +63,7 @@ const PostsDeProyectos = () => {
 
   const updateProject = async (projectId, projectData) => {
     try {
-      const response = await authenticatedFetch(`http://localhost:3000/projects/${projectId}`, {
+      const response = await authenticatedFetch(buildApiUrl(`/projects/${projectId}`), {
         method: 'PUT',
         body: JSON.stringify(projectData)
       });
@@ -79,7 +80,7 @@ const PostsDeProyectos = () => {
 
   const deleteProject = async (projectId) => {
     try {
-      const response = await authenticatedFetch(`http://localhost:3000/projects/${projectId}`, {
+      const response = await authenticatedFetch(buildApiUrl(`/projects/${projectId}`), {
         method: 'DELETE'
       });
       if (!response.ok) throw new Error('Error al eliminar el proyecto');
@@ -209,8 +210,8 @@ const PostsDeProyectos = () => {
     setShowAllDeadlines(!showAllDeadlines);
   };
 
-  const getApiUrl = () => {
-    const baseUrl = 'http://localhost:3000/projects';
+  const getProjectsApiUrl = () => {
+    const baseUrl = buildApiUrl('/projects');
     if (filterStatus !== 'todos') {
       const statusMap = {
         'completado': 'completed',
@@ -260,7 +261,7 @@ const PostsDeProyectos = () => {
       setError(null);
       console.log('🔄 Conectando a la API...');
 
-      const apiUrl = getApiUrl();
+      const apiUrl = getProjectsApiUrl();
       console.log('🌐 URL de la API:', apiUrl);
       const response = await authenticatedFetch(apiUrl);
       console.log('📡 Status de respuesta:', response.status);
@@ -318,7 +319,7 @@ const PostsDeProyectos = () => {
       console.error('❌ Error fetching projects:', error);
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         console.error('🌐 Error de conexión: No se puede conectar al servidor');
-        setError('No se puede conectar al servidor. Verifica que esté corriendo en http://localhost:3000');
+        setError('No se puede conectar al servidor. Verifica la conexión con la API');
       } else {
         setError(error.message || 'Error al cargar los proyectos');
       }
@@ -411,7 +412,7 @@ const PostsDeProyectos = () => {
     <Layout currentPage="projects">
       <div className="loading">
         <p>🔄 Cargando proyectos...</p>
-        <small>Conectando a: http://localhost:3000/projects</small>
+        <small>Conectando a la API...</small>
       </div>
     </Layout>
   );
@@ -424,9 +425,9 @@ const PostsDeProyectos = () => {
         <div className="error-suggestions">
           <p><strong>Rutas disponibles:</strong></p>
           <ul>
-            <li>• <code>GET http://localhost:3000/projects</code> - Todos los proyectos</li>
-            <li>• <code>GET http://localhost:3000/projects/freelancer/:id</code> - Por freelancer</li>
-            <li>• <code>GET http://localhost:3000/projects/status/:status</code> - Por estado</li>
+            <li>• <code>GET /projects</code> - Todos los proyectos</li>
+            <li>• <code>GET /projects/freelancer/:id</code> - Por freelancer</li>
+            <li>• <code>GET /projects/status/:status</code> - Por estado</li>
           </ul>
         </div>
         <button onClick={fetchProjects} className="retry-btn">🔄 Reintentar</button>

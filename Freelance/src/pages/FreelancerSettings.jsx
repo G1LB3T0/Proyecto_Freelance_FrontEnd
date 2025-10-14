@@ -276,3 +276,75 @@ const FreelancerSettings = () => {
                       />
                     </div>
                   </div>
+                  <div className="form-group">
+                    <label>Disponibilidad</label>
+                    <select
+                      value={profileData.availability}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, availability: e.target.value }))}
+                      className="form-input"
+                    >
+                      <option value="full-time">Tiempo completo</option>
+                      <option value="part-time">Medio tiempo</option>
+                      <option value="project-based">Por proyecto</option>
+                      <option value="unavailable">No disponible</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Años de experiencia</label>
+                    <select
+                      value={profileData.experience}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, experience: e.target.value }))}
+                      className="form-input"
+                    >
+                      <option value="0-1">0-1 años</option>
+                      <option value="2-3">2-3 años</option>
+                      <option value="4-5">4-5 años</option>
+                      <option value="5+">5+ años</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Portafolio</label>
+                    <div className="input-with-icon">
+                      <span className="input-icon"><i className="ri-briefcase-line" aria-hidden="true"></i></span>
+                      <input
+                        type="url"
+                        value={profileData.portfolio}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, portfolio: e.target.value }))}
+                        className="form-input with-icon"
+                        placeholder="https://tu-portafolio.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group full-width">
+                  <label>Biografía profesional</label>
+                  <textarea
+                    value={profileData.bio}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+                    className="form-textarea"
+                    rows="4"
+                    placeholder="Describe tu experiencia, especialidades y lo que te hace único como freelancer..."
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label>Habilidades principales</label>
+                  <textarea
+                    value={profileData.skills}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, skills: e.target.value }))}
+                    className="form-textarea"
+                    rows="3"
+                    placeholder="Lista tus habilidades separadas por comas (ej: React, JavaScript, Figma, etc.)"
+                  />
+                </div>
+
+                <div className="form-actions">
+                  <button onClick={() => handleSave('profile')} className="btn btn-primary">
+                    Guardar cambios
+                  </button>
+                </div>
+              </div>
+            )}

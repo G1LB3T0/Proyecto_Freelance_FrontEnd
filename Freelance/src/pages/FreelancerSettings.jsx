@@ -31,3 +31,27 @@ const FreelancerSettings = () => {
     newPassword: '',
     confirmPassword: ''
   });
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailNotifications: true,
+    pushNotifications: true,
+    projectInvitations: true,
+    messageNotifications: true,
+    paymentNotifications: true,
+    projectDeadlines: true,
+    clientFeedback: true,
+    marketingEmails: false,
+    weeklyDigest: true,
+    soundEnabled: true,
+    desktopNotifications: true
+  });
+
+  const [privacySettings, setPrivacySettings] = useState({
+    profileVisibility: 'public',
+    showEmail: false,
+    showPhone: false,
+    showHourlyRate: true,
+    indexProfile: true,
+    dataCollection: true,
+    twoFactorAuth: false,
+    showAvailability: true
+  });

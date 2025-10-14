@@ -17,7 +17,7 @@ const FreelancerHome = () => {
   };
 
   const handleSettingsClick = () => {
-    navigate("/Settings");
+    navigate("/freelancer-settings");
   };
 
   return (
@@ -44,6 +44,10 @@ const FreelancerHome = () => {
             <div className="nav-icon">🏠</div>
             Inicio
           </a>
+          <button onClick={handleSettingsClick} className="nav-item nav-button">
+            <div className="nav-icon">⚙️</div>
+            Configuración
+          </button>
         </nav>
 
         <button onClick={handleLogout} className="logout-btn">

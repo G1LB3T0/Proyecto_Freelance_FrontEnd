@@ -15,6 +15,7 @@ import Settings from "./Settings";
 import Statistics from "./Statistics.jsx";
 import Premium from "./Premium.jsx";
 import FreelancerHome from "./FreelancerHome.jsx";
+import FreelancerSettings from "./FreelancerSettings.jsx";
 
 const App = () => {
   return (
@@ -76,12 +77,20 @@ const App = () => {
           }
         />
 
-        {/* Ruta EXCLUSIVA para Freelancers */}
+        {/* Rutas EXCLUSIVAS para Freelancers */}
         <Route
           path="/freelancer-home"
           element={
             <RoleBasedRoute allowedUserTypes={["freelancer"]}>
               <FreelancerHome />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/freelancer-settings"
+          element={
+            <RoleBasedRoute allowedUserTypes={["freelancer"]}>
+              <FreelancerSettings />
             </RoleBasedRoute>
           }
         />

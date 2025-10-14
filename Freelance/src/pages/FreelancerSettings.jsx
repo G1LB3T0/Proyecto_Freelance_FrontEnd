@@ -85,3 +85,35 @@ const FreelancerSettings = () => {
       sunday: { start: '10:00', end: '14:00', enabled: false }
     }
   });
+  // Tabs específicos para freelancers
+  const tabs = [
+    { id: 'profile', label: 'Perfil Freelancer', icon: 'ri-user-3-line' },
+    { id: 'freelancer', label: 'Configuración Freelancer', icon: 'ri-briefcase-line' },
+    { id: 'notifications', label: 'Notificaciones', icon: 'ri-notification-3-line' },
+    { id: 'privacy', label: 'Privacidad', icon: 'ri-shield-keyhole-line' },
+    { id: 'appearance', label: 'Apariencia', icon: 'ri-palette-line' },
+    { id: 'language', label: 'Idioma', icon: 'ri-earth-line' },
+    { id: 'billing', label: 'Facturación', icon: 'ri-bank-card-line' }
+  ];
+
+  // Función para guardar cambios (reutilizada)
+  const handleSave = async (section) => {
+    setSaveStatus('saving');
+    // Simular llamada API
+    setTimeout(() => {
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus(''), 2000);
+    }, 1000);
+  };
+
+  // Función para subir avatar (reutilizada)
+  const handleAvatarUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileData(prev => ({ ...prev, avatar: e.target.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };

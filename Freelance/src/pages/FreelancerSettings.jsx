@@ -31,6 +31,7 @@ const FreelancerSettings = () => {
     newPassword: '',
     confirmPassword: ''
   });
+
   const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -55,6 +56,7 @@ const FreelancerSettings = () => {
     twoFactorAuth: false,
     showAvailability: true
   });
+
   const [themeSettings, setThemeSettings] = useState({
     theme: 'light',
     accentColor: '#3b82f6',
@@ -85,6 +87,7 @@ const FreelancerSettings = () => {
       sunday: { start: '10:00', end: '14:00', enabled: false }
     }
   });
+
   // Tabs específicos para freelancers
   const tabs = [
     { id: 'profile', label: 'Perfil Freelancer', icon: 'ri-user-3-line' },
@@ -117,6 +120,7 @@ const FreelancerSettings = () => {
       reader.readAsDataURL(file);
     }
   };
+
   // Función para cambiar contraseña (reutilizada)
   const handlePasswordChange = () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -143,6 +147,7 @@ const FreelancerSettings = () => {
       </div>
     </div>
   );
+
   return (
     <Layout currentPage="FreelancerSettings" searchPlaceholder="Buscar en configuración...">
       <div className="settings-page">
@@ -159,7 +164,8 @@ const FreelancerSettings = () => {
             {saveStatus === 'saved' ? 'Guardado' : 'Guardando...'}
           </div>
         )}
-    {/* Header */}
+
+        {/* Header */}
         <div className="settings-header">
           <h1>Configuración Freelancer</h1>
           <p>Personaliza tu perfil y configuración como freelancer</p>
@@ -215,6 +221,7 @@ const FreelancerSettings = () => {
                     </div>
                   </div>
                 </div>
+
                 {/* Formulario de perfil freelancer */}
                 <div className="form-grid">
                   <div className="form-group">
@@ -276,6 +283,7 @@ const FreelancerSettings = () => {
                       />
                     </div>
                   </div>
+
                   <div className="form-group">
                     <label>Disponibilidad</label>
                     <select
@@ -348,3 +356,287 @@ const FreelancerSettings = () => {
                 </div>
               </div>
             )}
+
+            {/* Configuración específica de Freelancer */}
+            {activeTab === 'freelancer' && (
+              <div className="tab-content">
+                <h2>Configuración de Trabajo</h2>
+                
+                <div className="form-section">
+                  <h3>Preferencias de Proyectos</h3>
+                  <div className="toggle-list">
+                    <ToggleSwitch
+                      checked={freelancerSettings.autoAcceptProjects}
+                      onChange={(value) => setFreelancerSettings(prev => ({ ...prev, autoAcceptProjects: value }))}
+                      label="Aceptar proyectos automáticamente (proyectos que coincidan con tu perfil)"
+                    />
+                    <ToggleSwitch
+                      checked={freelancerSettings.showPortfolio}
+                      onChange={(value) => setFreelancerSettings(prev => ({ ...prev, showPortfolio: value }))}
+                      label="Mostrar portafolio en el perfil público"
+                    />
+                    <ToggleSwitch
+                      checked={freelancerSettings.acceptTestProjects}
+                      onChange={(value) => setFreelancerSettings(prev => ({ ...prev, acceptTestProjects: value }))}
+                      label="Aceptar proyectos de prueba"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h3>Configuración Financiera</h3>
+                  <div className="form-group">
+                    <label>Valor mínimo de proyecto (USD)</label>
+                    <div className="input-with-icon">
+                      <span className="input-icon">$</span>
+                      <input
+                        type="number"
+                        value={freelancerSettings.minimumProjectValue}
+                        onChange={(e) => setFreelancerSettings(prev => ({ ...prev, minimumProjectValue: e.target.value }))}
+                        className="form-input with-icon"
+                        min="1"
+                      />
+                    </div>
+                    <p className="help-text">Solo recibirás invitaciones de proyectos que superen este valor</p>
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h3>Horario de Trabajo</h3>
+                  <div className="working-hours">
+                    {Object.entries(freelancerSettings.workingHours).map(([day, hours]) => (
+                      <div key={day} className="day-schedule">
+                        <div className="day-header">
+                          <ToggleSwitch
+                            checked={hours.enabled}
+                            onChange={(value) => setFreelancerSettings(prev => ({
+                              ...prev,
+                              workingHours: {
+                                ...prev.workingHours,
+                                [day]: { ...hours, enabled: value }
+                              }
+                            }))}
+                            label={day.charAt(0).toUpperCase() + day.slice(1)}
+                          />
+                        </div>
+                        {hours.enabled && (
+                          <div className="time-inputs">
+                            <input
+                              type="time"
+                              value={hours.start}
+                              onChange={(e) => setFreelancerSettings(prev => ({
+                                ...prev,
+                                workingHours: {
+                                  ...prev.workingHours,
+                                  [day]: { ...hours, start: e.target.value }
+                                }
+                              }))}
+                              className="time-input"
+                            />
+                            <span>-</span>
+                            <input
+                              type="time"
+                              value={hours.end}
+                              onChange={(e) => setFreelancerSettings(prev => ({
+                                ...prev,
+                                workingHours: {
+                                  ...prev.workingHours,
+                                  [day]: { ...hours, end: e.target.value }
+                                }
+                              }))}
+                              className="time-input"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button onClick={() => handleSave('freelancer')} className="btn btn-primary">
+                    Guardar configuración
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Notificaciones específicas para freelancers */}
+            {activeTab === 'notifications' && (
+              <div className="tab-content">
+                <h2>Notificaciones</h2>
+                
+                <div className="form-section">
+                  <h3>Notificaciones de Proyectos</h3>
+                  <div className="toggle-list">
+                    <ToggleSwitch
+                      checked={notificationSettings.projectInvitations}
+                      onChange={(value) => setNotificationSettings(prev => ({ ...prev, projectInvitations: value }))}
+                      label="Invitaciones a proyectos"
+                    />
+                    <ToggleSwitch
+                      checked={notificationSettings.projectDeadlines}
+                      onChange={(value) => setNotificationSettings(prev => ({ ...prev, projectDeadlines: value }))}
+                      label="Recordatorios de fechas límite"
+                    />
+                    <ToggleSwitch
+                      checked={notificationSettings.clientFeedback}
+                      onChange={(value) => setNotificationSettings(prev => ({ ...prev, clientFeedback: value }))}
+                      label="Comentarios de clientes"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h3>Notificaciones Financieras</h3>
+                  <div className="toggle-list">
+                    <ToggleSwitch
+                      checked={notificationSettings.paymentNotifications}
+                      onChange={(value) => setNotificationSettings(prev => ({ ...prev, paymentNotifications: value }))}
+                      label="Notificaciones de pagos"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h3>Comunicación</h3>
+                  <div className="toggle-list">
+                    <ToggleSwitch
+                      checked={notificationSettings.messageNotifications}
+                      onChange={(value) => setNotificationSettings(prev => ({ ...prev, messageNotifications: value }))}
+                      label="Mensajes de clientes"
+                    />
+                    <ToggleSwitch
+                      checked={notificationSettings.emailNotifications}
+                      onChange={(value) => setNotificationSettings(prev => ({ ...prev, emailNotifications: value }))}
+                      label="Notificaciones por email"
+                    />
+                    <ToggleSwitch
+                      checked={notificationSettings.pushNotifications}
+                      onChange={(value) => setNotificationSettings(prev => ({ ...prev, pushNotifications: value }))}
+                      label="Notificaciones push"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button onClick={() => handleSave('notifications')} className="btn btn-primary">
+                    Guardar notificaciones
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Privacidad específica para freelancers */}
+            {activeTab === 'privacy' && (
+              <div className="tab-content">
+                <h2>Privacidad y Seguridad</h2>
+                
+                <div className="form-section">
+                  <h3>Visibilidad del Perfil</h3>
+                  <div className="form-group">
+                    <label>Visibilidad del perfil</label>
+                    <select
+                      value={privacySettings.profileVisibility}
+                      onChange={(e) => setPrivacySettings(prev => ({ ...prev, profileVisibility: e.target.value }))}
+                      className="form-input"
+                    >
+                      <option value="public">Público - Visible para todos</option>
+                      <option value="clients">Solo clientes - Visible para clientes registrados</option>
+                      <option value="private">Privado - Solo por invitación</option>
+                    </select>
+                  </div>
+                  
+                  <div className="toggle-list">
+                    <ToggleSwitch
+                      checked={privacySettings.showEmail}
+                      onChange={(value) => setPrivacySettings(prev => ({ ...prev, showEmail: value }))}
+                      label="Mostrar email en el perfil público"
+                    />
+                    <ToggleSwitch
+                      checked={privacySettings.showPhone}
+                      onChange={(value) => setPrivacySettings(prev => ({ ...prev, showPhone: value }))}
+                      label="Mostrar teléfono en el perfil público"
+                    />
+                    <ToggleSwitch
+                      checked={privacySettings.showHourlyRate}
+                      onChange={(value) => setPrivacySettings(prev => ({ ...prev, showHourlyRate: value }))}
+                      label="Mostrar tarifa por hora"
+                    />
+                    <ToggleSwitch
+                      checked={privacySettings.showAvailability}
+                      onChange={(value) => setPrivacySettings(prev => ({ ...prev, showAvailability: value }))}
+                      label="Mostrar disponibilidad actual"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h3>Seguridad</h3>
+                  <div className="toggle-list">
+                    <ToggleSwitch
+                      checked={privacySettings.twoFactorAuth}
+                      onChange={(value) => setPrivacySettings(prev => ({ ...prev, twoFactorAuth: value }))}
+                      label="Autenticación de dos factores"
+                    />
+                    <ToggleSwitch
+                      checked={privacySettings.indexProfile}
+                      onChange={(value) => setPrivacySettings(prev => ({ ...prev, indexProfile: value }))}
+                      label="Permitir indexación en buscadores"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button onClick={() => handleSave('privacy')} className="btn btn-primary">
+                    Guardar configuración
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Las demás secciones (appearance, language, billing) pueden reutilizar la misma lógica del Settings original */}
+            {activeTab === 'appearance' && (
+              <div className="tab-content">
+                <h2>Apariencia</h2>
+                <div className="form-section">
+                  <h3>Tema</h3>
+                  <div className="theme-options">
+                    <div className="theme-grid">
+                      {['light', 'dark', 'auto'].map((theme) => (
+                        <div
+                          key={theme}
+                          className={`theme-option ${themeSettings.theme === theme ? 'active' : ''}`}
+                          onClick={() => setThemeSettings(prev => ({ ...prev, theme }))}
+                        >
+                          <div className={`theme-preview theme-${theme}`}>
+                            <div className="preview-header"></div>
+                            <div className="preview-content">
+                              <div className="preview-sidebar"></div>
+                              <div className="preview-main"></div>
+                            </div>
+                          </div>
+                          <span className="theme-name">
+                            {theme === 'light' ? 'Claro' : theme === 'dark' ? 'Oscuro' : 'Automático'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button onClick={() => handleSave('appearance')} className="btn btn-primary">
+                    Guardar apariencia
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default FreelancerSettings;

@@ -215,3 +215,64 @@ const FreelancerSettings = () => {
                     </div>
                   </div>
                 </div>
+                {/* Formulario de perfil freelancer */}
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Nombre completo</label>
+                    <input
+                      type="text"
+                      value={profileData.name}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
+                      className="form-input"
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Email</label>
+                    <div className="input-with-icon">
+                      <span className="input-icon"><i className="ri-mail-line" aria-hidden="true"></i></span>
+                      <input
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+                        className="form-input with-icon"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Teléfono</label>
+                    <div className="input-with-icon">
+                      <span className="input-icon"><i className="ri-smartphone-line" aria-hidden="true"></i></span>
+                      <input
+                        type="tel"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                        className="form-input with-icon"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Ubicación</label>
+                    <input
+                      type="text"
+                      value={profileData.location}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Tarifa por hora (USD)</label>
+                    <div className="input-with-icon">
+                      <span className="input-icon">$</span>
+                      <input
+                        type="number"
+                        value={profileData.hourlyRate}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, hourlyRate: e.target.value }))}
+                        className="form-input with-icon"
+                        min="1"
+                      />
+                    </div>
+                  </div>

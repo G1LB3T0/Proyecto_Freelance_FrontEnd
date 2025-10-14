@@ -117,3 +117,46 @@ const FreelancerSettings = () => {
       reader.readAsDataURL(file);
     }
   };
+  // Función para cambiar contraseña (reutilizada)
+  const handlePasswordChange = () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      alert('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    handleSave('password');
+    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  };
+
+  // Componente de switch personalizado (reutilizado)
+  const ToggleSwitch = ({ checked, onChange, label }) => (
+    <div className="toggle-container">
+      <span className="toggle-label">{label}</span>
+      <div 
+        className={`toggle-switch ${checked ? 'active' : ''}`}
+        onClick={() => onChange(!checked)}
+      >
+        <div className="toggle-slider"></div>
+      </div>
+    </div>
+  );
+
+  return (
+    <Layout currentPage="FreelancerSettings" searchPlaceholder="Buscar en configuración...">
+      <div className="settings-page">
+        {/* Estado de guardado */}
+        {saveStatus && (
+          <div className={`save-status ${saveStatus}`}>
+            <span className="save-icon">
+              {saveStatus === 'saved' ? (
+                <i className="ri-check-line" aria-hidden="true"></i>
+              ) : (
+                <i className="ri-time-line" aria-hidden="true"></i>
+              )}
+            </span>
+            {saveStatus === 'saved' ? 'Guardado' : 'Guardando...'}
+          </div>
+        )}

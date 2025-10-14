@@ -55,3 +55,33 @@ const FreelancerSettings = () => {
     twoFactorAuth: false,
     showAvailability: true
   });
+  const [themeSettings, setThemeSettings] = useState({
+    theme: 'light',
+    accentColor: '#3b82f6',
+    fontSize: 'medium',
+    compactMode: false
+  });
+
+  const [languageSettings, setLanguageSettings] = useState({
+    language: 'es',
+    timezone: 'America/Guatemala',
+    dateFormat: 'DD/MM/YYYY',
+    timeFormat: '24h'
+  });
+
+  const [freelancerSettings, setFreelancerSettings] = useState({
+    autoAcceptProjects: false,
+    showPortfolio: true,
+    acceptTestProjects: true,
+    minimumProjectValue: '100',
+    preferredProjectTypes: ['web-development', 'ui-design'],
+    workingHours: {
+      monday: { start: '09:00', end: '17:00', enabled: true },
+      tuesday: { start: '09:00', end: '17:00', enabled: true },
+      wednesday: { start: '09:00', end: '17:00', enabled: true },
+      thursday: { start: '09:00', end: '17:00', enabled: true },
+      friday: { start: '09:00', end: '17:00', enabled: true },
+      saturday: { start: '10:00', end: '14:00', enabled: false },
+      sunday: { start: '10:00', end: '14:00', enabled: false }
+    }
+  });

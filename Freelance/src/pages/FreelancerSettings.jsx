@@ -143,7 +143,6 @@ const FreelancerSettings = () => {
       </div>
     </div>
   );
-
   return (
     <Layout currentPage="FreelancerSettings" searchPlaceholder="Buscar en configuración...">
       <div className="settings-page">
@@ -160,3 +159,59 @@ const FreelancerSettings = () => {
             {saveStatus === 'saved' ? 'Guardado' : 'Guardando...'}
           </div>
         )}
+    {/* Header */}
+        <div className="settings-header">
+          <h1>Configuración Freelancer</h1>
+          <p>Personaliza tu perfil y configuración como freelancer</p>
+        </div>
+
+        <div className="settings-layout">
+          {/* Sidebar de navegación */}
+          <div className="settings-sidebar">
+            <nav className="settings-nav">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`nav-button ${activeTab === tab.id ? 'active' : ''}`}
+                >
+                  <span className="nav-icon"><i className={tab.icon} aria-hidden="true"></i></span>
+                  <span className="nav-label">{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Contenido principal */}
+          <div className="settings-content">
+            {/* Contenido de Perfil Freelancer */}
+            {activeTab === 'profile' && (
+              <div className="tab-content">
+                <h2>Perfil de Freelancer</h2>
+                
+                {/* Avatar */}
+                <div className="form-section">
+                  <label className="section-label">Foto de Perfil</label>
+                  <div className="avatar-upload">
+                    <div className="avatar-preview">
+                      {profileData.avatar ? (
+                        <img src={profileData.avatar} alt="Avatar" />
+                      ) : (
+                        <span className="avatar-placeholder"><i className="ri-user-3-line" aria-hidden="true"></i></span>
+                      )}
+                    </div>
+                    <div className="avatar-actions">
+                      <input
+                        type="file"
+                        id="avatar-upload"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        className="file-input"
+                      />
+                      <label htmlFor="avatar-upload" className="btn btn-primary">
+                        <i className="ri-camera-line" aria-hidden="true"></i> Cambiar foto
+                      </label>
+                      <p className="help-text">JPG, PNG o GIF. Máximo 2MB.</p>
+                    </div>
+                  </div>
+                </div>

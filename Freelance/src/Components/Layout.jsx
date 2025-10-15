@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import '../styles/Layout.css';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import "../styles/Layout.css";
 
 const Layout = ({
   children,
@@ -8,35 +8,104 @@ const Layout = ({
   searchPlaceholder = "Buscar...",
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
 
   // Obtener datos del usuario del localStorage
   useEffect(() => {
     try {
-      const userData = localStorage.getItem('userData');
+      const userData = localStorage.getItem("userData");
       if (userData) {
         const user = JSON.parse(userData);
         setCurrentUser(user);
       }
     } catch (error) {
-      console.error('Error al obtener datos del usuario:', error);
+      console.error("Error al obtener datos del usuario:", error);
     }
   }, []);
 
-  const menuItems = [
+  // Menú para Project Manager y Emprendedor
+  const projectManagerMenu = [
     { path: "/home", label: " Inicio", key: "home", icon: "ri-home-2-line" },
-    { path: "/calendario", label: " Calendario", key: "calendar", icon: "ri-calendar-line" },
-    { path: "/proyectos", label: " Proyectos", key: "projects", icon: "ri-briefcase-line" },
-    { path: "/finanzas", label: " Finanzas", key: "finance", icon: "ri-money-dollar-circle-line" },
-    { path: "/estadisticas", label: " Estadísticas", key: "stats", icon: "ri-bar-chart-2-line" },
-    { path: "/Settings", label: " Settings", key: "Settings", icon: "ri-settings-3-line" },
+    {
+      path: "/calendario",
+      label: " Calendario",
+      key: "calendar",
+      icon: "ri-calendar-line",
+    },
+    {
+      path: "/proyectos",
+      label: " Proyectos",
+      key: "projects",
+      icon: "ri-briefcase-line",
+    },
+    {
+      path: "/finanzas",
+      label: " Finanzas",
+      key: "finance",
+      icon: "ri-money-dollar-circle-line",
+    },
+    {
+      path: "/estadisticas",
+      label: " Estadísticas",
+      key: "stats",
+      icon: "ri-bar-chart-2-line",
+    },
+    {
+      path: "/Settings",
+      label: " Settings",
+      key: "Settings",
+      icon: "ri-settings-3-line",
+    },
   ];
+
+  // Menú para Freelancer
+  const freelancerMenu = [
+    {
+      path: "/freelancer-home",
+      label: " Inicio",
+      key: "home",
+      icon: "ri-home-2-line",
+    },
+    {
+      path: "/freelancer-finanzas",
+      label: " Finanzas",
+      key: "finance",
+      icon: "ri-money-dollar-circle-line",
+    },
+    {
+      path: "/freelancer-settings",
+      label: " Settings",
+      key: "Settings",
+      icon: "ri-settings-3-line",
+    },
+  ];
+
+  // Determinar qué menú mostrar según el tipo de usuario
+  const getMenuItems = () => {
+    if (!currentUser) return projectManagerMenu; // Por defecto
+
+    if (currentUser.user_type === "freelancer") {
+      return freelancerMenu;
+    } else if (
+      currentUser.user_type === "project_manager" ||
+      currentUser.user_type === "emprendedor"
+    ) {
+      return projectManagerMenu;
+    }
+
+    return projectManagerMenu; // Por defecto
+  };
+
+  const menuItems = getMenuItems();
 
   const notifications = [
     { icon: "ri-mail-line", text: "Pancho te envió un mensaje" },
     { icon: "ri-briefcase-line", text: "Nueva oportunidad de trabajo" },
-    { icon: "ri-pause-circle-line", text: "Has pausado el proyecto Sistema de Inventario" },
+    {
+      icon: "ri-pause-circle-line",
+      text: "Has pausado el proyecto Sistema de Inventario",
+    },
   ];
 
   // Handler para cerrar el popup al hacer clic fuera
@@ -57,10 +126,15 @@ const Layout = ({
         <div className="user-profile">
           <div className="avatar">
             {currentUser?.avatar ? (
-              <img 
-                src={currentUser.avatar} 
-                alt="Avatar" 
-                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} 
+              <img
+                src={currentUser.avatar}
+                alt="Avatar"
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
               />
             ) : (
               <i className="ri-user-line" aria-hidden="true"></i>
@@ -68,20 +142,22 @@ const Layout = ({
           </div>
           <p>Bienvenido/a</p>
           <h3>
-            {currentUser?.full_name || 
-             (currentUser?.first_name && currentUser?.last_name 
-               ? `${currentUser.first_name} ${currentUser.last_name}`
-               : currentUser?.name || currentUser?.username || 'Usuario')}
+            {currentUser?.full_name ||
+              (currentUser?.first_name && currentUser?.last_name
+                ? `${currentUser.first_name} ${currentUser.last_name}`
+                : currentUser?.name || currentUser?.username || "Usuario")}
           </h3>
           {currentUser?.user_type && (
-            <p style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-              {currentUser.user_type === 'project_manager' ? 'Project Manager' : 
-               currentUser.user_type === 'freelancer' ? 'Freelancer' : 
-               currentUser.user_type === 'client' ? 'Cliente' : 
-               currentUser.user_type}
+            <p style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+              {currentUser.user_type === "project_manager"
+                ? "Project Manager"
+                : currentUser.user_type === "freelancer"
+                ? "Freelancer"
+                : currentUser.user_type === "client"
+                ? "Cliente"
+                : currentUser.user_type}
             </p>
           )}
-
         </div>
 
         <nav className="sidebar-nav">
@@ -92,7 +168,9 @@ const Layout = ({
                 className={currentPage === item.key ? "active" : ""}
               >
                 <Link to={item.path}>
-                  <span className="icon"><i className={item.icon} aria-hidden="true"></i></span>
+                  <span className="icon">
+                    <i className={item.icon} aria-hidden="true"></i>
+                  </span>
                   <span className="label">{item.label}</span>
                 </Link>
               </li>
@@ -110,7 +188,9 @@ const Layout = ({
         {/* Top Bar */}
         <header className="top-bar">
           <div className="search-container">
-            <span className="search-icon"><i className="ri-search-line" aria-hidden="true"></i></span>
+            <span className="search-icon">
+              <i className="ri-search-line" aria-hidden="true"></i>
+            </span>
             <input
               type="text"
               placeholder={searchPlaceholder}
@@ -146,7 +226,11 @@ const Layout = ({
                     <ul className="notification-list">
                       {notifications.map((notification, index) => (
                         <li className="notification-item" key={index}>
-                          <i className={notification.icon} aria-hidden="true" style={{ marginRight: '8px' }}></i>
+                          <i
+                            className={notification.icon}
+                            aria-hidden="true"
+                            style={{ marginRight: "8px" }}
+                          ></i>
                           {notification.text}
                         </li>
                       ))}
@@ -155,20 +239,29 @@ const Layout = ({
                 </div>
               )}
             </div>
-            <div className="messages-icon"><i className="ri-mail-line" aria-hidden="true"></i></div>
+            <div className="messages-icon">
+              <i className="ri-mail-line" aria-hidden="true"></i>
+            </div>
             <div className="user-menu">
               <span className="user-avatar">
                 {currentUser?.avatar ? (
-                  <img 
-                    src={currentUser.avatar} 
-                    alt="Avatar" 
-                    style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} 
+                  <img
+                    src={currentUser.avatar}
+                    alt="Avatar"
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
                   />
                 ) : (
                   <i className="ri-user-line" aria-hidden="true"></i>
                 )}
               </span>
-              <span className="dropdown-arrow"><i className="ri-arrow-down-s-line" aria-hidden="true"></i></span>
+              <span className="dropdown-arrow">
+                <i className="ri-arrow-down-s-line" aria-hidden="true"></i>
+              </span>
             </div>
           </div>
         </header>

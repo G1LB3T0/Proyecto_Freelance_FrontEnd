@@ -1,79 +1,23 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import Layout from "../Components/Layout.jsx";
 import authService from "../services/authService";
 import "../styles/FreelancerHome.css";
 
 const FreelancerHome = () => {
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const userData = authService.getUser();
     setUser(userData);
   }, []);
 
-  const handleLogout = () => {
-    authService.logout();
-  };
-
-  const handleSettingsClick = () => {
-    navigate("/freelancer-settings");
-  };
-
   return (
-    <div className="freelancer-home">
-      {/* Sidebar */}
-      <div className="sidebar">
-        <div className="logo">
-          <h2>FreelanceHub</h2>
-        </div>
-
-        <div className="user-info">
-          <div className="user-avatar">
-            <span>{user?.name ? user.name.charAt(0).toUpperCase() : "F"}</span>
-          </div>
-          <div className="user-details">
-            <h3>Bienvenido/a</h3>
-            <p className="user-name">{user?.name || user?.username}</p>
-            <p className="user-type">Freelancer</p>
-          </div>
-        </div>
-
-        <nav className="nav-menu">
-          <a href="#home" className="nav-item active">
-            <div className="nav-icon">🏠</div>
-            Inicio
-          </a>
-          <button onClick={handleSettingsClick} className="nav-item nav-button">
-            <div className="nav-icon">⚙️</div>
-            Configuración
-          </button>
-        </nav>
-
-        <button onClick={handleLogout} className="logout-btn">
-          Cerrar Sesión
-        </button>
-      </div>
-
-      {/* Main Content */}
-      <div className="main-content">
+    <Layout currentPage="home" searchPlaceholder="Buscar publicaciones...">
+      <div className="freelancer-home-content">
         <header className="header">
           <div className="header-left">
             <h1>Panel Freelancer</h1>
             <p>Descubre oportunidades y mantente conectado</p>
-          </div>
-          <div className="header-actions">
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder="Buscar publicaciones..."
-                className="search-input"
-              />
-            </div>
-            <div className="notifications">
-              <div className="notification-icon">🔔</div>
-              <span className="notification-badge">5</span>
-            </div>
           </div>
         </header>
 
@@ -326,7 +270,7 @@ const FreelancerHome = () => {
           </div>
         </main>
       </div>
-    </div>
+    </Layout>
   );
 };
 

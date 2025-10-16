@@ -84,6 +84,96 @@ const FreelancerStatistics = () => {
     },
   ];
 
+  // Actividad reciente
+  const recentActivity = [
+    {
+      time: "09:00",
+      action: "Comenzó trabajo en proyecto",
+      project: "E-commerce Premium",
+      type: "work-start",
+    },
+    {
+      time: "10:30",
+      action: "Pago recibido",
+      project: "Dashboard Analytics Pro",
+      type: "payment",
+      amount: 1750,
+    },
+    {
+      time: "11:45",
+      action: "Propuesta enviada",
+      project: "Nuevo: Website Portfolio",
+      type: "proposal",
+    },
+    {
+      time: "13:00",
+      action: "Cliente aprobó milestone",
+      project: "App Móvil Delivery",
+      type: "milestone",
+    },
+    {
+      time: "14:30",
+      action: "Review completada",
+      project: "Landing Page Corporativa",
+      type: "review",
+      rating: 5,
+    },
+    {
+      time: "16:00",
+      action: "Meeting con cliente",
+      project: "Sistema de Reservas",
+      type: "meeting",
+    },
+    {
+      time: "17:30",
+      action: "Entregable enviado",
+      project: "E-commerce Premium",
+      type: "delivery",
+    },
+  ];
+
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case "work-start":
+        return <i className="ri-play-circle-line"></i>;
+      case "payment":
+        return <i className="ri-money-dollar-circle-line"></i>;
+      case "proposal":
+        return <i className="ri-file-text-line"></i>;
+      case "milestone":
+        return <i className="ri-checkbox-circle-line"></i>;
+      case "review":
+        return <i className="ri-star-line"></i>;
+      case "meeting":
+        return <i className="ri-vidicon-line"></i>;
+      case "delivery":
+        return <i className="ri-send-plane-line"></i>;
+      default:
+        return <i className="ri-information-line"></i>;
+    }
+  };
+
+  const getActivityColor = (type) => {
+    switch (type) {
+      case "work-start":
+        return "#3B82F6";
+      case "payment":
+        return "#10B981";
+      case "proposal":
+        return "#F59E0B";
+      case "milestone":
+        return "#8b5cf6";
+      case "review":
+        return "#F59E0B";
+      case "meeting":
+        return "#3B82F6";
+      case "delivery":
+        return "#10B981";
+      default:
+        return "#64748b";
+    }
+  };
+
   return (
     <Layout
       currentPage="statistics"
@@ -154,7 +244,7 @@ const FreelancerStatistics = () => {
 
         {/* Gráficos principales */}
         <div className="charts-layout">
-          {/* Ingresos mensuales */}
+          {/* Ingresos mensuales - Gráfico de barras simple */}
           <div className="chart-container">
             <h3 className="chart-title">
               <i className="ri-line-chart-line"></i>
@@ -214,7 +304,7 @@ const FreelancerStatistics = () => {
             </div>
           </div>
 
-          {/* Estado de proyectos - Gráfico de dona */}
+          {/* Estado de proyectos - Gráfico de dona simple */}
           <div className="chart-container">
             <h3 className="chart-title">
               <i className="ri-pie-chart-line"></i>
@@ -240,6 +330,7 @@ const FreelancerStatistics = () => {
                   viewBox="0 0 100 100"
                   style={{ transform: "rotate(-90deg)" }}
                 >
+                  {/* Completados - 83% */}
                   <circle
                     cx="50"
                     cy="50"
@@ -251,6 +342,7 @@ const FreelancerStatistics = () => {
                     strokeDashoffset="35"
                     style={{ transition: "all 0.5s ease" }}
                   />
+                  {/* En Progreso - 17% */}
                   <circle
                     cx="50"
                     cy="50"
@@ -464,6 +556,7 @@ const FreelancerStatistics = () => {
                   viewBox="0 0 100 100"
                   style={{ transform: "rotate(-90deg)" }}
                 >
+                  {/* Recurrentes - 43% */}
                   <circle
                     cx="50"
                     cy="50"
@@ -475,6 +568,7 @@ const FreelancerStatistics = () => {
                     strokeDashoffset="0"
                     style={{ transition: "all 0.5s ease" }}
                   />
+                  {/* Nuevos - 57% */}
                   <circle
                     cx="50"
                     cy="50"
@@ -627,6 +721,49 @@ const FreelancerStatistics = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Actividad reciente */}
+        <div className="today-activity">
+          <h3 className="section-title">
+            <i className="ri-history-line"></i>
+            Actividad Reciente
+          </h3>
+          <div className="timeline-container">
+            <div className="timeline-line"></div>
+
+            <div className="activity-list">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="activity-item">
+                  <div
+                    className="timeline-dot"
+                    style={{ backgroundColor: getActivityColor(activity.type) }}
+                  ></div>
+
+                  <div className="activity-content">
+                    <div className="activity-main">
+                      <div className="activity-info">
+                        <span className="activity-icon">
+                          {getActivityIcon(activity.type)}
+                        </span>
+                        <span className="activity-task">
+                          {activity.action}
+                          {activity.amount &&
+                            ` - Q${activity.amount.toLocaleString()}`}
+                          {activity.rating && ` - ${activity.rating}⭐`}
+                        </span>
+                      </div>
+                      <div className="activity-project">
+                        <i className="ri-folder-2-line"></i>
+                        {activity.project}
+                      </div>
+                    </div>
+                    <div className="activity-time">{activity.time}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

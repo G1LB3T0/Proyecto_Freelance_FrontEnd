@@ -17,6 +17,18 @@ const FreelancerStatistics = () => {
     proposalSuccessRate: 68,
   });
 
+  // Ingresos mensuales
+  const monthlyEarnings = [
+    { month: "Ene", earnings: 12400, height: 62 },
+    { month: "Feb", earnings: 14200, height: 71 },
+    { month: "Mar", earnings: 13800, height: 69 },
+    { month: "Abr", earnings: 16500, height: 83 },
+    { month: "May", earnings: 15300, height: 77 },
+    { month: "Jun", earnings: 17800, height: 89 },
+    { month: "Jul", earnings: 16900, height: 85 },
+    { month: "Ago", earnings: 15800, height: 79 },
+  ];
+
   return (
     <Layout
       currentPage="statistics"
@@ -81,6 +93,68 @@ const FreelancerStatistics = () => {
             <div className="metric-label">Horas Trabajadas</div>
             <div className="metric-subtitle">
               {freelancerStats.proposalSuccessRate}% éxito en propuestas
+            </div>
+          </div>
+        </div>
+
+        {/* Gráfico de ingresos mensuales */}
+        <div className="charts-layout">
+          <div className="chart-container">
+            <h3 className="chart-title">
+              <i className="ri-line-chart-line"></i>
+              Ingresos Mensuales
+            </h3>
+            <div style={{ padding: "20px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "space-around",
+                  height: "200px",
+                  borderBottom: "2px solid #e2e8f0",
+                }}
+              >
+                {monthlyEarnings.map((item, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "#64748b",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Q{(item.earnings / 1000).toFixed(1)}k
+                    </div>
+                    <div
+                      style={{
+                        width: "40px",
+                        height: `${item.height}%`,
+                        background: "linear-gradient(to top, #10b981, #34d399)",
+                        borderRadius: "4px 4px 0 0",
+                        transition: "all 0.3s ease",
+                        boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
+                      }}
+                    ></div>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "#64748b",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {item.month}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

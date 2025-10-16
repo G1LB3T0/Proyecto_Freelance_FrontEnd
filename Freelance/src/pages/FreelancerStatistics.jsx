@@ -29,6 +29,17 @@ const FreelancerStatistics = () => {
     { month: "Ago", earnings: 15800, height: 79 },
   ];
 
+  // Horas trabajadas por día
+  const weeklyHours = [
+    { day: "Lun", hours: 8.5, billable: 7.5 },
+    { day: "Mar", hours: 9.0, billable: 8.2 },
+    { day: "Mié", hours: 7.5, billable: 6.8 },
+    { day: "Jue", hours: 8.8, billable: 8.0 },
+    { day: "Vie", hours: 8.2, billable: 7.5 },
+    { day: "Sáb", hours: 4.0, billable: 3.5 },
+    { day: "Dom", hours: 2.0, billable: 1.8 },
+  ];
+
   return (
     <Layout
       currentPage="statistics"
@@ -97,8 +108,9 @@ const FreelancerStatistics = () => {
           </div>
         </div>
 
-        {/* Gráfico de ingresos mensuales */}
+        {/* Gráficos principales */}
         <div className="charts-layout">
+          {/* Ingresos mensuales */}
           <div className="chart-container">
             <h3 className="chart-title">
               <i className="ri-line-chart-line"></i>
@@ -154,6 +166,232 @@ const FreelancerStatistics = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Estado de proyectos - Gráfico de dona */}
+          <div className="chart-container">
+            <h3 className="chart-title">
+              <i className="ri-pie-chart-line"></i>
+              Estado de Proyectos
+            </h3>
+            <div
+              style={{
+                padding: "20px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "20px",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  width: "200px",
+                  height: "200px",
+                }}
+              >
+                <svg
+                  viewBox="0 0 100 100"
+                  style={{ transform: "rotate(-90deg)" }}
+                >
+                  {/* Completados - 83% */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#10B981"
+                    strokeWidth="20"
+                    strokeDasharray="209"
+                    strokeDashoffset="35"
+                    style={{ transition: "all 0.5s ease" }}
+                  />
+                  {/* En Progreso - 17% */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#3B82F6"
+                    strokeWidth="20"
+                    strokeDasharray="35 209"
+                    strokeDashoffset="0"
+                    style={{ transition: "all 0.5s ease" }}
+                  />
+                </svg>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    textAlign: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "2rem",
+                      fontWeight: "700",
+                      color: "#1e3a8a",
+                    }}
+                  >
+                    47
+                  </div>
+                  <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                    Proyectos
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "20px",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "2px",
+                      background: "#10B981",
+                    }}
+                  ></div>
+                  <span style={{ fontSize: "0.9rem", color: "#64748b" }}>
+                    Completados (39)
+                  </span>
+                </div>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "2px",
+                      background: "#3B82F6",
+                    }}
+                  ></div>
+                  <span style={{ fontSize: "0.9rem", color: "#64748b" }}>
+                    En Progreso (8)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Gráficos adicionales */}
+        <div className="charts-layout">
+          {/* Horas trabajadas */}
+          <div className="chart-container">
+            <h3 className="chart-title">
+              <i className="ri-time-line"></i>
+              Horas Trabajadas por Semana
+            </h3>
+            <div style={{ padding: "20px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "space-around",
+                  height: "200px",
+                  borderBottom: "2px solid #e2e8f0",
+                }}
+              >
+                {weeklyHours.map((item, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "4px",
+                        alignItems: "flex-end",
+                        height: "180px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "20px",
+                          height: `${(item.hours / 10) * 100}%`,
+                          background: "#3B82F6",
+                          borderRadius: "4px 4px 0 0",
+                          boxShadow: "0 2px 4px rgba(59, 130, 246, 0.3)",
+                        }}
+                      ></div>
+                      <div
+                        style={{
+                          width: "20px",
+                          height: `${(item.billable / 10) * 100}%`,
+                          background: "#10B981",
+                          borderRadius: "4px 4px 0 0",
+                          boxShadow: "0 2px 4px rgba(16, 185, 129, 0.3)",
+                        }}
+                      ></div>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "#64748b",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {item.day}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "20px",
+                  justifyContent: "center",
+                  marginTop: "20px",
+                }}
+              >
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "2px",
+                      background: "#3B82F6",
+                    }}
+                  ></div>
+                  <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                    Horas Totales
+                  </span>
+                </div>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "2px",
+                      background: "#10B981",
+                    }}
+                  ></div>
+                  <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                    Horas Facturables
+                  </span>
+                </div>
               </div>
             </div>
           </div>

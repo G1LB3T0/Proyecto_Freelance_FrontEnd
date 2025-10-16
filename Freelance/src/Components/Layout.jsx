@@ -74,6 +74,12 @@ const Layout = ({
       icon: "ri-money-dollar-circle-line",
     },
     {
+      path: "/freelancer-estadisticas",
+      label: " Estadísticas",
+      key: "stats",
+      icon: "ri-bar-chart-2-line",
+    },
+    {
       path: "/freelancer-settings",
       label: " Settings",
       key: "Settings",

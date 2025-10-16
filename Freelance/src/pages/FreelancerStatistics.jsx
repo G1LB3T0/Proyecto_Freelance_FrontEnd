@@ -40,6 +40,50 @@ const FreelancerStatistics = () => {
     { day: "Dom", hours: 2.0, billable: 1.8 },
   ];
 
+  // Proyectos activos
+  const activeProjectDetails = [
+    {
+      project: "E-commerce Premium - TechStore",
+      client: "TechStore Inc.",
+      progress: 75,
+      earnings: 4200,
+      deadline: "2024-04-15",
+      hoursSpent: 45,
+    },
+    {
+      project: "Dashboard Analytics Pro",
+      client: "DataViz Corp",
+      progress: 60,
+      earnings: 3500,
+      deadline: "2024-04-22",
+      hoursSpent: 38,
+    },
+    {
+      project: "Landing Page Corporativa",
+      client: "Corporate Solutions",
+      progress: 90,
+      earnings: 1800,
+      deadline: "2024-04-10",
+      hoursSpent: 22,
+    },
+    {
+      project: "App Móvil - Delivery Express",
+      client: "Delivery Plus",
+      progress: 45,
+      earnings: 5600,
+      deadline: "2024-05-01",
+      hoursSpent: 52,
+    },
+    {
+      project: "Sistema de Reservas",
+      client: "Bookings Pro",
+      progress: 30,
+      earnings: 3800,
+      deadline: "2024-05-08",
+      hoursSpent: 28,
+    },
+  ];
+
   return (
     <Layout
       currentPage="statistics"
@@ -196,7 +240,6 @@ const FreelancerStatistics = () => {
                   viewBox="0 0 100 100"
                   style={{ transform: "rotate(-90deg)" }}
                 >
-                  {/* Completados - 83% */}
                   <circle
                     cx="50"
                     cy="50"
@@ -208,7 +251,6 @@ const FreelancerStatistics = () => {
                     strokeDashoffset="35"
                     style={{ transition: "all 0.5s ease" }}
                   />
-                  {/* En Progreso - 17% */}
                   <circle
                     cx="50"
                     cy="50"
@@ -394,6 +436,197 @@ const FreelancerStatistics = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Tipos de clientes */}
+          <div className="chart-container">
+            <h3 className="chart-title">
+              <i className="ri-team-line"></i>
+              Tipos de Clientes
+            </h3>
+            <div
+              style={{
+                padding: "20px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "20px",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  width: "200px",
+                  height: "200px",
+                }}
+              >
+                <svg
+                  viewBox="0 0 100 100"
+                  style={{ transform: "rotate(-90deg)" }}
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#10B981"
+                    strokeWidth="20"
+                    strokeDasharray="108"
+                    strokeDashoffset="0"
+                    style={{ transition: "all 0.5s ease" }}
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#3B82F6"
+                    strokeWidth="20"
+                    strokeDasharray="143 108"
+                    strokeDashoffset="-108"
+                    style={{ transition: "all 0.5s ease" }}
+                  />
+                </svg>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    textAlign: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "2rem",
+                      fontWeight: "700",
+                      color: "#1e3a8a",
+                    }}
+                  >
+                    28
+                  </div>
+                  <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                    Clientes
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "20px",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "2px",
+                      background: "#10B981",
+                    }}
+                  ></div>
+                  <span style={{ fontSize: "0.9rem", color: "#64748b" }}>
+                    Recurrentes (12)
+                  </span>
+                </div>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "2px",
+                      background: "#3B82F6",
+                    }}
+                  ></div>
+                  <span style={{ fontSize: "0.9rem", color: "#64748b" }}>
+                    Nuevos (16)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Proyectos activos */}
+        <div className="projects-progress">
+          <h3 className="section-title">
+            <i className="ri-rocket-line"></i>
+            Proyectos Activos
+          </h3>
+          <div className="projects-grid">
+            {activeProjectDetails.map((project, index) => (
+              <div key={index} className="project-card">
+                <div className="project-header">
+                  <div>
+                    <h4 className="project-name">{project.project}</h4>
+                    <p
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "#64748b",
+                        margin: "4px 0",
+                      }}
+                    >
+                      <i className="ri-building-line"></i> {project.client}
+                    </p>
+                  </div>
+                  <span
+                    className={`completion-badge ${
+                      project.progress >= 80
+                        ? "high"
+                        : project.progress >= 50
+                        ? "medium"
+                        : "low"
+                    }`}
+                  >
+                    {project.progress}% completado
+                  </span>
+                </div>
+
+                <div className="progress-bar-container">
+                  <div
+                    className={`progress-bar ${
+                      project.progress >= 80
+                        ? "high"
+                        : project.progress >= 50
+                        ? "medium"
+                        : "low"
+                    }`}
+                    style={{ width: `${project.progress}%` }}
+                  ></div>
+                </div>
+
+                <div className="project-stats">
+                  <div className="project-stat">
+                    <span className="stat-icon completed">
+                      <i className="ri-money-dollar-circle-line"></i>
+                    </span>
+                    <span className="stat-text">
+                      Q{project.earnings.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="project-stat">
+                    <span className="stat-icon in-progress">
+                      <i className="ri-time-line"></i>
+                    </span>
+                    <span className="stat-text">
+                      {project.hoursSpent}h trabajadas
+                    </span>
+                  </div>
+                  <div className="project-stat">
+                    <span className="stat-icon pending">
+                      <i className="ri-calendar-line"></i>
+                    </span>
+                    <span className="stat-text">{project.deadline}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

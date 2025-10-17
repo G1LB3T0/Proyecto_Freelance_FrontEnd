@@ -107,6 +107,43 @@ const Finanzas = () => {
     };
   }, [transacciones]);
 
+  const kpis = useMemo(() => {
+    const now = new Date();
+    const cm = now.getMonth();
+    const cy = now.getFullYear();
+    const pm = cm === 0 ? 11 : cm - 1;
+    const py = cm === 0 ? cy - 1 : cy;
+
+    const sumFor = (m, y, tipo) =>
+      transacciones
+        .filter((t) => {
+          const d = new Date(t.fecha);
+          return d.getMonth() === m && d.getFullYear() === y && (tipo ? t.tipo === tipo : true);
+        })
+        .reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
+
+    const currIng = sumFor(cm, cy, "ingreso");
+    const currGas = sumFor(cm, cy, "gasto");
+    const prevIng = sumFor(pm, py, "ingreso");
+    const prevGas = sumFor(pm, py, "gasto");
+    const currBal = currIng - currGas;
+    const prevBal = prevIng - prevGas;
+
+    const pct = (curr, prev) => {
+      if (!prev && !curr) return null; // sin datos comparables
+      if (!prev && curr) return 100;   // crecimiento desde 0
+      const v = ((curr - prev) / Math.abs(prev)) * 100;
+      return isFinite(v) ? v : null;
+    };
+
+    return {
+      ingresosPct: pct(currIng, prevIng),
+      gastosPct: pct(currGas, prevGas),
+      balancePct: pct(currBal, prevBal),
+      anualesPct: null, // puedes calcularlo luego vs año pasado si quieres
+    };
+  }, [transacciones]);
+
   const handleFiltroChange = (tipo) => {
     setFiltroTipo(tipo);
   };
@@ -207,7 +244,13 @@ const Finanzas = () => {
           <p className="card-monto">
             {GTQ.format(resumenFinanciero.ingresosMes)}
           </p>
-          <span className="card-porcentaje positivo">+12.5%</span>
+          {kpis.ingresosPct === null ? (
+            <span className="card-porcentaje">—</span>
+          ) : (
+            <span className={`card-porcentaje ${kpis.ingresosPct >= 0 ? "positivo" : "negativo"}`}>
+              {`${kpis.ingresosPct >= 0 ? "+" : ""}${kpis.ingresosPct.toFixed(1)}%`}
+            </span>
+          )}
         </div>
 
         <div className="card-resumen gastos">
@@ -218,7 +261,13 @@ const Finanzas = () => {
           <p className="card-monto">
             {GTQ.format(resumenFinanciero.gastosMes)}
           </p>
-          <span className="card-porcentaje negativo">+5.2%</span>
+          {kpis.gastosPct === null ? (
+            <span className="card-porcentaje">—</span>
+          ) : (
+            <span className={`card-porcentaje ${kpis.gastosPct >= 0 ? "negativo" : "positivo"}`}>
+              {`${kpis.gastosPct >= 0 ? "+" : ""}${kpis.gastosPct.toFixed(1)}%`}
+            </span>
+          )}
         </div>
 
         <div className="card-resumen balance">
@@ -229,7 +278,13 @@ const Finanzas = () => {
           <p className="card-monto">
             {GTQ.format(resumenFinanciero.balanceMes)}
           </p>
-          <span className="card-porcentaje positivo">+8.3%</span>
+          {kpis.balancePct === null ? (
+            <span className="card-porcentaje">—</span>
+          ) : (
+            <span className={`card-porcentaje ${kpis.balancePct >= 0 ? "positivo" : "negativo"}`}>
+              {`${kpis.balancePct >= 0 ? "+" : ""}${kpis.balancePct.toFixed(1)}%`}
+            </span>
+          )}
         </div>
 
         <div className="card-resumen anual">
@@ -240,7 +295,13 @@ const Finanzas = () => {
           <p className="card-monto">
             {GTQ.format(resumenFinanciero.ingresosAnio)}
           </p>
-          <span className="card-porcentaje positivo">+25.4%</span>
+          {kpis.anualesPct === null ? (
+            <span className="card-porcentaje">—</span>
+          ) : (
+            <span className={`card-porcentaje ${kpis.anualesPct >= 0 ? "positivo" : "negativo"}`}>
+              {`${kpis.anualesPct >= 0 ? "+" : ""}${kpis.anualesPct.toFixed(1)}%`}
+            </span>
+          )}
         </div>
       </div>
 

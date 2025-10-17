@@ -1,63 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../Components/Layout.jsx";
 import "../styles/Finanzas.css";
 
-const Finanzas = () => {
-  // Datos quemados para mostrar
-  const [resumenFinanciero] = useState({
-    ingresosMes: 5250.0,
-    gastosMes: 1200.0,
-    balanceMes: 4050.0,
-    ingresosAnio: 45000.0,
-  });
+import { useAuth } from "../hooks/useAuth.js";
 
-  const [transacciones, setTransacciones] = useState([
-    {
-      id: 1,
-      tipo: "ingreso",
-      concepto: "Proyecto Web - Cliente ABC",
-      monto: 1500.0,
-      fecha: "2024-03-15",
-      estado: "completado",
-      categoria: "Desarrollo Web",
-    },
-    {
-      id: 2,
-      tipo: "ingreso",
-      concepto: "Diseño de Logo - Empresa XYZ",
-      monto: 800.0,
-      fecha: "2024-03-12",
-      estado: "completado",
-      categoria: "Diseño",
-    },
-    {
-      id: 3,
-      tipo: "gasto",
-      concepto: "Suscripción Adobe Creative",
-      monto: 50.0,
-      fecha: "2024-03-10",
-      estado: "pagado",
-      categoria: "Software",
-    },
-    {
-      id: 4,
-      tipo: "ingreso",
-      concepto: "Consultoría React - 20 horas",
-      monto: 2000.0,
-      fecha: "2024-03-08",
-      estado: "pendiente",
-      categoria: "Consultoría",
-    },
-    {
-      id: 5,
-      tipo: "gasto",
-      concepto: "Hosting y Dominio",
-      monto: 150.0,
-      fecha: "2024-03-05",
-      estado: "pagado",
-      categoria: "Infraestructura",
-    },
-  ]);
+const Finanzas = () => {
+  const { authenticatedFetch, user } = useAuth();
+  const API = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:3000";
+  const GTQ = new Intl.NumberFormat("es-GT", { style: "currency", currency: "GTQ" });
+
+  const [transacciones, setTransacciones] = useState([]);
 
   const [filtroTipo, setFiltroTipo] = useState("todos");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -69,7 +21,7 @@ const Finanzas = () => {
     fecha: new Date().toISOString().split("T")[0],
   });
 
-  const categorias = [
+  const [categorias, setCategorias] = useState([
     "Desarrollo Web",
     "Diseño",
     "Consultoría",
@@ -77,7 +29,83 @@ const Finanzas = () => {
     "Software",
     "Infraestructura",
     "Otros",
-  ];
+  ]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const normalizeTx = (t) => ({
+      id: t.id,
+      tipo: t.type === "income" ? "ingreso" : "gasto",
+      concepto: t.title || t.description || "Transacción",
+      monto: Number(t.amount) || 0,
+      fecha: (t.transaction_date || t.created_at || "").slice(0, 10),
+      estado: t.status || "pendiente",
+      categoria: t.category?.name || t.category_name || "Otros",
+    });
+
+    (async () => {
+      try {
+        const [txRes, dashRes, catRes] = await Promise.all([
+          authenticatedFetch(`${API}/api/finance/user/${user.id}/transactions?limit=50`),
+          authenticatedFetch(`${API}/api/finance/user/${user.id}/dashboard`),
+          authenticatedFetch(`${API}/api/finance/categories`),
+        ]);
+
+        // Transacciones
+        if (txRes.ok) {
+          const txJson = await txRes.json();
+          const txData = Array.isArray(txJson?.data) ? txJson.data : (Array.isArray(txJson) ? txJson : []);
+          setTransacciones(txData.map(normalizeTx));
+        }
+
+        // Categorías
+        if (catRes.ok) {
+          const catJson = await catRes.json();
+          const names = (catJson?.data || catJson || [])
+            .map((c) => c?.name)
+            .filter(Boolean);
+          if (names.length) setCategorias(names);
+        }
+
+        // El dashboard se usa opcionalmente más adelante si lo necesitas
+        // const dashJson = await dashRes.json();
+
+      } catch (e) {
+        console.error("Error cargando finanzas:", e);
+      }
+    })();
+  }, [API, authenticatedFetch, user?.id]);
+
+  const resumenFinanciero = useMemo(() => {
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+
+    let ingresosMes = 0;
+    let gastosMes = 0;
+    let ingresosAnio = 0;
+
+    for (const t of transacciones) {
+      const d = new Date(t.fecha);
+      const amt = Number(t.monto) || 0;
+
+      if (d.getFullYear() === year) {
+        if (t.tipo === "ingreso") ingresosAnio += amt;
+        if (d.getMonth() === month) {
+          if (t.tipo === "ingreso") ingresosMes += amt;
+          if (t.tipo === "gasto") gastosMes += amt;
+        }
+      }
+    }
+
+    return {
+      ingresosMes,
+      gastosMes,
+      balanceMes: ingresosMes - gastosMes,
+      ingresosAnio,
+    };
+  }, [transacciones]);
 
   const handleFiltroChange = (tipo) => {
     setFiltroTipo(tipo);
@@ -96,23 +124,61 @@ const Finanzas = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const transaccion = {
-      ...nuevaTransaccion,
-      id: transacciones.length + 1,
-      monto: parseFloat(nuevaTransaccion.monto),
-      estado: nuevaTransaccion.tipo === "ingreso" ? "pendiente" : "pagado",
+    if (!user?.id) return;
+
+    const backendType = nuevaTransaccion.tipo === "ingreso" ? "income" : "expense";
+    const payload = {
+      user_id: user.id,
+      title: nuevaTransaccion.concepto,
+      type: backendType,
+      amount: parseFloat(nuevaTransaccion.monto),
+      currency: "GTQ",
+      status: backendType === "income" ? "pending" : "posted",
+      transaction_date: nuevaTransaccion.fecha,
+      description: nuevaTransaccion.concepto,
+      // category_id:  (opcional: mapear por nombre si ya tienes el id)
     };
-    setTransacciones((prev) => [transaccion, ...prev]);
-    setNuevaTransaccion({
-      tipo: "ingreso",
-      concepto: "",
-      monto: "",
-      categoria: "Desarrollo Web",
-      fecha: new Date().toISOString().split("T")[0],
-    });
-    setMostrarFormulario(false);
+
+    try {
+      const res = await authenticatedFetch(`${API}/api/finance/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(t || `HTTP ${res.status}`);
+      }
+
+      const created = await res.json();
+      const d = created?.data || created;
+
+      const nueva = {
+        id: d.id,
+        tipo: d.type === "income" ? "ingreso" : "gasto",
+        concepto: d.title || nuevaTransaccion.concepto,
+        monto: Number(d.amount) || parseFloat(nuevaTransaccion.monto),
+        fecha: (d.transaction_date || nuevaTransaccion.fecha).slice(0, 10),
+        estado: d.status || (backendType === "income" ? "pendiente" : "pagado"),
+        categoria: d.category?.name || nuevaTransaccion.categoria,
+      };
+
+      setTransacciones((prev) => [nueva, ...prev]);
+      setNuevaTransaccion({
+        tipo: "ingreso",
+        concepto: "",
+        monto: "",
+        categoria: "Desarrollo Web",
+        fecha: new Date().toISOString().split("T")[0],
+      });
+      setMostrarFormulario(false);
+    } catch (error) {
+      console.error("Error creando transacción:", error);
+      alert("No se pudo guardar la transacción.");
+    }
   };
 
   return (
@@ -139,7 +205,7 @@ const Finanzas = () => {
             <h3>Ingresos del Mes</h3>
           </div>
           <p className="card-monto">
-            Q{resumenFinanciero.ingresosMes.toFixed(2)}
+            {GTQ.format(resumenFinanciero.ingresosMes)}
           </p>
           <span className="card-porcentaje positivo">+12.5%</span>
         </div>
@@ -150,7 +216,7 @@ const Finanzas = () => {
             <h3>Gastos del Mes</h3>
           </div>
           <p className="card-monto">
-            Q{resumenFinanciero.gastosMes.toFixed(2)}
+            {GTQ.format(resumenFinanciero.gastosMes)}
           </p>
           <span className="card-porcentaje negativo">+5.2%</span>
         </div>
@@ -161,7 +227,7 @@ const Finanzas = () => {
             <h3>Balance del Mes</h3>
           </div>
           <p className="card-monto">
-            Q{resumenFinanciero.balanceMes.toFixed(2)}
+            {GTQ.format(resumenFinanciero.balanceMes)}
           </p>
           <span className="card-porcentaje positivo">+8.3%</span>
         </div>
@@ -172,7 +238,7 @@ const Finanzas = () => {
             <h3>Ingresos Anuales</h3>
           </div>
           <p className="card-monto">
-            Q{resumenFinanciero.ingresosAnio.toFixed(2)}
+            {GTQ.format(resumenFinanciero.ingresosAnio)}
           </p>
           <span className="card-porcentaje positivo">+25.4%</span>
         </div>
@@ -356,8 +422,7 @@ const Finanzas = () => {
                   </div>
                   <div className="transaccion-monto-estado">
                     <p className={`transaccion-monto ${transaccion.tipo}`}>
-                      {transaccion.tipo === "ingreso" ? "+" : "-"} Q
-                      {transaccion.monto.toFixed(2)}
+                      {transaccion.tipo === "ingreso" ? "+" : "-"} {GTQ.format(transaccion.monto)}
                     </p>
                     <span
                       className={`transaccion-estado ${transaccion.estado}`}

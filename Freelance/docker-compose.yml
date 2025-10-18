@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: freelance-frontend:latest
+    container_name: freelance_frontend
+    restart: unless-stopped
+    ports:
+      - "3001:80" # mapea puerto 80 del contenedor al 3001 local para pruebas
+    env_file:
+      - .env.production
+    volumes: []

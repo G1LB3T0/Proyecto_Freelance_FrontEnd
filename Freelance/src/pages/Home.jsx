@@ -23,6 +23,22 @@ const Home = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // ---- Sugerencias de personas (nuevo) ----
+  const [suggestedContacts, setSuggestedContacts] = useState([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(true);
+  const filteredSuggestions = React.useMemo(() => {
+    const q = (searchQuery || "").trim().toLowerCase();
+    return (suggestedContacts || []).filter(
+      (p) =>
+        !q ||
+        [p.name, p.role, p.username]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(q)
+    );
+  }, [suggestedContacts, searchQuery]);
+
   const filteredPosts = posts.filter((post) => {
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
@@ -139,10 +155,116 @@ const Home = () => {
     }
   };
 
+  // ---- Sugerencias: fetch + conectar (nuevo) ----
+  const fetchSuggestions = async () => {
+    try {
+      let url = "http://localhost:3000/api/users/suggestions";
+      if (user?.id) url += `?user_id=${user.id}`;
+
+      const res = await authenticatedFetch(url, { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        const arr = Array.isArray(data)
+          ? data
+          : data.data?.users || data.users || data.data || [];
+        setSuggestedContacts(
+          arr
+            .filter((u) => u.id !== user?.id) // por si el backend no lo filtra
+            .map((u) => ({
+              id: u.id,
+              name:
+                u.full_name ||
+                [u.first_name, u.last_name].filter(Boolean).join(" ") ||
+                u.name ||
+                u.username ||
+                "Usuario",
+              role:
+                u.role ||
+                u.title ||
+                u.profession ||
+                (u.user_type === "project_manager"
+                  ? "Project Manager"
+                  : "Freelancer"),
+              avatar: u.avatar || u.photo_url || null,
+              username: u.username || "",
+              mutualCount: u.mutual_connections ?? u.mutuals ?? 0,
+              connected: !!(u.connected || u.is_connected),
+            }))
+        );
+      } else {
+        throw new Error("bad response");
+      }
+    } catch {
+      // Fallback si aún no hay API
+      setSuggestedContacts([
+        {
+          id: 101,
+          name: "Ana Rivera",
+          role: "Diseñadora UX/UI",
+          avatar: null,
+          username: "ana.r",
+          mutualCount: 3,
+          connected: false,
+        },
+        {
+          id: 102,
+          name: "David Torres",
+          role: "Desarrollador Frontend",
+          avatar: null,
+          username: "david.t",
+          mutualCount: 1,
+          connected: false,
+        },
+        {
+          id: 103,
+          name: "Patricia López",
+          role: "Marketing Manager",
+          avatar: null,
+          username: "paty.l",
+          mutualCount: 0,
+          connected: false,
+        },
+      ]);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+
+  const handleConnectToggle = async (person) => {
+    const nextConnected = !person.connected;
+
+    // Optimista
+    setSuggestedContacts((prev) =>
+      prev.map((p) =>
+        p.id === person.id ? { ...p, connected: nextConnected } : p
+      )
+    );
+
+    try {
+      const endpoint = nextConnected ? "connect" : "disconnect";
+      await authenticatedFetch(
+        `http://localhost:3000/api/connections/${endpoint}`,
+        {
+          method: "POST",
+          body: JSON.stringify({ user_id: user?.id, target_id: person.id }),
+        }
+      );
+    } catch (err) {
+      // Revertir si falla
+      setSuggestedContacts((prev) =>
+        prev.map((p) =>
+          p.id === person.id ? { ...p, connected: !nextConnected } : p
+        )
+      );
+      console.error("Error toggling connection:", err);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         await fetchPosts();
+        await fetchSuggestions(); // <---- nuevo
 
         try {
           const eventsResponse = await fetch(
@@ -173,6 +295,7 @@ const Home = () => {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading)
@@ -464,41 +587,110 @@ const Home = () => {
             <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
             <button className="upgrade-btn">Conocer más</button>
           </div>
+
+          {/* ---- Personas que quizás conozcas (reemplazado) ---- */}
           <div className="widget suggested-contacts">
             <h3>Personas que quizás conozcas</h3>
-            <div className="contact-suggestions">
-              <div className="contact-item">
-                <div className="contact-avatar">
-                  <i className="ri-user-3-line" aria-hidden="true"></i>
-                </div>
-                <div className="contact-info">
-                  <div className="contact-name">Ana Rivera</div>
-                  <div className="contact-role">Diseñadora UX/UI</div>
-                </div>
-                <button className="connect-btn">+</button>
+
+            {suggestionsLoading ? (
+              <div className="contact-suggestions">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="contact-item"
+                    style={{ opacity: 0.55 }}
+                  >
+                    <div className="contact-avatar skeleton" />
+                    <div className="contact-info">
+                      <div
+                        className="contact-name skeleton-text"
+                        style={{ width: 140 }}
+                      />
+                      <div
+                        className="contact-role skeleton-text"
+                        style={{ width: 100 }}
+                      />
+                    </div>
+                    <button className="connect-btn" disabled>
+                      +
+                    </button>
+                  </div>
+                ))}
               </div>
-              <div className="contact-item">
-                <div className="contact-avatar">
-                  <i className="ri-user-3-line" aria-hidden="true"></i>
-                </div>
-                <div className="contact-info">
-                  <div className="contact-name">David Torres</div>
-                  <div className="contact-role">Desarrollador Frontend</div>
-                </div>
-                <button className="connect-btn">+</button>
+            ) : filteredSuggestions.length === 0 ? (
+              <div className="empty-state">
+                <p style={{ color: "#64748b" }}>
+                  No hay sugerencias para “{searchQuery}”.
+                </p>
+                <button
+                  className="see-all-btn"
+                  onClick={() => setSearchQuery("")}
+                >
+                  Ver todas
+                </button>
               </div>
-              <div className="contact-item">
-                <div className="contact-avatar">
-                  <i className="ri-user-3-line" aria-hidden="true"></i>
-                </div>
-                <div className="contact-info">
-                  <div className="contact-name">Patricia López</div>
-                  <div className="contact-role">Marketing Manager</div>
-                </div>
-                <button className="connect-btn">+</button>
+            ) : (
+              <div className="contact-suggestions">
+                {filteredSuggestions.slice(0, 6).map((person) => (
+                  <div key={person.id} className="contact-item">
+                    <div className="contact-avatar">
+                      {person.avatar ? (
+                        <img
+                          src={person.avatar}
+                          alt={person.name}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
+                          onError={(e) =>
+                            (e.currentTarget.style.display = "none")
+                          }
+                        />
+                      ) : (
+                        <i className="ri-user-3-line" aria-hidden="true"></i>
+                      )}
+                    </div>
+
+                    <div className="contact-info">
+                      <div className="contact-name">{person.name}</div>
+                      <div className="contact-role">
+                        {person.role}
+                        {typeof person.mutualCount === "number" &&
+                          person.mutualCount > 0 && (
+                            <span
+                              style={{
+                                marginLeft: 6,
+                                fontSize: 12,
+                                color: "#64748b",
+                              }}
+                            >
+                              · {person.mutualCount} en común
+                            </span>
+                          )}
+                      </div>
+                    </div>
+
+                    <button
+                      className="connect-btn"
+                      onClick={() => handleConnectToggle(person)}
+                      title={person.connected ? "Conectado" : "Conectar"}
+                      style={{
+                        background: person.connected ? "#10b981" : undefined,
+                        color: person.connected ? "#fff" : undefined,
+                      }}
+                    >
+                      {person.connected ? <i className="ri-check-line" /> : "+"}
+                    </button>
+                  </div>
+                ))}
               </div>
-            </div>
-            <button className="see-all-btn">Ver más</button>
+            )}
+
+            <button className="see-all-btn" onClick={fetchSuggestions}>
+              Ver más
+            </button>
           </div>
         </section>
       </div>

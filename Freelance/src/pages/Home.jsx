@@ -5,25 +5,56 @@ import useAuth from "../hooks/useAuth.js";
 import "../styles/Home.css";
 
 const Home = () => {
-  const { user, isAuthenticated, authenticatedFetch, logout } = useAuth();
+  const { user, authenticatedFetch } = useAuth();
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostImageUrl, setNewPostImageUrl] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [upcomingEvents, setUpcomingEvents] = useState([
-    { id: 1, title: "Webinar: Marketing Digital", date: "15 Mayo, 18:00" },
-    { id: 2, title: "Workshop de React", date: "21 Mayo, 16:30" },
-    { id: 3, title: "Networking Online", date: "29 Mayo, 19:00" },
+    {
+      id: 1,
+      title: "Webinar: Marketing Digital",
+      date: "15 Mayo, 18:00",
+      description:
+        "Aprende las últimas estrategias de posicionamiento en redes sociales con expertos en marketing digital.",
+    },
+    {
+      id: 2,
+      title: "Workshop de React",
+      date: "21 Mayo, 16:30",
+      description:
+        "Taller práctico sobre React Hooks y buenas prácticas en el desarrollo frontend moderno.",
+    },
+    {
+      id: 3,
+      title: "Networking Online",
+      date: "29 Mayo, 19:00",
+      description:
+        "Conecta con otros freelancers y profesionales de tecnología en un encuentro virtual interactivo.",
+    },
   ]);
-  const [userStats, setUserStats] = useState({
-    projects: 12,
-    contacts: 37,
-    visits: "5.2k",
-  });
+  const [userStats] = useState({ projects: 12, contacts: 37, visits: "5.2k" });
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // ---- Sugerencias de personas (nuevo) ----
+  // ==== Modal Detalle Evento ====
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const openEventDetail = (evt) => setSelectedEvent(evt);
+  const closeEventDetail = () => setSelectedEvent(null);
+
+  // Convierte fecha a YYYY-MM-DD para pasarla al calendario
+  const getEventDateParam = (evt) => {
+    const raw = evt?.dateISO || evt?.start_date || evt?.date || null;
+    if (!raw) return undefined;
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return undefined;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  // ==== Sugerencias de personas ====
   const [suggestedContacts, setSuggestedContacts] = useState([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(true);
   const filteredSuggestions = React.useMemo(() => {
@@ -39,6 +70,7 @@ const Home = () => {
     );
   }, [suggestedContacts, searchQuery]);
 
+  // ==== Filtro de publicaciones ====
   const filteredPosts = posts.filter((post) => {
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
@@ -59,15 +91,14 @@ const Home = () => {
     }
   };
 
+  // ==== Crear post ====
   const handleCreatePost = async () => {
     if (!newPostContent.trim()) return;
-
     try {
       if (!user?.id) {
         alert("Debes estar logueado para publicar");
         return;
       }
-
       const response = await authenticatedFetch(
         "http://localhost:3000/api/posts",
         {
@@ -83,7 +114,6 @@ const Home = () => {
           }),
         }
       );
-
       if (response.ok) {
         setNewPostContent("");
         setNewPostImageUrl("");
@@ -94,36 +124,28 @@ const Home = () => {
     }
   };
 
-  const handleLike = async (postId) => {
-    try {
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === postId
-            ? { ...post, likes_count: (post.likes_count || 0) + 1 }
-            : post
-        )
-      );
-    } catch (error) {
-      console.error("Error dando like:", error);
-    }
+  // ==== Like rápido ====
+  const handleLike = (postId) => {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId ? { ...p, likes_count: (p.likes_count || 0) + 1 } : p
+      )
+    );
   };
 
+  // ==== Eliminar post ====
   const handleDeletePost = async (postId) => {
     try {
       if (!user?.id) {
         alert("Debes estar logueado para eliminar posts");
         return;
       }
-
       const response = await authenticatedFetch(
         `http://localhost:3000/api/posts/${postId}?user_id=${user.id}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
-
       if (response.ok) {
-        setPosts(posts.filter((post) => post.id !== postId));
+        setPosts(posts.filter((p) => p.id !== postId));
       } else {
         const errorData = await response.json();
         alert(errorData.error || "Error al eliminar el post");
@@ -133,13 +155,11 @@ const Home = () => {
     }
   };
 
-  const isMyPost = (post) => {
-    return (
-      user?.id &&
-      (post.user_id === user.id || post.author_name === user.username)
-    );
-  };
+  const isMyPost = (post) =>
+    user?.id &&
+    (post.user_id === user.id || post.author_name === user.username);
 
+  // ==== Cargar publicaciones ====
   const fetchPosts = async () => {
     try {
       const postsResponse = await fetch("http://localhost:3000/api/posts/");
@@ -155,108 +175,16 @@ const Home = () => {
     }
   };
 
-  // ---- Sugerencias: fetch + conectar (nuevo) ----
+  // ==== Cargar sugerencias (fallback si no hay API) ====
   const fetchSuggestions = async () => {
     try {
-      let url = "http://localhost:3000/api/users/suggestions";
-      if (user?.id) url += `?user_id=${user.id}`;
-
-      const res = await authenticatedFetch(url, { method: "GET" });
-      if (res.ok) {
-        const data = await res.json();
-        const arr = Array.isArray(data)
-          ? data
-          : data.data?.users || data.users || data.data || [];
-        setSuggestedContacts(
-          arr
-            .filter((u) => u.id !== user?.id) // por si el backend no lo filtra
-            .map((u) => ({
-              id: u.id,
-              name:
-                u.full_name ||
-                [u.first_name, u.last_name].filter(Boolean).join(" ") ||
-                u.name ||
-                u.username ||
-                "Usuario",
-              role:
-                u.role ||
-                u.title ||
-                u.profession ||
-                (u.user_type === "project_manager"
-                  ? "Project Manager"
-                  : "Freelancer"),
-              avatar: u.avatar || u.photo_url || null,
-              username: u.username || "",
-              mutualCount: u.mutual_connections ?? u.mutuals ?? 0,
-              connected: !!(u.connected || u.is_connected),
-            }))
-        );
-      } else {
-        throw new Error("bad response");
-      }
-    } catch {
-      // Fallback si aún no hay API
       setSuggestedContacts([
-        {
-          id: 101,
-          name: "Ana Rivera",
-          role: "Diseñadora UX/UI",
-          avatar: null,
-          username: "ana.r",
-          mutualCount: 3,
-          connected: false,
-        },
-        {
-          id: 102,
-          name: "David Torres",
-          role: "Desarrollador Frontend",
-          avatar: null,
-          username: "david.t",
-          mutualCount: 1,
-          connected: false,
-        },
-        {
-          id: 103,
-          name: "Patricia López",
-          role: "Marketing Manager",
-          avatar: null,
-          username: "paty.l",
-          mutualCount: 0,
-          connected: false,
-        },
+        { id: 1, name: "Ana Rivera", role: "Diseñadora UX/UI" },
+        { id: 2, name: "David Torres", role: "Desarrollador Frontend" },
+        { id: 3, name: "Patricia López", role: "Marketing Manager" },
       ]);
     } finally {
       setSuggestionsLoading(false);
-    }
-  };
-
-  const handleConnectToggle = async (person) => {
-    const nextConnected = !person.connected;
-
-    // Optimista
-    setSuggestedContacts((prev) =>
-      prev.map((p) =>
-        p.id === person.id ? { ...p, connected: nextConnected } : p
-      )
-    );
-
-    try {
-      const endpoint = nextConnected ? "connect" : "disconnect";
-      await authenticatedFetch(
-        `http://localhost:3000/api/connections/${endpoint}`,
-        {
-          method: "POST",
-          body: JSON.stringify({ user_id: user?.id, target_id: person.id }),
-        }
-      );
-    } catch (err) {
-      // Revertir si falla
-      setSuggestedContacts((prev) =>
-        prev.map((p) =>
-          p.id === person.id ? { ...p, connected: !nextConnected } : p
-        )
-      );
-      console.error("Error toggling connection:", err);
     }
   };
 
@@ -264,8 +192,8 @@ const Home = () => {
     const fetchData = async () => {
       try {
         await fetchPosts();
-        await fetchSuggestions(); // <---- nuevo
-
+        await fetchSuggestions();
+        // ==== Cargar eventos desde API si existe ====
         try {
           const eventsResponse = await fetch(
             "http://localhost:3000/api/events/upcoming"
@@ -278,24 +206,18 @@ const Home = () => {
                 eventsData.events ||
                 eventsData.data ||
                 [];
-            if (eventsArray.length > 0) {
-              setUpcomingEvents(eventsArray);
-            }
+            if (eventsArray.length > 0) setUpcomingEvents(eventsArray);
           }
-        } catch (eventError) {
-          console.warn("Events endpoint not available:", eventError);
+        } catch (e) {
+          console.warn("No se pudo cargar eventos:", e);
         }
-
         setLoading(false);
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
+      } catch {
         setError(true);
         setLoading(false);
       }
     };
-
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading)
@@ -328,26 +250,21 @@ const Home = () => {
       onSearchChange={setSearchQuery}
     >
       <div className="home">
+        {/* ==== Sidebar izquierda ==== */}
         <section className="sidebar-left">
           <div className="widget profile-stats">
             <h3>Tu Actividad</h3>
             <div className="stats-container">
               <div className="stat-item">
-                <span className="stat-value">
-                  {String(userStats.projects || 0)}
-                </span>
+                <span className="stat-value">{String(userStats.projects)}</span>
                 <span className="stat-label">Proyectos</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">
-                  {String(userStats.contacts || 0)}
-                </span>
+                <span className="stat-value">{String(userStats.contacts)}</span>
                 <span className="stat-label">Contactos</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">
-                  {String(userStats.visits || 0)}
-                </span>
+                <span className="stat-value">{String(userStats.visits)}</span>
                 <span className="stat-label">Visitas</span>
               </div>
             </div>
@@ -364,6 +281,7 @@ const Home = () => {
           </div>
         </section>
 
+        {/* ==== Feed principal ==== */}
         <section className="feed">
           <div className="section-header">
             <h2>Publicaciones de la Comunidad</h2>
@@ -374,21 +292,17 @@ const Home = () => {
             </div>
           </div>
 
+          {/* ==== Crear nueva publicación ==== */}
           <div className="create-post">
             <div className="user-avatar">
               {user?.avatar ? (
                 <img
                   src={user.avatar}
                   alt="Avatar"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                  }}
+                  style={{ width: 40, height: 40, borderRadius: "50%" }}
                 />
               ) : (
-                <i className="ri-user-line" aria-hidden="true"></i>
+                <i className="ri-user-line" />
               )}
             </div>
             <div className="post-input-container">
@@ -420,6 +334,7 @@ const Home = () => {
             </button>
           </div>
 
+          {/* ==== Próximos eventos (clickeables) ==== */}
           <div
             className="widget events-widget"
             style={{ margin: "32px auto", maxWidth: "500px" }}
@@ -427,7 +342,12 @@ const Home = () => {
             <h3>Próximos Eventos</h3>
             <ul className="events-list">
               {(upcomingEvents || []).map((event) => (
-                <li key={event.id} className="event-item">
+                <li
+                  key={event.id}
+                  className="event-item"
+                  onClick={() => openEventDetail(event)} // abrir modal
+                  style={{ cursor: "pointer" }}
+                >
                   <div className="event-date">{event.date}</div>
                   <div className="event-title">{event.title}</div>
                 </li>
@@ -438,35 +358,11 @@ const Home = () => {
             </Link>
           </div>
 
+          {/* ==== Lista de publicaciones ==== */}
           <div className="posts-list">
-            {searchQuery && filteredPosts.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "40px",
-                  background: "#f5f7fa",
-                  borderRadius: "12px",
-                }}
-              >
-                <p style={{ fontSize: "18px", color: "#64748b" }}>
-                  No se encontraron resultados para "{searchQuery}"
-                </p>
-                <button
-                  onClick={() => setSearchQuery("")}
-                  style={{
-                    marginTop: "12px",
-                    padding: "8px 16px",
-                    background: "#667eea",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Ver todas
-                </button>
-              </div>
-            ) : Array.isArray(filteredPosts) ? (
+            {filteredPosts.length === 0 ? (
+              <p>No hay publicaciones disponibles</p>
+            ) : (
               filteredPosts.map((post) => (
                 <div key={post.id} className="post-card">
                   <div className="post-header">
@@ -477,109 +373,45 @@ const Home = () => {
                             src={post.author_avatar}
                             alt="Avatar"
                             style={{
-                              width: "40px",
-                              height: "40px",
+                              width: 40,
+                              height: 40,
                               borderRadius: "50%",
                             }}
                           />
                         ) : (
-                          <i className="ri-user-line" aria-hidden="true"></i>
+                          <i className="ri-user-line" />
                         )}
                       </span>
                       <div className="author-info">
-                        <span className="author-name">
-                          {post.author_name || post.author}
-                        </span>
+                        <span className="author-name">{post.author_name}</span>
                         <span className="post-time">
-                          {new Date(post.created_at).toLocaleDateString() ||
-                            post.time}
+                          {new Date(post.created_at).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
-                    <div className="post-menu">⋯</div>
                   </div>
                   <div className="post-content">
-                    <h3 className="post-title">{post.title}</h3>
+                    <h3>{post.title}</h3>
                     <p>{post.content}</p>
-                    {isValidImageUrl(post.image_url) ? (
+                    {isValidImageUrl(post.image_url) && (
                       <div className="post-image">
                         <img
                           src={post.image_url}
                           alt="Post"
                           className="post-img"
-                          onError={(e) => {
-                            e.target.style.display = "none";
-                            e.target.parentElement.style.display = "none";
-                          }}
                         />
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="post-actions">
-                    <div
-                      className="action"
-                      onClick={() => handleLike(post.id)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <span className="action-icon">
-                        <i className="ri-thumb-up-line" aria-hidden="true"></i>
-                      </span>
-                      <span className="action-count">
-                        {post.likes_count || post.likes || 0}
-                      </span>
-                    </div>
-                    <div className="action" style={{ cursor: "pointer" }}>
-                      <span className="action-icon">
-                        <i className="ri-chat-3-line" aria-hidden="true"></i>
-                      </span>
-                      <span className="action-count">
-                        {post.comments_count || post.comments || 0}
-                      </span>
-                    </div>
-                    <div className="action">
-                      <span className="action-icon">
-                        <i
-                          className="ri-share-forward-line"
-                          aria-hidden="true"
-                        ></i>
-                      </span>
-                      <span className="action-label">Compartir</span>
-                    </div>
-                    <div className="action">
-                      <span className="action-icon">
-                        <i className="ri-bookmark-line" aria-hidden="true"></i>
-                      </span>
-                      <span className="action-label">Guardar</span>
-                    </div>
-                    {isMyPost(post) && (
-                      <div
-                        className="action delete-action"
-                        onClick={() => handleDeletePost(post.id)}
-                        style={{ cursor: "pointer", color: "#ef4444" }}
-                        title="Eliminar post"
-                      >
-                        <span className="action-icon">
-                          <i
-                            className="ri-delete-bin-6-line"
-                            aria-hidden="true"
-                          ></i>
-                        </span>
-                        <span className="action-label">Eliminar</span>
                       </div>
                     )}
                   </div>
                 </div>
               ))
-            ) : (
-              <div className="empty-posts">
-                <p>No hay publicaciones disponibles</p>
-              </div>
             )}
           </div>
 
           <button className="load-more-btn">Cargar más publicaciones</button>
         </section>
 
+        {/* ==== Sidebar derecha ==== */}
         <section className="sidebar-right">
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
@@ -588,111 +420,116 @@ const Home = () => {
             <button className="upgrade-btn">Conocer más</button>
           </div>
 
-          {/* ---- Personas que quizás conozcas (reemplazado) ---- */}
+          {/* ==== Personas que quizás conozcas ==== */}
           <div className="widget suggested-contacts">
             <h3>Personas que quizás conozcas</h3>
-
             {suggestionsLoading ? (
-              <div className="contact-suggestions">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="contact-item"
-                    style={{ opacity: 0.55 }}
-                  >
-                    <div className="contact-avatar skeleton" />
-                    <div className="contact-info">
-                      <div
-                        className="contact-name skeleton-text"
-                        style={{ width: 140 }}
-                      />
-                      <div
-                        className="contact-role skeleton-text"
-                        style={{ width: 100 }}
-                      />
-                    </div>
-                    <button className="connect-btn" disabled>
-                      +
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : filteredSuggestions.length === 0 ? (
-              <div className="empty-state">
-                <p style={{ color: "#64748b" }}>
-                  No hay sugerencias para “{searchQuery}”.
-                </p>
-                <button
-                  className="see-all-btn"
-                  onClick={() => setSearchQuery("")}
-                >
-                  Ver todas
-                </button>
-              </div>
+              <p>Cargando...</p>
             ) : (
               <div className="contact-suggestions">
-                {filteredSuggestions.slice(0, 6).map((person) => (
-                  <div key={person.id} className="contact-item">
+                {filteredSuggestions.map((p) => (
+                  <div key={p.id} className="contact-item">
                     <div className="contact-avatar">
-                      {person.avatar ? (
-                        <img
-                          src={person.avatar}
-                          alt={person.name}
-                          style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                          }}
-                          onError={(e) =>
-                            (e.currentTarget.style.display = "none")
-                          }
-                        />
-                      ) : (
-                        <i className="ri-user-3-line" aria-hidden="true"></i>
-                      )}
+                      <i className="ri-user-3-line" />
                     </div>
-
                     <div className="contact-info">
-                      <div className="contact-name">{person.name}</div>
-                      <div className="contact-role">
-                        {person.role}
-                        {typeof person.mutualCount === "number" &&
-                          person.mutualCount > 0 && (
-                            <span
-                              style={{
-                                marginLeft: 6,
-                                fontSize: 12,
-                                color: "#64748b",
-                              }}
-                            >
-                              · {person.mutualCount} en común
-                            </span>
-                          )}
-                      </div>
+                      <div className="contact-name">{p.name}</div>
+                      <div className="contact-role">{p.role}</div>
                     </div>
-
-                    <button
-                      className="connect-btn"
-                      onClick={() => handleConnectToggle(person)}
-                      title={person.connected ? "Conectado" : "Conectar"}
-                      style={{
-                        background: person.connected ? "#10b981" : undefined,
-                        color: person.connected ? "#fff" : undefined,
-                      }}
-                    >
-                      {person.connected ? <i className="ri-check-line" /> : "+"}
-                    </button>
+                    <button className="connect-btn">+</button>
                   </div>
                 ))}
               </div>
             )}
-
-            <button className="see-all-btn" onClick={fetchSuggestions}>
-              Ver más
-            </button>
           </div>
         </section>
+
+        {/* ==== Modal Detalle Evento ==== */}
+        {selectedEvent && (
+          <div
+            className="modal-backdrop"
+            onClick={closeEventDetail}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.35)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 999,
+            }}
+          >
+            <div
+              className="modal-card"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "min(520px, 92vw)",
+                background: "#fff",
+                borderRadius: "12px",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                padding: "20px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <i className="ri-calendar-event-line"></i>
+                <h3>{selectedEvent.title}</h3>
+              </div>
+
+              <div style={{ marginTop: 12, color: "#475569" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <i className="ri-time-line"></i>
+                  <span>{selectedEvent.date || "Por definir"}</span>
+                </div>
+
+                {selectedEvent.location && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginTop: 6,
+                    }}
+                  >
+                    <i className="ri-map-pin-line"></i>
+                    <span>{selectedEvent.location}</span>
+                  </div>
+                )}
+
+                {selectedEvent.description && (
+                  <p style={{ marginTop: 10, lineHeight: 1.5 }}>
+                    {selectedEvent.description}
+                  </p>
+                )}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 10,
+                  marginTop: 18,
+                }}
+              >
+                <button
+                  onClick={closeEventDetail}
+                  style={{ padding: "8px 12px" }}
+                >
+                  Cerrar
+                </button>
+                <Link
+                  to={
+                    getEventDateParam(selectedEvent)
+                      ? `/calendario?date=${getEventDateParam(selectedEvent)}`
+                      : "/calendario"
+                  }
+                  onClick={closeEventDetail}
+                >
+                  <button className="see-all-btn">Ver en Calendario</button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

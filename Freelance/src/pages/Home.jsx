@@ -9,6 +9,7 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostImageUrl, setNewPostImageUrl] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [upcomingEvents, setUpcomingEvents] = useState([
     { id: 1, title: "Webinar: Marketing Digital", date: "15 Mayo, 18:00" },
     { id: 2, title: "Workshop de React", date: "21 Mayo, 16:30" },
@@ -17,51 +18,59 @@ const Home = () => {
   const [userStats, setUserStats] = useState({
     projects: 12,
     contacts: 37,
-    visits: "5.2k"
+    visits: "5.2k",
   });
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Función para validar URL de imagen
+  const filteredPosts = posts.filter((post) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      post.title?.toLowerCase().includes(query) ||
+      post.content?.toLowerCase().includes(query) ||
+      post.author_name?.toLowerCase().includes(query)
+    );
+  });
+
   const isValidImageUrl = (url) => {
     if (!url || !url.trim()) return false;
     try {
       const urlObj = new URL(url);
-      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+      return urlObj.protocol === "http:" || urlObj.protocol === "https:";
     } catch {
       return false;
     }
   };
 
-  // Función para crear nueva publicación
   const handleCreatePost = async () => {
     if (!newPostContent.trim()) return;
 
     try {
-      // Usar el usuario del hook useAuth
       if (!user?.id) {
-        alert('Debes estar logueado para publicar');
-        console.log("No hay usuario autenticado:", user);
+        alert("Debes estar logueado para publicar");
         return;
       }
 
-      const response = await authenticatedFetch("http://localhost:3000/api/posts", {
-        method: "POST",
-        body: JSON.stringify({
-          title: newPostContent.substring(0, 50) + (newPostContent.length > 50 ? "..." : ""),
-          content: newPostContent,
-          user_id: user.id,
-          category_id: 1,
-          image_url: newPostImageUrl.trim() || null
-        })
-      });
+      const response = await authenticatedFetch(
+        "http://localhost:3000/api/posts",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            title:
+              newPostContent.substring(0, 50) +
+              (newPostContent.length > 50 ? "..." : ""),
+            content: newPostContent,
+            user_id: user.id,
+            category_id: 1,
+            image_url: newPostImageUrl.trim() || null,
+          }),
+        }
+      );
 
       if (response.ok) {
-        const newPost = await response.json();
-        console.log("Post creado:", newPost);
         setNewPostContent("");
         setNewPostImageUrl("");
-        // Recargar posts
         fetchPosts();
       }
     } catch (error) {
@@ -69,13 +78,10 @@ const Home = () => {
     }
   };
 
-  // Función para manejar likes
   const handleLike = async (postId) => {
     try {
-      // Aquí podrías hacer una llamada al backend para dar like
-      // Por ahora solo actualiza localmente
-      setPosts(prevPosts =>
-        prevPosts.map(post =>
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
           post.id === postId
             ? { ...post, likes_count: (post.likes_count || 0) + 1 }
             : post
@@ -86,44 +92,46 @@ const Home = () => {
     }
   };
 
-  // Función para eliminar un post
   const handleDeletePost = async (postId) => {
     try {
-      // Usar el usuario del hook useAuth
       if (!user?.id) {
-        alert('Debes estar logueado para eliminar posts');
-        console.log("No hay usuario autenticado para eliminar:", user);
+        alert("Debes estar logueado para eliminar posts");
         return;
       }
 
-      const response = await authenticatedFetch(`http://localhost:3000/api/posts/${postId}?user_id=${user.id}`, {
-        method: "DELETE",
-      });
+      const response = await authenticatedFetch(
+        `http://localhost:3000/api/posts/${postId}?user_id=${user.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
-        setPosts(posts.filter(post => post.id !== postId));
+        setPosts(posts.filter((post) => post.id !== postId));
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Error al eliminar el post');
+        alert(errorData.error || "Error al eliminar el post");
       }
     } catch (error) {
       console.error("Error eliminando post:", error);
-      alert('Error al eliminar el post');
     }
   };
 
-  // Función para verificar si el post pertenece al usuario actual
   const isMyPost = (post) => {
-    return user?.id && (post.user_id === user.id || post.author_name === user.username);
+    return (
+      user?.id &&
+      (post.user_id === user.id || post.author_name === user.username)
+    );
   };
 
-  // Función para obtener posts (separada para poder reutilizar)
   const fetchPosts = async () => {
     try {
       const postsResponse = await fetch("http://localhost:3000/api/posts/");
       if (postsResponse.ok) {
         const postsData = await postsResponse.json();
-        const postsArray = Array.isArray(postsData) ? postsData : postsData.data?.posts || postsData.posts || postsData.data || [];
+        const postsArray = Array.isArray(postsData)
+          ? postsData
+          : postsData.data?.posts || postsData.posts || postsData.data || [];
         setPosts(postsArray);
       }
     } catch (error) {
@@ -132,19 +140,22 @@ const Home = () => {
   };
 
   useEffect(() => {
-    // Cargar posts (obligatorio) y opcionalmente eventos y estadísticas
     const fetchData = async () => {
       try {
-        // Posts (obligatorio)
         await fetchPosts();
 
-        // Eventos (opcional)
         try {
-          const eventsResponse = await fetch("http://localhost:3000/api/events/upcoming");
+          const eventsResponse = await fetch(
+            "http://localhost:3000/api/events/upcoming"
+          );
           if (eventsResponse.ok) {
             const eventsData = await eventsResponse.json();
-            console.log("Events response:", eventsData);
-            const eventsArray = Array.isArray(eventsData) ? eventsData : eventsData.data?.events || eventsData.events || eventsData.data || [];
+            const eventsArray = Array.isArray(eventsData)
+              ? eventsData
+              : eventsData.data?.events ||
+                eventsData.events ||
+                eventsData.data ||
+                [];
             if (eventsArray.length > 0) {
               setUpcomingEvents(eventsArray);
             }
@@ -152,26 +163,6 @@ const Home = () => {
         } catch (eventError) {
           console.warn("Events endpoint not available:", eventError);
         }
-
-        // Estadísticas (comentado porque la ruta no existe aún)
-        /* 
-        try {
-          const statsResponse = await fetch("http://localhost:3000/api/users/me/stats");
-          if (statsResponse.ok) {
-            const statsData = await statsResponse.json();
-            console.log("Stats response:", statsData);
-            if (statsData && statsData.data) {
-              setUserStats({
-                projects: Number(statsData.data.projects) || 0,
-                contacts: Number(statsData.data.contacts) || 0,
-                visits: Number(statsData.data.visits) || 0
-              });
-            }
-          }
-        } catch (statsError) {
-          console.warn("Stats endpoint not available:", statsError);
-        }
-        */
 
         setLoading(false);
       } catch (error) {
@@ -184,39 +175,56 @@ const Home = () => {
     fetchData();
   }, []);
 
-  if (loading) return (
-    <Layout currentPage="home">
-      <div className="loading">Cargando...</div>
-    </Layout>
-  );
+  if (loading)
+    return (
+      <Layout
+        currentPage="home"
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      >
+        <div className="loading">Cargando...</div>
+      </Layout>
+    );
 
-  if (error) return (
-    <Layout currentPage="home">
-      <div className="error">Error al cargar los posts</div>
-    </Layout>
-  );
+  if (error)
+    return (
+      <Layout
+        currentPage="home"
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      >
+        <div className="error">Error al cargar los posts</div>
+      </Layout>
+    );
 
   return (
     <Layout
       currentPage="home"
       searchPlaceholder="Buscar publicaciones, proyectos o personas..."
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
     >
       <div className="home">
-        {/* Sidebar Izquierdo */}
         <section className="sidebar-left">
           <div className="widget profile-stats">
             <h3>Tu Actividad</h3>
             <div className="stats-container">
               <div className="stat-item">
-                <span className="stat-value">{String(userStats.projects || 0)}</span>
+                <span className="stat-value">
+                  {String(userStats.projects || 0)}
+                </span>
                 <span className="stat-label">Proyectos</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">{String(userStats.contacts || 0)}</span>
+                <span className="stat-value">
+                  {String(userStats.contacts || 0)}
+                </span>
                 <span className="stat-label">Contactos</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">{String(userStats.visits || 0)}</span>
+                <span className="stat-value">
+                  {String(userStats.visits || 0)}
+                </span>
                 <span className="stat-label">Visitas</span>
               </div>
             </div>
@@ -233,7 +241,6 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Sección Principal (centrada) */}
         <section className="feed">
           <div className="section-header">
             <h2>Publicaciones de la Comunidad</h2>
@@ -250,7 +257,12 @@ const Home = () => {
                 <img
                   src={user.avatar}
                   alt="Avatar"
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
                 />
               ) : (
                 <i className="ri-user-line" aria-hidden="true"></i>
@@ -266,7 +278,7 @@ const Home = () => {
                 }
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleCreatePost()}
+                onKeyPress={(e) => e.key === "Enter" && handleCreatePost()}
               />
               <input
                 type="url"
@@ -285,8 +297,10 @@ const Home = () => {
             </button>
           </div>
 
-          {/* Próximos Eventos centrado debajo de publicaciones */}
-          <div className="widget events-widget" style={{ margin: '32px auto', maxWidth: '500px' }}>
+          <div
+            className="widget events-widget"
+            style={{ margin: "32px auto", maxWidth: "500px" }}
+          >
             <h3>Próximos Eventos</h3>
             <ul className="events-list">
               {(upcomingEvents || []).map((event) => (
@@ -297,78 +311,143 @@ const Home = () => {
               ))}
             </ul>
             <Link to="/calendario">
-              <button className="see-all-btn">
-                Ver Todos</button>
+              <button className="see-all-btn">Ver Todos</button>
             </Link>
           </div>
 
           <div className="posts-list">
-            {Array.isArray(posts) ? posts.map((post) => (
-              <div key={post.id} className="post-card">
-                <div className="post-header">
-                  <div className="post-author">
-                    <span className="author-avatar">
-                      {post.author_avatar ?
-                        <img src={post.author_avatar} alt="Avatar" style={{ width: '40px', height: '40px', borderRadius: '50%' }} /> :
-                        <i className="ri-user-line" aria-hidden="true"></i>
-                      }
-                    </span>
-                    <div className="author-info">
-                      <span className="author-name">{post.author_name || post.author}</span>
-                      <span className="post-time">{new Date(post.created_at).toLocaleDateString() || post.time}</span>
-                    </div>
-                  </div>
-                  <div className="post-menu">⋯</div>
-                </div>
-                <div className="post-content">
-                  <h3 className="post-title">{post.title}</h3>
-                  <p>{post.content}</p>
-                  {isValidImageUrl(post.image_url) ? (
-                    <div className="post-image">
-                      <img
-                        src={post.image_url}
-                        alt="Post"
-                        className="post-img"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.parentElement.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-                <div className="post-actions">
-                  <div className="action" onClick={() => handleLike(post.id)} style={{ cursor: 'pointer' }}>
-                    <span className="action-icon"><i className="ri-thumb-up-line" aria-hidden="true"></i></span>
-                    <span className="action-count">{post.likes_count || post.likes || 0}</span>
-                  </div>
-                  <div className="action" style={{ cursor: 'pointer' }}>
-                    <span className="action-icon"><i className="ri-chat-3-line" aria-hidden="true"></i></span>
-                    <span className="action-count">{post.comments_count || post.comments || 0}</span>
-                  </div>
-                  <div className="action">
-                    <span className="action-icon"><i className="ri-share-forward-line" aria-hidden="true"></i></span>
-                    <span className="action-label">Compartir</span>
-                  </div>
-                  <div className="action">
-                    <span className="action-icon"><i className="ri-bookmark-line" aria-hidden="true"></i></span>
-                    <span className="action-label">Guardar</span>
-                  </div>
-                  {/* Botón eliminar - solo para posts del usuario actual */}
-                  {isMyPost(post) && (
-                    <div
-                      className="action delete-action"
-                      onClick={() => handleDeletePost(post.id)}
-                      style={{ cursor: 'pointer', color: '#ef4444' }}
-                      title="Eliminar post"
-                    >
-                      <span className="action-icon"><i className="ri-delete-bin-6-line" aria-hidden="true"></i></span>
-                      <span className="action-label">Eliminar</span>
-                    </div>
-                  )}
-                </div>
+            {searchQuery && filteredPosts.length === 0 ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "40px",
+                  background: "#f5f7fa",
+                  borderRadius: "12px",
+                }}
+              >
+                <p style={{ fontSize: "18px", color: "#64748b" }}>
+                  No se encontraron resultados para "{searchQuery}"
+                </p>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  style={{
+                    marginTop: "12px",
+                    padding: "8px 16px",
+                    background: "#667eea",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Ver todas
+                </button>
               </div>
-            )) : (
+            ) : Array.isArray(filteredPosts) ? (
+              filteredPosts.map((post) => (
+                <div key={post.id} className="post-card">
+                  <div className="post-header">
+                    <div className="post-author">
+                      <span className="author-avatar">
+                        {post.author_avatar ? (
+                          <img
+                            src={post.author_avatar}
+                            alt="Avatar"
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              borderRadius: "50%",
+                            }}
+                          />
+                        ) : (
+                          <i className="ri-user-line" aria-hidden="true"></i>
+                        )}
+                      </span>
+                      <div className="author-info">
+                        <span className="author-name">
+                          {post.author_name || post.author}
+                        </span>
+                        <span className="post-time">
+                          {new Date(post.created_at).toLocaleDateString() ||
+                            post.time}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="post-menu">⋯</div>
+                  </div>
+                  <div className="post-content">
+                    <h3 className="post-title">{post.title}</h3>
+                    <p>{post.content}</p>
+                    {isValidImageUrl(post.image_url) ? (
+                      <div className="post-image">
+                        <img
+                          src={post.image_url}
+                          alt="Post"
+                          className="post-img"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                            e.target.parentElement.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="post-actions">
+                    <div
+                      className="action"
+                      onClick={() => handleLike(post.id)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <span className="action-icon">
+                        <i className="ri-thumb-up-line" aria-hidden="true"></i>
+                      </span>
+                      <span className="action-count">
+                        {post.likes_count || post.likes || 0}
+                      </span>
+                    </div>
+                    <div className="action" style={{ cursor: "pointer" }}>
+                      <span className="action-icon">
+                        <i className="ri-chat-3-line" aria-hidden="true"></i>
+                      </span>
+                      <span className="action-count">
+                        {post.comments_count || post.comments || 0}
+                      </span>
+                    </div>
+                    <div className="action">
+                      <span className="action-icon">
+                        <i
+                          className="ri-share-forward-line"
+                          aria-hidden="true"
+                        ></i>
+                      </span>
+                      <span className="action-label">Compartir</span>
+                    </div>
+                    <div className="action">
+                      <span className="action-icon">
+                        <i className="ri-bookmark-line" aria-hidden="true"></i>
+                      </span>
+                      <span className="action-label">Guardar</span>
+                    </div>
+                    {isMyPost(post) && (
+                      <div
+                        className="action delete-action"
+                        onClick={() => handleDeletePost(post.id)}
+                        style={{ cursor: "pointer", color: "#ef4444" }}
+                        title="Eliminar post"
+                      >
+                        <span className="action-icon">
+                          <i
+                            className="ri-delete-bin-6-line"
+                            aria-hidden="true"
+                          ></i>
+                        </span>
+                        <span className="action-label">Eliminar</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
               <div className="empty-posts">
                 <p>No hay publicaciones disponibles</p>
               </div>
@@ -378,7 +457,6 @@ const Home = () => {
           <button className="load-more-btn">Cargar más publicaciones</button>
         </section>
 
-        {/* Sidebar Derecho */}
         <section className="sidebar-right">
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
@@ -390,7 +468,9 @@ const Home = () => {
             <h3>Personas que quizás conozcas</h3>
             <div className="contact-suggestions">
               <div className="contact-item">
-                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
+                <div className="contact-avatar">
+                  <i className="ri-user-3-line" aria-hidden="true"></i>
+                </div>
                 <div className="contact-info">
                   <div className="contact-name">Ana Rivera</div>
                   <div className="contact-role">Diseñadora UX/UI</div>
@@ -398,7 +478,9 @@ const Home = () => {
                 <button className="connect-btn">+</button>
               </div>
               <div className="contact-item">
-                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
+                <div className="contact-avatar">
+                  <i className="ri-user-3-line" aria-hidden="true"></i>
+                </div>
                 <div className="contact-info">
                   <div className="contact-name">David Torres</div>
                   <div className="contact-role">Desarrollador Frontend</div>
@@ -406,7 +488,9 @@ const Home = () => {
                 <button className="connect-btn">+</button>
               </div>
               <div className="contact-item">
-                <div className="contact-avatar"><i className="ri-user-3-line" aria-hidden="true"></i></div>
+                <div className="contact-avatar">
+                  <i className="ri-user-3-line" aria-hidden="true"></i>
+                </div>
                 <div className="contact-info">
                   <div className="contact-name">Patricia López</div>
                   <div className="contact-role">Marketing Manager</div>
@@ -417,8 +501,8 @@ const Home = () => {
             <button className="see-all-btn">Ver más</button>
           </div>
         </section>
-      </div >
-    </Layout >
+      </div>
+    </Layout>
   );
 };
 

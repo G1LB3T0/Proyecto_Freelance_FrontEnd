@@ -7,9 +7,13 @@ import { useAuth } from "../hooks/useAuth.js";
 const Finanzas = () => {
   const { authenticatedFetch, user } = useAuth();
   const API = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:3000";
-  const GTQ = new Intl.NumberFormat("es-GT", { style: "currency", currency: "GTQ" });
+  const GTQ = new Intl.NumberFormat("es-GT", {
+    style: "currency",
+    currency: "GTQ",
+  });
 
   const [transacciones, setTransacciones] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [filtroTipo, setFiltroTipo] = useState("todos");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -47,19 +51,23 @@ const Finanzas = () => {
     (async () => {
       try {
         const [txRes, dashRes, catRes] = await Promise.all([
-          authenticatedFetch(`${API}/api/finance/user/${user.id}/transactions?limit=50`),
+          authenticatedFetch(
+            `${API}/api/finance/user/${user.id}/transactions?limit=50`
+          ),
           authenticatedFetch(`${API}/api/finance/user/${user.id}/dashboard`),
           authenticatedFetch(`${API}/api/finance/categories`),
         ]);
 
-        // Transacciones
         if (txRes.ok) {
           const txJson = await txRes.json();
-          const txData = Array.isArray(txJson?.data) ? txJson.data : (Array.isArray(txJson) ? txJson : []);
+          const txData = Array.isArray(txJson?.data)
+            ? txJson.data
+            : Array.isArray(txJson)
+            ? txJson
+            : [];
           setTransacciones(txData.map(normalizeTx));
         }
 
-        // Categorías
         if (catRes.ok) {
           const catJson = await catRes.json();
           const names = (catJson?.data || catJson || [])
@@ -67,10 +75,6 @@ const Finanzas = () => {
             .filter(Boolean);
           if (names.length) setCategorias(names);
         }
-
-        // El dashboard se usa opcionalmente más adelante si lo necesitas
-        // const dashJson = await dashRes.json();
-
       } catch (e) {
         console.error("Error cargando finanzas:", e);
       }
@@ -118,7 +122,11 @@ const Finanzas = () => {
       transacciones
         .filter((t) => {
           const d = new Date(t.fecha);
-          return d.getMonth() === m && d.getFullYear() === y && (tipo ? t.tipo === tipo : true);
+          return (
+            d.getMonth() === m &&
+            d.getFullYear() === y &&
+            (tipo ? t.tipo === tipo : true)
+          );
         })
         .reduce((acc, t) => acc + (Number(t.monto) || 0), 0);
 
@@ -130,8 +138,8 @@ const Finanzas = () => {
     const prevBal = prevIng - prevGas;
 
     const pct = (curr, prev) => {
-      if (!prev && !curr) return null; // sin datos comparables
-      if (!prev && curr) return 100;   // crecimiento desde 0
+      if (!prev && !curr) return null;
+      if (!prev && curr) return 100;
       const v = ((curr - prev) / Math.abs(prev)) * 100;
       return isFinite(v) ? v : null;
     };
@@ -140,7 +148,7 @@ const Finanzas = () => {
       ingresosPct: pct(currIng, prevIng),
       gastosPct: pct(currGas, prevGas),
       balancePct: pct(currBal, prevBal),
-      anualesPct: null, // puedes calcularlo luego vs año pasado si quieres
+      anualesPct: null,
     };
   }, [transacciones]);
 
@@ -148,10 +156,24 @@ const Finanzas = () => {
     setFiltroTipo(tipo);
   };
 
-  const transaccionesFiltradas =
-    filtroTipo === "todos"
-      ? transacciones
-      : transacciones.filter((t) => t.tipo === filtroTipo);
+  // Filtrar por tipo Y búsqueda
+  const transaccionesFiltradas = useMemo(() => {
+    let filtered =
+      filtroTipo === "todos"
+        ? transacciones
+        : transacciones.filter((t) => t.tipo === filtroTipo);
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (t) =>
+          t.concepto?.toLowerCase().includes(query) ||
+          t.categoria?.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [transacciones, filtroTipo, searchQuery]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -165,7 +187,8 @@ const Finanzas = () => {
     e.preventDefault();
     if (!user?.id) return;
 
-    const backendType = nuevaTransaccion.tipo === "ingreso" ? "income" : "expense";
+    const backendType =
+      nuevaTransaccion.tipo === "ingreso" ? "income" : "expense";
     const payload = {
       user_id: user.id,
       title: nuevaTransaccion.concepto,
@@ -175,7 +198,6 @@ const Finanzas = () => {
       status: backendType === "income" ? "pending" : "posted",
       transaction_date: nuevaTransaccion.fecha,
       description: nuevaTransaccion.concepto,
-      // category_id:  (opcional: mapear por nombre si ya tienes el id)
     };
 
     try {
@@ -219,13 +241,16 @@ const Finanzas = () => {
   };
 
   return (
-    <Layout 
-      currentPage="finance" 
+    <Layout
+      currentPage="finance"
       searchPlaceholder="Buscar transacciones, clientes o categorías..."
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
     >
-      {/* Header específico de Finanzas */}
       <div className="finanzas-header">
-        <h1 className="page-title"><i className="ri-money-dollar-circle-line"></i> Finanzas</h1>
+        <h1 className="page-title">
+          <i className="ri-money-dollar-circle-line"></i> Finanzas
+        </h1>
         <button
           className="btn-nueva-transaccion"
           onClick={() => setMostrarFormulario(!mostrarFormulario)}
@@ -234,11 +259,12 @@ const Finanzas = () => {
         </button>
       </div>
 
-      {/* Cards de Resumen */}
       <div className="resumen-cards">
         <div className="card-resumen ingresos">
           <div className="card-header">
-            <span className="card-icon"><i className="ri-wallet-3-line"></i></span>
+            <span className="card-icon">
+              <i className="ri-wallet-3-line"></i>
+            </span>
             <h3>Ingresos del Mes</h3>
           </div>
           <p className="card-monto">
@@ -247,15 +273,23 @@ const Finanzas = () => {
           {kpis.ingresosPct === null ? (
             <span className="card-porcentaje">—</span>
           ) : (
-            <span className={`card-porcentaje ${kpis.ingresosPct >= 0 ? "positivo" : "negativo"}`}>
-              {`${kpis.ingresosPct >= 0 ? "+" : ""}${kpis.ingresosPct.toFixed(1)}%`}
+            <span
+              className={`card-porcentaje ${
+                kpis.ingresosPct >= 0 ? "positivo" : "negativo"
+              }`}
+            >
+              {`${kpis.ingresosPct >= 0 ? "+" : ""}${kpis.ingresosPct.toFixed(
+                1
+              )}%`}
             </span>
           )}
         </div>
 
         <div className="card-resumen gastos">
           <div className="card-header">
-            <span className="card-icon"><i className="ri-exchange-dollar-line"></i></span>
+            <span className="card-icon">
+              <i className="ri-exchange-dollar-line"></i>
+            </span>
             <h3>Gastos del Mes</h3>
           </div>
           <p className="card-monto">
@@ -264,7 +298,11 @@ const Finanzas = () => {
           {kpis.gastosPct === null ? (
             <span className="card-porcentaje">—</span>
           ) : (
-            <span className={`card-porcentaje ${kpis.gastosPct >= 0 ? "negativo" : "positivo"}`}>
+            <span
+              className={`card-porcentaje ${
+                kpis.gastosPct >= 0 ? "negativo" : "positivo"
+              }`}
+            >
               {`${kpis.gastosPct >= 0 ? "+" : ""}${kpis.gastosPct.toFixed(1)}%`}
             </span>
           )}
@@ -272,7 +310,9 @@ const Finanzas = () => {
 
         <div className="card-resumen balance">
           <div className="card-header">
-            <span className="card-icon"><i className="ri-bar-chart-2-line"></i></span>
+            <span className="card-icon">
+              <i className="ri-bar-chart-2-line"></i>
+            </span>
             <h3>Balance del Mes</h3>
           </div>
           <p className="card-monto">
@@ -281,15 +321,23 @@ const Finanzas = () => {
           {kpis.balancePct === null ? (
             <span className="card-porcentaje">—</span>
           ) : (
-            <span className={`card-porcentaje ${kpis.balancePct >= 0 ? "positivo" : "negativo"}`}>
-              {`${kpis.balancePct >= 0 ? "+" : ""}${kpis.balancePct.toFixed(1)}%`}
+            <span
+              className={`card-porcentaje ${
+                kpis.balancePct >= 0 ? "positivo" : "negativo"
+              }`}
+            >
+              {`${kpis.balancePct >= 0 ? "+" : ""}${kpis.balancePct.toFixed(
+                1
+              )}%`}
             </span>
           )}
         </div>
 
         <div className="card-resumen anual">
           <div className="card-header">
-            <span className="card-icon"><i className="ri-line-chart-line"></i></span>
+            <span className="card-icon">
+              <i className="ri-line-chart-line"></i>
+            </span>
             <h3>Ingresos Anuales</h3>
           </div>
           <p className="card-monto">
@@ -298,16 +346,20 @@ const Finanzas = () => {
           {kpis.anualesPct === null ? (
             <span className="card-porcentaje">—</span>
           ) : (
-            <span className={`card-porcentaje ${kpis.anualesPct >= 0 ? "positivo" : "negativo"}`}>
-              {`${kpis.anualesPct >= 0 ? "+" : ""}${kpis.anualesPct.toFixed(1)}%`}
+            <span
+              className={`card-porcentaje ${
+                kpis.anualesPct >= 0 ? "positivo" : "negativo"
+              }`}
+            >
+              {`${kpis.anualesPct >= 0 ? "+" : ""}${kpis.anualesPct.toFixed(
+                1
+              )}%`}
             </span>
           )}
         </div>
       </div>
 
-      {/* Layout de contenido */}
       <div className="content-layout">
-        {/* Left Sidebar */}
         <section className="left-sidebar">
           <div className="widget financial-summary">
             <h3>Resumen Financiero</h3>
@@ -334,10 +386,7 @@ const Finanzas = () => {
                 <li key={cat} className="category-item">
                   <span className="category-name">{cat}</span>
                   <span className="category-count">
-                    {
-                      transacciones.filter((t) => t.categoria === cat)
-                        .length
-                    }
+                    {transacciones.filter((t) => t.categoria === cat).length}
                   </span>
                 </li>
               ))}
@@ -345,7 +394,6 @@ const Finanzas = () => {
           </div>
         </section>
 
-        {/* Main Section - Transacciones */}
         <section className="posts-section">
           <div className="section-header">
             <h2>Transacciones</h2>
@@ -371,7 +419,6 @@ const Finanzas = () => {
             </div>
           </div>
 
-          {/* Formulario Nueva Transacción */}
           {mostrarFormulario && (
             <div className="formulario-transaccion">
               <form onSubmit={handleSubmit}>
@@ -458,52 +505,85 @@ const Finanzas = () => {
             </div>
           )}
 
-          {/* Lista de Transacciones */}
           <div className="posts-list">
-            {transaccionesFiltradas.map((transaccion) => (
+            {transaccionesFiltradas.length === 0 ? (
               <div
-                key={transaccion.id}
-                className="post-card transaccion-card"
+                style={{
+                  textAlign: "center",
+                  padding: "40px",
+                  background: "#f5f7fa",
+                  borderRadius: "12px",
+                }}
               >
-                <div className="transaccion-header">
-                  <div className="transaccion-info">
-                    <span className="transaccion-icono">
-                      {transaccion.tipo === "ingreso" ? (
-                        <i className="ri-money-dollar-circle-line"></i>
-                      ) : (
-                        <i className="ri-bank-card-line"></i>
-                      )}
-                    </span>
-                    <div className="transaccion-detalles">
-                      <h4>{transaccion.concepto}</h4>
-                      <p className="transaccion-meta">
-                        {transaccion.categoria} • {transaccion.fecha}
+                <p style={{ fontSize: "18px", color: "#64748b" }}>
+                  {searchQuery
+                    ? `No se encontraron transacciones para "${searchQuery}"`
+                    : "No hay transacciones disponibles"}
+                </p>
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    style={{
+                      marginTop: "12px",
+                      padding: "8px 16px",
+                      background: "#667eea",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Ver todas
+                  </button>
+                )}
+              </div>
+            ) : (
+              transaccionesFiltradas.map((transaccion) => (
+                <div
+                  key={transaccion.id}
+                  className="post-card transaccion-card"
+                >
+                  <div className="transaccion-header">
+                    <div className="transaccion-info">
+                      <span className="transaccion-icono">
+                        {transaccion.tipo === "ingreso" ? (
+                          <i className="ri-money-dollar-circle-line"></i>
+                        ) : (
+                          <i className="ri-bank-card-line"></i>
+                        )}
+                      </span>
+                      <div className="transaccion-detalles">
+                        <h4>{transaccion.concepto}</h4>
+                        <p className="transaccion-meta">
+                          {transaccion.categoria} • {transaccion.fecha}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="transaccion-monto-estado">
+                      <p className={`transaccion-monto ${transaccion.tipo}`}>
+                        {transaccion.tipo === "ingreso" ? "+" : "-"}{" "}
+                        {GTQ.format(transaccion.monto)}
                       </p>
+                      <span
+                        className={`transaccion-estado ${transaccion.estado}`}
+                      >
+                        {transaccion.estado}
+                      </span>
                     </div>
                   </div>
-                  <div className="transaccion-monto-estado">
-                    <p className={`transaccion-monto ${transaccion.tipo}`}>
-                      {transaccion.tipo === "ingreso" ? "+" : "-"} {GTQ.format(transaccion.monto)}
-                    </p>
-                    <span
-                      className={`transaccion-estado ${transaccion.estado}`}
-                    >
-                      {transaccion.estado}
-                    </span>
-                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-          <button className="load-more-btn">
-            Cargar más transacciones
-          </button>
+          <button className="load-more-btn">Cargar más transacciones</button>
         </section>
 
-        {/* Right Sidebar */}
         <section className="right-sidebar">
           <div className="widget chart-widget">
-            <h3><i className="ri-bar-chart-2-line"></i> Gráfico de Ingresos vs Gastos</h3>
+            <h3>
+              <i className="ri-bar-chart-2-line"></i> Gráfico de Ingresos vs
+              Gastos
+            </h3>
             <div className="mini-chart">
               <div className="chart-bars">
                 <div className="chart-month">
@@ -512,10 +592,7 @@ const Finanzas = () => {
                       className="bar ingreso"
                       style={{ height: "80px" }}
                     ></div>
-                    <div
-                      className="bar gasto"
-                      style={{ height: "40px" }}
-                    ></div>
+                    <div className="bar gasto" style={{ height: "40px" }}></div>
                   </div>
                   <span>Ene</span>
                 </div>
@@ -525,10 +602,7 @@ const Finanzas = () => {
                       className="bar ingreso"
                       style={{ height: "90px" }}
                     ></div>
-                    <div
-                      className="bar gasto"
-                      style={{ height: "45px" }}
-                    ></div>
+                    <div className="bar gasto" style={{ height: "45px" }}></div>
                   </div>
                   <span>Feb</span>
                 </div>
@@ -538,10 +612,7 @@ const Finanzas = () => {
                       className="bar ingreso"
                       style={{ height: "100px" }}
                     ></div>
-                    <div
-                      className="bar gasto"
-                      style={{ height: "50px" }}
-                    ></div>
+                    <div className="bar gasto" style={{ height: "50px" }}></div>
                   </div>
                   <span>Mar</span>
                 </div>
@@ -558,7 +629,9 @@ const Finanzas = () => {
           </div>
 
           <div className="widget tips-widget">
-            <h3><i className="ri-lightbulb-flash-line"></i> Consejos Financieros</h3>
+            <h3>
+              <i className="ri-lightbulb-flash-line"></i> Consejos Financieros
+            </h3>
             <ul className="tips-list">
               <li>Mantén un fondo de emergencia de 3-6 meses</li>
               <li>Separa el 30% para impuestos</li>
@@ -568,7 +641,9 @@ const Finanzas = () => {
           </div>
 
           <div className="widget export-widget">
-            <h3><i className="ri-download-2-line"></i> Exportar Datos</h3>
+            <h3>
+              <i className="ri-download-2-line"></i> Exportar Datos
+            </h3>
             <button className="export-btn">Descargar Reporte PDF</button>
             <button className="export-btn">Exportar a Excel</button>
           </div>

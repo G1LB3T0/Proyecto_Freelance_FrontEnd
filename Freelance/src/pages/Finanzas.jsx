@@ -10,6 +10,8 @@ const Finanzas = () => {
   const GTQ = new Intl.NumberFormat("es-GT", { style: "currency", currency: "GTQ" });
 
   const [transacciones, setTransacciones] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   const [filtroTipo, setFiltroTipo] = useState("todos");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -46,11 +48,65 @@ const Finanzas = () => {
 
     (async () => {
       try {
+        setSummaryLoading(true);
         const [txRes, dashRes, catRes] = await Promise.all([
           authenticatedFetch(`${API}/api/finance/user/${user.id}/transactions?limit=50`),
           authenticatedFetch(`${API}/api/finance/user/${user.id}/dashboard`),
           authenticatedFetch(`${API}/api/finance/categories`),
         ]);
+
+        // Dashboard / Summary (opcional si backend lo expone)
+        if (dashRes.ok) {
+          const dashJson = await dashRes.json();
+          const d = dashJson?.data || dashJson || {};
+
+          const safeNum = (v) => {
+            const n = Number(v);
+            return isFinite(n) ? n : 0;
+          };
+
+          const s = {
+            ingresosMes: safeNum(
+              d.month?.income ??
+              d.incomeMonth ??
+              d.totalIncomeMonth ??
+              d.income_month
+            ),
+            gastosMes: safeNum(
+              d.month?.expense ??
+              d.expenseMonth ??
+              d.totalExpenseMonth ??
+              d.expense_month
+            ),
+            balanceMes: safeNum(
+              d.month?.balance ??
+              d.balanceMonth ??
+              d.totalBalanceMonth ??
+              d.balance_month ??
+              ((d.month?.income ?? d.incomeMonth ?? 0) - (d.month?.expense ?? d.expenseMonth ?? 0))
+            ),
+            ingresosAnio: safeNum(
+              d.year?.income ??
+              d.incomeYear ??
+              d.totalIncomeYear ??
+              d.income_year
+            ),
+            kpis: {
+              ingresosPct: d.kpis?.incomePct ?? d.income_pct ?? null,
+              gastosPct: d.kpis?.expensePct ?? d.expense_pct ?? null,
+              balancePct: d.kpis?.balancePct ?? d.balance_pct ?? null,
+              anualesPct: d.kpis?.annualPct ?? d.annual_pct ?? null,
+            },
+          };
+
+          // Solo setear si trae algo útil
+          if (
+            s.ingresosMes || s.gastosMes || s.balanceMes || s.ingresosAnio ||
+            s.kpis.ingresosPct !== null || s.kpis.gastosPct !== null || s.kpis.balancePct !== null
+          ) {
+            setSummary(s);
+          }
+        }
 
         // Transacciones
         if (txRes.ok) {
@@ -68,10 +124,9 @@ const Finanzas = () => {
           if (names.length) setCategorias(names);
         }
 
-        // El dashboard se usa opcionalmente más adelante si lo necesitas
-        // const dashJson = await dashRes.json();
-
+        setSummaryLoading(false);
       } catch (e) {
+        setSummaryLoading(false);
         console.error("Error cargando finanzas:", e);
       }
     })();
@@ -218,6 +273,20 @@ const Finanzas = () => {
     }
   };
 
+  const uiResumen = {
+    ingresosMes: summary?.ingresosMes ?? resumenFinanciero.ingresosMes,
+    gastosMes: summary?.gastosMes ?? resumenFinanciero.gastosMes,
+    balanceMes: summary?.balanceMes ?? resumenFinanciero.balanceMes,
+    ingresosAnio: summary?.ingresosAnio ?? resumenFinanciero.ingresosAnio,
+  };
+
+  const uiKpis = {
+    ingresosPct: summary?.kpis?.ingresosPct ?? kpis.ingresosPct,
+    gastosPct: summary?.kpis?.gastosPct ?? kpis.gastosPct,
+    balancePct: summary?.kpis?.balancePct ?? kpis.balancePct,
+    anualesPct: summary?.kpis?.anualesPct ?? kpis.anualesPct,
+  };
+
   return (
     <Layout 
       currentPage="finance" 
@@ -242,13 +311,13 @@ const Finanzas = () => {
             <h3>Ingresos del Mes</h3>
           </div>
           <p className="card-monto">
-            {GTQ.format(resumenFinanciero.ingresosMes)}
+            {GTQ.format(uiResumen.ingresosMes)}
           </p>
-          {kpis.ingresosPct === null ? (
+          {uiKpis.ingresosPct === null ? (
             <span className="card-porcentaje">—</span>
           ) : (
-            <span className={`card-porcentaje ${kpis.ingresosPct >= 0 ? "positivo" : "negativo"}`}>
-              {`${kpis.ingresosPct >= 0 ? "+" : ""}${kpis.ingresosPct.toFixed(1)}%`}
+            <span className={`card-porcentaje ${uiKpis.ingresosPct >= 0 ? "positivo" : "negativo"}`}>
+              {`${uiKpis.ingresosPct >= 0 ? "+" : ""}${uiKpis.ingresosPct.toFixed(1)}%`}
             </span>
           )}
         </div>
@@ -259,13 +328,13 @@ const Finanzas = () => {
             <h3>Gastos del Mes</h3>
           </div>
           <p className="card-monto">
-            {GTQ.format(resumenFinanciero.gastosMes)}
+            {GTQ.format(uiResumen.gastosMes)}
           </p>
-          {kpis.gastosPct === null ? (
+          {uiKpis.gastosPct === null ? (
             <span className="card-porcentaje">—</span>
           ) : (
-            <span className={`card-porcentaje ${kpis.gastosPct >= 0 ? "negativo" : "positivo"}`}>
-              {`${kpis.gastosPct >= 0 ? "+" : ""}${kpis.gastosPct.toFixed(1)}%`}
+            <span className={`card-porcentaje ${uiKpis.gastosPct >= 0 ? "negativo" : "positivo"}`}>
+              {`${uiKpis.gastosPct >= 0 ? "+" : ""}${uiKpis.gastosPct.toFixed(1)}%`}
             </span>
           )}
         </div>
@@ -276,13 +345,13 @@ const Finanzas = () => {
             <h3>Balance del Mes</h3>
           </div>
           <p className="card-monto">
-            {GTQ.format(resumenFinanciero.balanceMes)}
+            {GTQ.format(uiResumen.balanceMes)}
           </p>
-          {kpis.balancePct === null ? (
+          {uiKpis.balancePct === null ? (
             <span className="card-porcentaje">—</span>
           ) : (
-            <span className={`card-porcentaje ${kpis.balancePct >= 0 ? "positivo" : "negativo"}`}>
-              {`${kpis.balancePct >= 0 ? "+" : ""}${kpis.balancePct.toFixed(1)}%`}
+            <span className={`card-porcentaje ${uiKpis.balancePct >= 0 ? "positivo" : "negativo"}`}>
+              {`${uiKpis.balancePct >= 0 ? "+" : ""}${uiKpis.balancePct.toFixed(1)}%`}
             </span>
           )}
         </div>
@@ -293,13 +362,13 @@ const Finanzas = () => {
             <h3>Ingresos Anuales</h3>
           </div>
           <p className="card-monto">
-            {GTQ.format(resumenFinanciero.ingresosAnio)}
+            {GTQ.format(uiResumen.ingresosAnio)}
           </p>
-          {kpis.anualesPct === null ? (
+          {uiKpis.anualesPct === null ? (
             <span className="card-porcentaje">—</span>
           ) : (
-            <span className={`card-porcentaje ${kpis.anualesPct >= 0 ? "positivo" : "negativo"}`}>
-              {`${kpis.anualesPct >= 0 ? "+" : ""}${kpis.anualesPct.toFixed(1)}%`}
+            <span className={`card-porcentaje ${uiKpis.anualesPct >= 0 ? "positivo" : "negativo"}`}>
+              {`${uiKpis.anualesPct >= 0 ? "+" : ""}${uiKpis.anualesPct.toFixed(1)}%`}
             </span>
           )}
         </div>

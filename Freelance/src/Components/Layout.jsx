@@ -6,9 +6,10 @@ const Layout = ({
   children,
   currentPage = "",
   searchPlaceholder = "Buscar...",
+  searchQuery = "", // ✅ NUEVO
+  onSearchChange, // ✅ NUEVO
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
 
   // Obtener datos del usuario del localStorage
@@ -121,6 +122,14 @@ const Layout = ({
     }
   };
 
+  // ✅ NUEVO - Handler para búsqueda
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
+  };
+
   return (
     <div className="home-container">
       {/* Sidebar */}
@@ -201,8 +210,31 @@ const Layout = ({
               type="text"
               placeholder={searchPlaceholder}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
             />
+            {/* ✅ NUEVO - Botón para limpiar búsqueda */}
+            {searchQuery && (
+              <button
+                onClick={() => onSearchChange?.("")}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#64748b",
+                  fontSize: "18px",
+                  padding: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                title="Limpiar búsqueda"
+              >
+                <i className="ri-close-line" aria-hidden="true"></i>
+              </button>
+            )}
           </div>
 
           <div className="top-actions">

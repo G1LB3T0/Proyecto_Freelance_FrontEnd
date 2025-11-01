@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+// src/pages/Statistics.jsx
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Layout from "../Components/Layout.jsx";
 import "../styles/Statistics.css";
 import {
@@ -12,8 +13,8 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
-} from 'chart.js';
+  Filler,
+} from "chart.js";
 
 // Registrar TODOS los componentes necesarios de Chart.js
 ChartJS.register(
@@ -41,6 +42,9 @@ const Statistics = () => {
   const pieChartInstance = useRef(null);
   const hourlyChartInstance = useRef(null);
   const monthlyChartInstance = useRef(null);
+
+  // Estado de búsqueda
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Estado de tareas y productividad
   const [taskStats, setTaskStats] = useState({
@@ -89,30 +93,30 @@ const Statistics = () => {
 
   // Datos de productividad por hora
   const [hourlyProductivity, setHourlyProductivity] = useState([
-    { hour: '8:00', tasks: 1, focus: 75 },
-    { hour: '9:00', tasks: 3, focus: 88 },
-    { hour: '10:00', tasks: 5, focus: 95 },
-    { hour: '11:00', tasks: 4, focus: 92 },
-    { hour: '12:00', tasks: 2, focus: 68 },
-    { hour: '13:00', tasks: 0, focus: 45 },
-    { hour: '14:00', tasks: 3, focus: 79 },
-    { hour: '15:00', tasks: 6, focus: 97 },
-    { hour: '16:00', tasks: 5, focus: 91 },
-    { hour: '17:00', tasks: 3, focus: 76 },
-    { hour: '18:00', tasks: 2, focus: 62 },
-    { hour: '19:00', tasks: 1, focus: 58 },
+    { hour: "8:00", tasks: 1, focus: 75 },
+    { hour: "9:00", tasks: 3, focus: 88 },
+    { hour: "10:00", tasks: 5, focus: 95 },
+    { hour: "11:00", tasks: 4, focus: 92 },
+    { hour: "12:00", tasks: 2, focus: 68 },
+    { hour: "13:00", tasks: 0, focus: 45 },
+    { hour: "14:00", tasks: 3, focus: 79 },
+    { hour: "15:00", tasks: 6, focus: 97 },
+    { hour: "16:00", tasks: 5, focus: 91 },
+    { hour: "17:00", tasks: 3, focus: 76 },
+    { hour: "18:00", tasks: 2, focus: 62 },
+    { hour: "19:00", tasks: 1, focus: 58 },
   ]);
 
   // Datos de tendencia mensual
   const [monthlyTrend, setMonthlyTrend] = useState([
-    { month: 'Ene', completed: 52, productivity: 78, efficiency: 82 },
-    { month: 'Feb', completed: 61, productivity: 85, efficiency: 87 },
-    { month: 'Mar', completed: 58, productivity: 81, efficiency: 84 },
-    { month: 'Abr', completed: 74, productivity: 91, efficiency: 93 },
-    { month: 'May', completed: 69, productivity: 88, efficiency: 90 },
-    { month: 'Jun', completed: 83, productivity: 94, efficiency: 96 },
-    { month: 'Jul', completed: 78, productivity: 92, efficiency: 94 },
-    { month: 'Ago', completed: 86, productivity: 96, efficiency: 97 },
+    { month: "Ene", completed: 52, productivity: 78, efficiency: 82 },
+    { month: "Feb", completed: 61, productivity: 85, efficiency: 87 },
+    { month: "Mar", completed: 58, productivity: 81, efficiency: 84 },
+    { month: "Abr", completed: 74, productivity: 91, efficiency: 93 },
+    { month: "May", completed: 69, productivity: 88, efficiency: 90 },
+    { month: "Jun", completed: 83, productivity: 94, efficiency: 96 },
+    { month: "Jul", completed: 78, productivity: 92, efficiency: 94 },
+    { month: "Ago", completed: 86, productivity: 96, efficiency: 97 },
   ]);
 
   // Tareas por categoría/proyecto
@@ -202,7 +206,7 @@ const Statistics = () => {
     },
     {
       time: "14:00",
-      task: "Optimizar consultas BD",
+      task: "Optimizar solicitudes BD",
       project: "Sistema de Inventario",
       status: "completed",
     },
@@ -243,11 +247,40 @@ const Statistics = () => {
     efficiency: 92,
   });
 
+  // Filtros de tareas métricas listables
+  const filteredTasksByProject = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return tasksByProject;
+    return tasksByProject.filter((p) =>
+      [
+        p.project ?? "",
+        String(p.completed ?? ""),
+        String(p.inProgress ?? ""),
+        String(p.pending ?? ""),
+        String(p.total ?? ""),
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
+    );
+  }, [tasksByProject, searchQuery]);
+
+  const filteredTodayActivity = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return todayActivity;
+    return todayActivity.filter((a) =>
+      [a.task ?? "", a.project ?? "", a.status ?? "", a.time ?? ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
+    );
+  }, [todayActivity, searchQuery]);
+
   // Función para crear el gráfico de barras semanal
   const createWeeklyChart = () => {
     if (!weeklyChartRef.current || !weeklyPerformance.length) return;
 
-    const ctx = weeklyChartRef.current.getContext('2d');
+    const ctx = weeklyChartRef.current.getContext("2d");
 
     // Destruir instancia previa si existe
     if (weeklyChartInstance.current) {
@@ -255,55 +288,55 @@ const Statistics = () => {
     }
 
     weeklyChartInstance.current = new ChartJS(ctx, {
-      type: 'bar',
+      type: "bar",
       data: {
-        labels: weeklyPerformance.map(item => item.day),
+        labels: weeklyPerformance.map((item) => item.day),
         datasets: [
           {
-            label: 'Completadas',
-            data: weeklyPerformance.map(item => item.completed),
-            backgroundColor: '#10B981',
-            borderColor: '#059669',
+            label: "Completadas",
+            data: weeklyPerformance.map((item) => item.completed),
+            backgroundColor: "#10B981",
+            borderColor: "#059669",
             borderWidth: 1,
             borderRadius: 4,
           },
           {
-            label: 'En Progreso',
-            data: weeklyPerformance.map(item => item.inProgress),
-            backgroundColor: '#3B82F6',
-            borderColor: '#2563eb',
+            label: "En Progreso",
+            data: weeklyPerformance.map((item) => item.inProgress),
+            backgroundColor: "#3B82F6",
+            borderColor: "#2563eb",
             borderWidth: 1,
             borderRadius: 4,
           },
           {
-            label: 'Pendientes',
-            data: weeklyPerformance.map(item => item.pending),
-            backgroundColor: '#F59E0B',
-            borderColor: '#d97706',
+            label: "Pendientes",
+            data: weeklyPerformance.map((item) => item.pending),
+            backgroundColor: "#F59E0B",
+            borderColor: "#d97706",
             borderWidth: 1,
             borderRadius: 4,
-          }
-        ]
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'bottom',
+            position: "bottom",
             labels: {
               usePointStyle: true,
               padding: 20,
-            }
+            },
           },
           tooltip: {
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            titleColor: '#1e3a8a',
-            bodyColor: '#64748b',
-            borderColor: '#e2e8f0',
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            titleColor: "#1e3a8a",
+            bodyColor: "#64748b",
+            borderColor: "#e2e8f0",
             borderWidth: 1,
             cornerRadius: 8,
-          }
+          },
         },
         scales: {
           x: {
@@ -311,19 +344,19 @@ const Statistics = () => {
               display: false,
             },
             ticks: {
-              color: '#64748b',
-            }
+              color: "#64748b",
+            },
           },
           y: {
             grid: {
-              color: '#f0f0f0',
+              color: "#f0f0f0",
             },
             ticks: {
-              color: '#64748b',
-            }
-          }
-        }
-      }
+              color: "#64748b",
+            },
+          },
+        },
+      },
     });
   };
 
@@ -331,51 +364,54 @@ const Statistics = () => {
   const createPieChart = () => {
     if (!pieChartRef.current || !taskDistribution.length) return;
 
-    const ctx = pieChartRef.current.getContext('2d');
+    const ctx = pieChartRef.current.getContext("2d");
 
     if (pieChartInstance.current) {
       pieChartInstance.current.destroy();
     }
 
     pieChartInstance.current = new ChartJS(ctx, {
-      type: 'doughnut',
+      type: "doughnut",
       data: {
-        labels: taskDistribution.map(item => item.name),
-        datasets: [{
-          data: taskDistribution.map(item => item.value),
-          backgroundColor: taskDistribution.map(item => item.color),
-          borderColor: '#ffffff',
-          borderWidth: 3,
-        }]
+        labels: taskDistribution.map((item) => item.name),
+        datasets: [
+          {
+            data: taskDistribution.map((item) => item.value),
+            backgroundColor: taskDistribution.map((item) => item.color),
+            borderColor: "#ffffff",
+            borderWidth: 3,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '60%',
+        cutout: "60%",
         plugins: {
           legend: {
-            position: 'bottom',
+            position: "bottom",
             labels: {
               usePointStyle: true,
               padding: 20,
-            }
+            },
           },
           tooltip: {
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            titleColor: '#1e3a8a',
-            bodyColor: '#64748b',
-            borderColor: '#e2e8f0',
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            titleColor: "#1e3a8a",
+            bodyColor: "#64748b",
+            borderColor: "#e2e8f0",
             borderWidth: 1,
             cornerRadius: 8,
             callbacks: {
               label: function (context) {
-                const percentage = taskDistribution[context.dataIndex].percentage;
+                const percentage =
+                  taskDistribution[context.dataIndex].percentage;
                 return `${context.label}: ${context.parsed} (${percentage}%)`;
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     });
   };
 
@@ -383,62 +419,62 @@ const Statistics = () => {
   const createHourlyChart = () => {
     if (!hourlyChartRef.current || !hourlyProductivity.length) return;
 
-    const ctx = hourlyChartRef.current.getContext('2d');
+    const ctx = hourlyChartRef.current.getContext("2d");
 
     if (hourlyChartInstance.current) {
       hourlyChartInstance.current.destroy();
     }
 
     hourlyChartInstance.current = new ChartJS(ctx, {
-      type: 'line',
+      type: "line",
       data: {
-        labels: hourlyProductivity.map(item => item.hour),
+        labels: hourlyProductivity.map((item) => item.hour),
         datasets: [
           {
-            label: 'Concentración (%)',
-            data: hourlyProductivity.map(item => item.focus),
-            borderColor: '#8b5cf6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            label: "Concentración (%)",
+            data: hourlyProductivity.map((item) => item.focus),
+            borderColor: "#8b5cf6",
+            backgroundColor: "rgba(139, 92, 246, 0.1)",
             fill: true,
             tension: 0.4,
-            pointBackgroundColor: '#8b5cf6',
-            pointBorderColor: '#ffffff',
+            pointBackgroundColor: "#8b5cf6",
+            pointBorderColor: "#ffffff",
             pointBorderWidth: 2,
             pointRadius: 5,
           },
           {
-            label: 'Tareas/Hora',
-            data: hourlyProductivity.map(item => item.tasks),
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            label: "Tareas/Hora",
+            data: hourlyProductivity.map((item) => item.tasks),
+            borderColor: "#10b981",
+            backgroundColor: "rgba(16, 185, 129, 0.1)",
             fill: true,
             tension: 0.4,
-            pointBackgroundColor: '#10b981',
-            pointBorderColor: '#ffffff',
+            pointBackgroundColor: "#10b981",
+            pointBorderColor: "#ffffff",
             pointBorderWidth: 2,
             pointRadius: 5,
-          }
-        ]
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'bottom',
+            position: "bottom",
             labels: {
               usePointStyle: true,
               padding: 20,
-            }
+            },
           },
           tooltip: {
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            titleColor: '#1e3a8a',
-            bodyColor: '#64748b',
-            borderColor: '#e2e8f0',
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            titleColor: "#1e3a8a",
+            bodyColor: "#64748b",
+            borderColor: "#e2e8f0",
             borderWidth: 1,
             cornerRadius: 8,
-          }
+          },
         },
         scales: {
           x: {
@@ -446,19 +482,19 @@ const Statistics = () => {
               display: false,
             },
             ticks: {
-              color: '#64748b',
-            }
+              color: "#64748b",
+            },
           },
           y: {
             grid: {
-              color: '#f0f0f0',
+              color: "#f0f0f0",
             },
             ticks: {
-              color: '#64748b',
-            }
-          }
-        }
-      }
+              color: "#64748b",
+            },
+          },
+        },
+      },
     });
   };
 
@@ -466,74 +502,74 @@ const Statistics = () => {
   const createMonthlyChart = () => {
     if (!monthlyChartRef.current || !monthlyTrend.length) return;
 
-    const ctx = monthlyChartRef.current.getContext('2d');
+    const ctx = monthlyChartRef.current.getContext("2d");
 
     if (monthlyChartInstance.current) {
       monthlyChartInstance.current.destroy();
     }
 
     monthlyChartInstance.current = new ChartJS(ctx, {
-      type: 'line',
+      type: "line",
       data: {
-        labels: monthlyTrend.map(item => item.month),
+        labels: monthlyTrend.map((item) => item.month),
         datasets: [
           {
-            label: 'Tareas Completadas',
-            data: monthlyTrend.map(item => item.completed),
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            label: "Tareas Completadas",
+            data: monthlyTrend.map((item) => item.completed),
+            borderColor: "#10b981",
+            backgroundColor: "rgba(16, 185, 129, 0.1)",
             borderWidth: 3,
-            pointBackgroundColor: '#10b981',
-            pointBorderColor: '#ffffff',
+            pointBackgroundColor: "#10b981",
+            pointBorderColor: "#ffffff",
             pointBorderWidth: 3,
             pointRadius: 6,
             tension: 0.3,
           },
           {
-            label: 'Productividad (%)',
-            data: monthlyTrend.map(item => item.productivity),
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            label: "Productividad (%)",
+            data: monthlyTrend.map((item) => item.productivity),
+            borderColor: "#3b82f6",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
             borderWidth: 3,
-            pointBackgroundColor: '#3b82f6',
-            pointBorderColor: '#ffffff',
+            pointBackgroundColor: "#3b82f6",
+            pointBorderColor: "#ffffff",
             pointBorderWidth: 3,
             pointRadius: 6,
             tension: 0.3,
           },
           {
-            label: 'Eficiencia (%)',
-            data: monthlyTrend.map(item => item.efficiency),
-            borderColor: '#8b5cf6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            label: "Eficiencia (%)",
+            data: monthlyTrend.map((item) => item.efficiency),
+            borderColor: "#8b5cf6",
+            backgroundColor: "rgba(139, 92, 246, 0.1)",
             borderWidth: 3,
-            pointBackgroundColor: '#8b5cf6',
-            pointBorderColor: '#ffffff',
+            pointBackgroundColor: "#8b5cf6",
+            pointBorderColor: "#ffffff",
             pointBorderWidth: 3,
             pointRadius: 6,
             tension: 0.3,
-          }
-        ]
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'bottom',
+            position: "bottom",
             labels: {
               usePointStyle: true,
               padding: 20,
-            }
+            },
           },
           tooltip: {
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            titleColor: '#1e3a8a',
-            bodyColor: '#64748b',
-            borderColor: '#e2e8f0',
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            titleColor: "#1e3a8a",
+            bodyColor: "#64748b",
+            borderColor: "#e2e8f0",
             borderWidth: 1,
             cornerRadius: 8,
-          }
+          },
         },
         scales: {
           x: {
@@ -541,43 +577,53 @@ const Statistics = () => {
               display: false,
             },
             ticks: {
-              color: '#64748b',
-            }
+              color: "#64748b",
+            },
           },
           y: {
             grid: {
-              color: '#f0f0f0',
+              color: "#f0f0f0",
             },
             ticks: {
-              color: '#64748b',
-            }
-          }
-        }
-      }
+              color: "#64748b",
+            },
+          },
+        },
+      },
     });
   };
 
   // Función para simular actualizaciones dinámicas
   const simulateRealTimeUpdate = () => {
-    setTaskStats(prev => ({
+    setTaskStats((prev) => ({
       ...prev,
-      tasksCompletedToday: prev.tasksCompletedToday + Math.floor(Math.random() * 2),
+      tasksCompletedToday:
+        prev.tasksCompletedToday + Math.floor(Math.random() * 2),
     }));
 
-    setProductivityMetrics(prev => ({
+    setProductivityMetrics((prev) => ({
       ...prev,
-      efficiency: Math.min(100, Math.max(60, prev.efficiency + (Math.random() - 0.5) * 4)),
+      efficiency: Math.min(
+        100,
+        Math.max(60, prev.efficiency + (Math.random() - 0.5) * 4)
+      ),
     }));
 
     // Actualizar última hora de productividad
-    setHourlyProductivity(prev => {
+    setHourlyProductivity((prev) => {
       const updated = [...prev];
       const lastIndex = updated.length - 1;
       if (lastIndex >= 0) {
         updated[lastIndex] = {
           ...updated[lastIndex],
-          tasks: Math.max(0, updated[lastIndex].tasks + Math.floor(Math.random() * 3 - 1)),
-          focus: Math.min(100, Math.max(40, updated[lastIndex].focus + (Math.random() - 0.5) * 10))
+          tasks: Math.max(
+            0,
+            updated[lastIndex].tasks + Math.floor(Math.random() * 3 - 1)
+          ),
+          focus: Math.min(
+            100,
+            Math.max(40, updated[lastIndex].focus + (Math.random() - 0.5) * 10)
+          ),
         };
       }
       return updated;
@@ -645,6 +691,9 @@ const Statistics = () => {
     <Layout
       currentPage="statistics"
       searchPlaceholder="Buscar tareas y métricas..."
+      // barra controlada por props
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
     >
       <div className="statistics-page">
         {/* Header */}
@@ -654,7 +703,8 @@ const Statistics = () => {
             Dashboard de Productividad
           </h1>
           <p className="page-description">
-            Seguimiento completo de tareas, rendimiento y métricas como freelancer
+            Seguimiento completo de tareas, rendimiento y métricas como
+            freelancer
           </p>
         </div>
 
@@ -678,7 +728,10 @@ const Statistics = () => {
             <div className="metric-value">{taskStats.inProgressTasks}</div>
             <div className="metric-label">En Progreso</div>
             <div className="metric-subtitle">
-              {Math.round((taskStats.inProgressTasks / taskStats.totalTasks) * 100)}% del total
+              {Math.round(
+                (taskStats.inProgressTasks / taskStats.totalTasks) * 100
+              )}
+              % del total
             </div>
           </div>
 
@@ -740,7 +793,9 @@ const Statistics = () => {
                   </div>
                   <div className="distribution-values">
                     <div className="distribution-count">{item.value}</div>
-                    <div className="distribution-percentage">{item.percentage}%</div>
+                    <div className="distribution-percentage">
+                      {item.percentage}%
+                    </div>
                   </div>
                 </div>
               ))}
@@ -773,70 +828,117 @@ const Statistics = () => {
           </div>
         </div>
 
-        {/* Progreso por proyecto */}
+        {/* Progreso por proyecto (filtrado por búsqueda) */}
         <div className="projects-progress">
           <h3 className="section-title">
             <i className="ri-rocket-line" aria-hidden="true"></i>
             Progreso por Proyecto
           </h3>
+
+          {/* Mensaje "sin resultados" si no hay matches en proyectos ni actividad */}
+          {searchQuery &&
+            filteredTasksByProject.length === 0 &&
+            filteredTodayActivity.length === 0 && (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: 40,
+                  background: "#f5f7fa",
+                  borderRadius: 12,
+                }}
+              >
+                <p style={{ fontSize: 18, color: "#64748b" }}>
+                  No se encontraron resultados para "{searchQuery}"
+                </p>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  style={{
+                    marginTop: 12,
+                    padding: "8px 16px",
+                    background: "#667eea",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 8,
+                    cursor: "pointer",
+                  }}
+                >
+                  Ver todas
+                </button>
+              </div>
+            )}
+
           <div className="projects-grid">
-            {tasksByProject.map((project, index) => {
-              const completionRate = (project.completed / project.total) * 100;
-              return (
-                <div key={index} className="project-card">
-                  <div className="project-header">
-                    <h4 className="project-name">{project.project}</h4>
-                    <span
-                      className={`completion-badge ${completionRate >= 80
-                        ? "high"
-                        : completionRate >= 50
-                          ? "medium"
-                          : "low"
+            {(searchQuery ? filteredTasksByProject : tasksByProject).map(
+              (project, index) => {
+                const completionRate =
+                  (project.completed / project.total) * 100;
+                return (
+                  <div key={index} className="project-card">
+                    <div className="project-header">
+                      <h4 className="project-name">{project.project}</h4>
+                      <span
+                        className={`completion-badge ${
+                          completionRate >= 80
+                            ? "high"
+                            : completionRate >= 50
+                            ? "medium"
+                            : "low"
                         }`}
-                    >
-                      {Math.round(completionRate)}% completado
-                    </span>
-                  </div>
+                      >
+                        {Math.round(completionRate)}% completado
+                      </span>
+                    </div>
 
-                  <div className="progress-bar-container">
-                    <div
-                      className={`progress-bar ${completionRate >= 80
-                        ? "high"
-                        : completionRate >= 50
-                          ? "medium"
-                          : "low"
+                    <div className="progress-bar-container">
+                      <div
+                        className={`progress-bar ${
+                          completionRate >= 80
+                            ? "high"
+                            : completionRate >= 50
+                            ? "medium"
+                            : "low"
                         }`}
-                      style={{ width: `${completionRate}%` }}
-                    ></div>
-                  </div>
+                        style={{ width: `${completionRate}%` }}
+                      ></div>
+                    </div>
 
-                  <div className="project-stats">
-                    <div className="project-stat">
-                      <span className="stat-icon completed">
-                        <i className="ri-check-line" aria-hidden="true"></i>
-                      </span>
-                      <span className="stat-text">{project.completed} completadas</span>
-                    </div>
-                    <div className="project-stat">
-                      <span className="stat-icon in-progress">
-                        <i className="ri-loader-4-line" aria-hidden="true"></i>
-                      </span>
-                      <span className="stat-text">{project.inProgress} en progreso</span>
-                    </div>
-                    <div className="project-stat">
-                      <span className="stat-icon pending">
-                        <i className="ri-time-line" aria-hidden="true"></i>
-                      </span>
-                      <span className="stat-text">{project.pending} pendientes</span>
+                    <div className="project-stats">
+                      <div className="project-stat">
+                        <span className="stat-icon completed">
+                          <i className="ri-check-line" aria-hidden="true"></i>
+                        </span>
+                        <span className="stat-text">
+                          {project.completed} completadas
+                        </span>
+                      </div>
+                      <div className="project-stat">
+                        <span className="stat-icon in-progress">
+                          <i
+                            className="ri-loader-4-line"
+                            aria-hidden="true"
+                          ></i>
+                        </span>
+                        <span className="stat-text">
+                          {project.inProgress} en progreso
+                        </span>
+                      </div>
+                      <div className="project-stat">
+                        <span className="stat-icon pending">
+                          <i className="ri-time-line" aria-hidden="true"></i>
+                        </span>
+                        <span className="stat-text">
+                          {project.pending} pendientes
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              }
+            )}
           </div>
         </div>
 
-        {/* Actividad del día */}
+        {/* Actividad del día (filtrada por búsqueda) */}
         <div className="today-activity">
           <h3 className="section-title">
             <i className="ri-time-line" aria-hidden="true"></i>
@@ -846,30 +948,37 @@ const Statistics = () => {
             <div className="timeline-line"></div>
 
             <div className="activity-list">
-              {todayActivity.map((activity, index) => (
-                <div key={index} className="activity-item">
-                  <div
-                    className="timeline-dot"
-                    style={{ backgroundColor: getStatusColor(activity.status) }}
-                  ></div>
+              {(searchQuery ? filteredTodayActivity : todayActivity).map(
+                (activity, index) => (
+                  <div key={index} className="activity-item">
+                    <div
+                      className="timeline-dot"
+                      style={{
+                        backgroundColor: getStatusColor(activity.status),
+                      }}
+                    ></div>
 
-                  <div className="activity-content">
-                    <div className="activity-main">
-                      <div className="activity-info">
-                        <span className="activity-icon">
-                          {getStatusIcon(activity.status)}
-                        </span>
-                        <span className="activity-task">{activity.task}</span>
+                    <div className="activity-content">
+                      <div className="activity-main">
+                        <div className="activity-info">
+                          <span className="activity-icon">
+                            {getStatusIcon(activity.status)}
+                          </span>
+                          <span className="activity-task">{activity.task}</span>
+                        </div>
+                        <div className="activity-project">
+                          <i
+                            className="ri-folder-2-line"
+                            aria-hidden="true"
+                          ></i>
+                          {activity.project}
+                        </div>
                       </div>
-                      <div className="activity-project">
-                        <i className="ri-folder-2-line" aria-hidden="true"></i>
-                        {activity.project}
-                      </div>
+                      <div className="activity-time">{activity.time}</div>
                     </div>
-                    <div className="activity-time">{activity.time}</div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         </div>

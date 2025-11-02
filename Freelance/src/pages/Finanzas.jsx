@@ -220,13 +220,15 @@ const Finanzas = () => {
     e.preventDefault();
     if (!user?.id) return;
 
-    const backendType = "expense";
+    const backendType = nuevaTransaccion.tipo === "ingreso" ? "income" : "expense";
     const payload = {
       user_id: user.id,
       title: nuevaTransaccion.concepto,
-      type: backendType, // "expense"
-      amount: Number(nuevaTransaccion.monto),
-      transaction_date: new Date(nuevaTransaccion.fecha).toISOString(),
+      type: backendType,
+      amount: parseFloat(nuevaTransaccion.monto),
+      currency: "GTQ",
+      status: backendType === "income" ? "pending" : "posted",
+      transaction_date: nuevaTransaccion.fecha,
       description: nuevaTransaccion.concepto,
       // category_id:  (opcional: mapear por nombre si ya tienes el id)
     };
@@ -252,13 +254,13 @@ const Finanzas = () => {
         concepto: d.title || nuevaTransaccion.concepto,
         monto: Number(d.amount) || parseFloat(nuevaTransaccion.monto),
         fecha: (d.transaction_date || nuevaTransaccion.fecha).slice(0, 10),
-        estado: d.status || (backendType === "income" ? "pendiente" : "pagado"),
+        estado: d.status || "pendiente",
         categoria: d.category?.name || nuevaTransaccion.categoria,
       };
 
       setTransacciones((prev) => [nueva, ...prev]);
       setNuevaTransaccion({
-        tipo: "gasto",
+        tipo: nuevaTransaccion.tipo,
         concepto: "",
         monto: "",
         categoria: "Desarrollo Web",
@@ -276,6 +278,18 @@ const Finanzas = () => {
     setNuevaTransaccion((prev) => ({
       ...prev,
       tipo: "gasto",
+      concepto: "",
+      monto: "",
+      categoria: categorias[0] || "Otros",
+      fecha: new Date().toISOString().split("T")[0],
+    }));
+    setMostrarFormulario(true);
+  };
+
+  const abrirFormularioIngreso = () => {
+    setNuevaTransaccion((prev) => ({
+      ...prev,
+      tipo: "ingreso",
       concepto: "",
       monto: "",
       categoria: categorias[0] || "Otros",
@@ -311,6 +325,13 @@ const Finanzas = () => {
           onClick={abrirFormularioGasto}
         >
           + Nueva Transacción
+        </button>
+        <button
+          className="btn-nueva-transaccion"
+          onClick={abrirFormularioIngreso}
+          style={{ marginLeft: "8px" }}
+        >
+          + Nuevo Ingreso
         </button>
       </div>
 
@@ -458,8 +479,8 @@ const Finanzas = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Tipo</label>
-                    <div className="tipo-fijo">Gasto</div>
-                    <input type="hidden" name="tipo" value="gasto" />
+                    <div className="tipo-fijo">{nuevaTransaccion.tipo === "ingreso" ? "Ingreso" : "Gasto"}</div>
+                    <input type="hidden" name="tipo" value={nuevaTransaccion.tipo} />
                   </div>
 
                   <div className="form-group">

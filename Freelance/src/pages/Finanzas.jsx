@@ -220,7 +220,7 @@ const Finanzas = () => {
     e.preventDefault();
     if (!user?.id) return;
 
-    const backendType = nuevaTransaccion.tipo === "ingreso" ? "income" : "expense";
+    const backendType = "expense";
     const payload = {
       user_id: user.id,
       title: nuevaTransaccion.concepto,
@@ -260,7 +260,7 @@ const Finanzas = () => {
 
       setTransacciones((prev) => [nueva, ...prev]);
       setNuevaTransaccion({
-        tipo: "ingreso",
+        tipo: "gasto",
         concepto: "",
         monto: "",
         categoria: "Desarrollo Web",
@@ -271,6 +271,19 @@ const Finanzas = () => {
       console.error("Error creando transacción:", error);
       alert("No se pudo guardar la transacción.");
     }
+  };
+
+  // Nueva función para abrir formulario de gasto
+  const abrirFormularioGasto = () => {
+    setNuevaTransaccion((prev) => ({
+      ...prev,
+      tipo: "gasto",
+      concepto: "",
+      monto: "",
+      categoria: categorias[0] || "Otros",
+      fecha: new Date().toISOString().split("T")[0],
+    }));
+    setMostrarFormulario(true);
   };
 
   const uiResumen = {
@@ -297,7 +310,7 @@ const Finanzas = () => {
         <h1 className="page-title"><i className="ri-money-dollar-circle-line"></i> Finanzas</h1>
         <button
           className="btn-nueva-transaccion"
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
+          onClick={abrirFormularioGasto}
         >
           + Nueva Transacción
         </button>
@@ -447,14 +460,8 @@ const Finanzas = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Tipo</label>
-                    <select
-                      name="tipo"
-                      value={nuevaTransaccion.tipo}
-                      onChange={handleInputChange}
-                    >
-                      <option value="ingreso">Ingreso</option>
-                      <option value="gasto">Gasto</option>
-                    </select>
+                    <div className="tipo-fijo">Gasto</div>
+                    <input type="hidden" name="tipo" value="gasto" />
                   </div>
 
                   <div className="form-group">

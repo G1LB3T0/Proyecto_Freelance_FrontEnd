@@ -318,21 +318,34 @@ const Finanzas = () => {
       searchPlaceholder="Buscar transacciones, clientes o categorías..."
     >
       {/* Header específico de Finanzas */}
-      <div className="finanzas-header">
-        <h1 className="page-title"><i className="ri-money-dollar-circle-line"></i> Finanzas</h1>
-        <button
-          className="btn-nueva-transaccion"
-          onClick={abrirFormularioGasto}
+      <div className="finanzas-header" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+        <h1 className="page-title" style={{ marginBottom: "10px" }}>
+          <i className="ri-money-dollar-circle-line"></i> Finanzas
+        </h1>
+        <div
+          className="header-actions"
+          style={{
+            display: "flex",
+            gap: "10px",
+            marginBottom: "10px",
+            flexWrap: "wrap",
+          }}
         >
-          + Nuevo Gasto
-        </button>
-        <button
-          className="btn-nueva-transaccion"
-          onClick={abrirFormularioIngreso}
-          style={{ marginLeft: "8px" }}
-        >
-          + Nuevo Ingreso
-        </button>
+          <button
+            className="btn-nueva-transaccion"
+            onClick={abrirFormularioGasto}
+            style={{ minWidth: "170px", whiteSpace: "nowrap" }}
+          >
+            + Nuevo Gasto
+          </button>
+          <button
+            className="btn-nueva-transaccion"
+            onClick={abrirFormularioIngreso}
+            style={{ minWidth: "170px", whiteSpace: "nowrap" }}
+          >
+            + Nuevo Ingreso
+          </button>
+        </div>
       </div>
 
       {/* Cards de Resumen */}

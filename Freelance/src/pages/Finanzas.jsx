@@ -324,7 +324,7 @@ const Finanzas = () => {
           className="btn-nueva-transaccion"
           onClick={abrirFormularioGasto}
         >
-          + Nueva Transacción
+          + Nuevo Gasto
         </button>
         <button
           className="btn-nueva-transaccion"
@@ -580,11 +580,6 @@ const Finanzas = () => {
                     <p className={`transaccion-monto ${transaccion.tipo}`}>
                       {transaccion.tipo === "ingreso" ? "+" : "-"} {GTQ.format(transaccion.monto)}
                     </p>
-                    <span
-                      className={`transaccion-estado ${transaccion.estado}`}
-                    >
-                      {transaccion.estado}
-                    </span>
                   </div>
                 </div>
               </div>

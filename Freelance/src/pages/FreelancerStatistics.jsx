@@ -3,7 +3,7 @@ import Layout from "../Components/Layout.jsx";
 import "../styles/Statistics.css";
 
 const FreelancerStatistics = () => {
-  // Estadísticas principales del freelancer
+  // Estadísticas principales (mock)
   const [freelancerStats] = useState({
     totalProjects: 47,
     activeProjects: 8,
@@ -17,7 +17,7 @@ const FreelancerStatistics = () => {
     proposalSuccessRate: 68,
   });
 
-  // Ingresos mensuales
+  // Ingresos mensuales (mock)
   const monthlyEarnings = [
     { month: "Ene", earnings: 12400, height: 62 },
     { month: "Feb", earnings: 14200, height: 71 },
@@ -29,7 +29,7 @@ const FreelancerStatistics = () => {
     { month: "Ago", earnings: 15800, height: 79 },
   ];
 
-  // Horas trabajadas por día
+  // Horas trabajadas (mock)
   const weeklyHours = [
     { day: "Lun", hours: 8.5, billable: 7.5 },
     { day: "Mar", hours: 9.0, billable: 8.2 },
@@ -40,7 +40,7 @@ const FreelancerStatistics = () => {
     { day: "Dom", hours: 2.0, billable: 1.8 },
   ];
 
-  // Proyectos activos
+  // Proyectos activos (mock)
   const activeProjectDetails = [
     {
       project: "E-commerce Premium - TechStore",
@@ -84,7 +84,7 @@ const FreelancerStatistics = () => {
     },
   ];
 
-  // Actividad reciente
+  // Timeline (mock)
   const recentActivity = [
     {
       time: "09:00",
@@ -132,6 +132,7 @@ const FreelancerStatistics = () => {
     },
   ];
 
+  // Icono por tipo de actividad
   const getActivityIcon = (type) => {
     switch (type) {
       case "work-start":
@@ -153,6 +154,7 @@ const FreelancerStatistics = () => {
     }
   };
 
+  // Color por tipo de actividad
   const getActivityColor = (type) => {
     switch (type) {
       case "work-start":
@@ -242,9 +244,103 @@ const FreelancerStatistics = () => {
           </div>
         </div>
 
+        {/* ==== (Freelancer Estadísticas) KPIs de proyectos completados ==== */}
+        <section className="kpis-completed">
+          <h3 className="section-title" style={{ marginBottom: 12 }}>
+            <i className="ri-check-double-line"></i>
+            KPIs de proyectos completados
+          </h3>
+
+          {/* Cálculos rápidos (mock + derivados) */}
+          {(() => {
+            const completed = freelancerStats.completedProjects || 0;
+            const total = Math.max(
+              freelancerStats.totalProjects || 0,
+              (freelancerStats.activeProjects || 0) + completed
+            );
+            const completionRate = total
+              ? Math.round((completed / total) * 100)
+              : 0;
+
+            // mocks: reemplaza cuando tengas API real
+            const onTimeRate = 82;
+            const avgDurationDays = 32;
+            const revenuePerCompleted = completed
+              ? Math.round(freelancerStats.totalEarnings / completed)
+              : 0;
+
+            return (
+              <div className="kpis-completed__grid">
+                {/* Tasa de finalización */}
+                <div className="kpi-box success" title="Completados / Totales">
+                  <div className="kpi-box__top">
+                    <span className="kpi-box__icon" aria-hidden>
+                      ✅
+                    </span>
+                    <span className="kpi-box__label">Tasa de finalización</span>
+                  </div>
+                  <div className="kpi-box__value">{completionRate}%</div>
+                  <div className="kpi-box__sub">
+                    Completados: {completed} / {total}
+                  </div>
+                </div>
+
+                {/* A tiempo */}
+                <div className="kpi-box info" title="Entregados en fecha">
+                  <div className="kpi-box__top">
+                    <span className="kpi-box__icon" aria-hidden>
+                      ⏱️
+                    </span>
+                    <span className="kpi-box__label">A tiempo</span>
+                  </div>
+                  <div className="kpi-box__value">{onTimeRate}%</div>
+                  <div className="kpi-box__sub">Según hitos</div>
+                </div>
+
+                {/* Duración promedio */}
+                <div
+                  className="kpi-box warning"
+                  title="Días promedio por proyecto"
+                >
+                  <div className="kpi-box__top">
+                    <span className="kpi-box__icon" aria-hidden>
+                      📅
+                    </span>
+                    <span className="kpi-box__label">Duración promedio</span>
+                  </div>
+                  <div className="kpi-box__value">{avgDurationDays} días</div>
+                  <div className="kpi-box__sub">Inicio → cierre</div>
+                </div>
+
+                {/* Ingreso por proyecto */}
+                <div
+                  className="kpi-box primary"
+                  title="Ingreso promedio por proyecto completado"
+                >
+                  <div className="kpi-box__top">
+                    <span className="kpi-box__icon" aria-hidden>
+                      💸
+                    </span>
+                    <span className="kpi-box__label">Ingreso por proyecto</span>
+                  </div>
+                  <div className="kpi-box__value">
+                    {new Intl.NumberFormat("es-GT", {
+                      style: "currency",
+                      currency: "GTQ",
+                      maximumFractionDigits: 0,
+                    }).format(revenuePerCompleted)}
+                  </div>
+                  <div className="kpi-box__sub">Promedio</div>
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+        {/* ==== fin KPIs ==== */}
+
         {/* Gráficos principales */}
         <div className="charts-layout">
-          {/* Ingresos mensuales - Gráfico de barras simple */}
+          {/* Ingresos mensuales - barras */}
           <div className="chart-container">
             <h3 className="chart-title">
               <i className="ri-line-chart-line"></i>
@@ -274,7 +370,7 @@ const FreelancerStatistics = () => {
                       style={{
                         fontSize: "0.75rem",
                         color: "#64748b",
-                        fontWeight: "600",
+                        fontWeight: 600,
                       }}
                     >
                       Q{(item.earnings / 1000).toFixed(1)}k
@@ -288,12 +384,12 @@ const FreelancerStatistics = () => {
                         transition: "all 0.3s ease",
                         boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)",
                       }}
-                    ></div>
+                    />
                     <div
                       style={{
                         fontSize: "0.85rem",
                         color: "#64748b",
-                        fontWeight: "500",
+                        fontWeight: 500,
                       }}
                     >
                       {item.month}
@@ -304,7 +400,7 @@ const FreelancerStatistics = () => {
             </div>
           </div>
 
-          {/* Estado de proyectos - Gráfico de dona simple */}
+          {/* Estado de proyectos - dona */}
           <div className="chart-container">
             <h3 className="chart-title">
               <i className="ri-pie-chart-line"></i>
@@ -312,20 +408,14 @@ const FreelancerStatistics = () => {
             </h3>
             <div
               style={{
-                padding: "20px",
+                padding: 20,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "20px",
+                gap: 20,
               }}
             >
-              <div
-                style={{
-                  position: "relative",
-                  width: "200px",
-                  height: "200px",
-                }}
-              >
+              <div style={{ position: "relative", width: 200, height: 200 }}>
                 <svg
                   viewBox="0 0 100 100"
                   style={{ transform: "rotate(-90deg)" }}
@@ -340,7 +430,6 @@ const FreelancerStatistics = () => {
                     strokeWidth="20"
                     strokeDasharray="209"
                     strokeDashoffset="35"
-                    style={{ transition: "all 0.5s ease" }}
                   />
                   {/* En Progreso - 17% */}
                   <circle
@@ -352,7 +441,6 @@ const FreelancerStatistics = () => {
                     strokeWidth="20"
                     strokeDasharray="35 209"
                     strokeDashoffset="0"
-                    style={{ transition: "all 0.5s ease" }}
                   />
                 </svg>
                 <div
@@ -367,52 +455,44 @@ const FreelancerStatistics = () => {
                   <div
                     style={{
                       fontSize: "2rem",
-                      fontWeight: "700",
+                      fontWeight: 700,
                       color: "#1e3a8a",
                     }}
                   >
                     47
                   </div>
-                  <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                  <div style={{ fontSize: ".85rem", color: "#64748b" }}>
                     Proyectos
                   </div>
                 </div>
               </div>
 
               <div
-                style={{
-                  display: "flex",
-                  gap: "20px",
-                  justifyContent: "center",
-                }}
+                style={{ display: "flex", gap: 20, justifyContent: "center" }}
               >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "2px",
+                      width: 12,
+                      height: 12,
+                      borderRadius: 2,
                       background: "#10B981",
                     }}
-                  ></div>
-                  <span style={{ fontSize: "0.9rem", color: "#64748b" }}>
+                  />
+                  <span style={{ fontSize: ".9rem", color: "#64748b" }}>
                     Completados (39)
                   </span>
                 </div>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "2px",
+                      width: 12,
+                      height: 12,
+                      borderRadius: 2,
                       background: "#3B82F6",
                     }}
-                  ></div>
-                  <span style={{ fontSize: "0.9rem", color: "#64748b" }}>
+                  />
+                  <span style={{ fontSize: ".9rem", color: "#64748b" }}>
                     En Progreso (8)
                   </span>
                 </div>
@@ -429,13 +509,13 @@ const FreelancerStatistics = () => {
               <i className="ri-time-line"></i>
               Horas Trabajadas por Semana
             </h3>
-            <div style={{ padding: "20px" }}>
+            <div style={{ padding: 20 }}>
               <div
                 style={{
                   display: "flex",
                   alignItems: "flex-end",
                   justifyContent: "space-around",
-                  height: "200px",
+                  height: 200,
                   borderBottom: "2px solid #e2e8f0",
                 }}
               >
@@ -446,41 +526,41 @@ const FreelancerStatistics = () => {
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      gap: "8px",
+                      gap: 8,
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
-                        gap: "4px",
+                        gap: 4,
                         alignItems: "flex-end",
-                        height: "180px",
+                        height: 180,
                       }}
                     >
                       <div
                         style={{
-                          width: "20px",
+                          width: 20,
                           height: `${(item.hours / 10) * 100}%`,
                           background: "#3B82F6",
                           borderRadius: "4px 4px 0 0",
                           boxShadow: "0 2px 4px rgba(59, 130, 246, 0.3)",
                         }}
-                      ></div>
+                      />
                       <div
                         style={{
-                          width: "20px",
+                          width: 20,
                           height: `${(item.billable / 10) * 100}%`,
                           background: "#10B981",
                           borderRadius: "4px 4px 0 0",
                           boxShadow: "0 2px 4px rgba(16, 185, 129, 0.3)",
                         }}
-                      ></div>
+                      />
                     </div>
                     <div
                       style={{
-                        fontSize: "0.85rem",
+                        fontSize: ".85rem",
                         color: "#64748b",
-                        fontWeight: "500",
+                        fontWeight: 500,
                       }}
                     >
                       {item.day}
@@ -491,38 +571,34 @@ const FreelancerStatistics = () => {
               <div
                 style={{
                   display: "flex",
-                  gap: "20px",
+                  gap: 20,
                   justifyContent: "center",
-                  marginTop: "20px",
+                  marginTop: 20,
                 }}
               >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "2px",
+                      width: 12,
+                      height: 12,
+                      borderRadius: 2,
                       background: "#3B82F6",
                     }}
-                  ></div>
-                  <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                  />
+                  <span style={{ fontSize: ".85rem", color: "#64748b" }}>
                     Horas Totales
                   </span>
                 </div>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "2px",
+                      width: 12,
+                      height: 12,
+                      borderRadius: 2,
                       background: "#10B981",
                     }}
-                  ></div>
-                  <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                  />
+                  <span style={{ fontSize: ".85rem", color: "#64748b" }}>
                     Horas Facturables
                   </span>
                 </div>
@@ -538,20 +614,14 @@ const FreelancerStatistics = () => {
             </h3>
             <div
               style={{
-                padding: "20px",
+                padding: 20,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "20px",
+                gap: 20,
               }}
             >
-              <div
-                style={{
-                  position: "relative",
-                  width: "200px",
-                  height: "200px",
-                }}
-              >
+              <div style={{ position: "relative", width: 200, height: 200 }}>
                 <svg
                   viewBox="0 0 100 100"
                   style={{ transform: "rotate(-90deg)" }}
@@ -566,7 +636,6 @@ const FreelancerStatistics = () => {
                     strokeWidth="20"
                     strokeDasharray="108"
                     strokeDashoffset="0"
-                    style={{ transition: "all 0.5s ease" }}
                   />
                   {/* Nuevos - 57% */}
                   <circle
@@ -578,7 +647,6 @@ const FreelancerStatistics = () => {
                     strokeWidth="20"
                     strokeDasharray="143 108"
                     strokeDashoffset="-108"
-                    style={{ transition: "all 0.5s ease" }}
                   />
                 </svg>
                 <div
@@ -593,52 +661,44 @@ const FreelancerStatistics = () => {
                   <div
                     style={{
                       fontSize: "2rem",
-                      fontWeight: "700",
+                      fontWeight: 700,
                       color: "#1e3a8a",
                     }}
                   >
                     28
                   </div>
-                  <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                  <div style={{ fontSize: ".85rem", color: "#64748b" }}>
                     Clientes
                   </div>
                 </div>
               </div>
 
               <div
-                style={{
-                  display: "flex",
-                  gap: "20px",
-                  justifyContent: "center",
-                }}
+                style={{ display: "flex", gap: 20, justifyContent: "center" }}
               >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "2px",
+                      width: 12,
+                      height: 12,
+                      borderRadius: 2,
                       background: "#10B981",
                     }}
-                  ></div>
-                  <span style={{ fontSize: "0.9rem", color: "#64748b" }}>
+                  />
+                  <span style={{ fontSize: ".9rem", color: "#64748b" }}>
                     Recurrentes (12)
                   </span>
                 </div>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "2px",
+                      width: 12,
+                      height: 12,
+                      borderRadius: 2,
                       background: "#3B82F6",
                     }}
-                  ></div>
-                  <span style={{ fontSize: "0.9rem", color: "#64748b" }}>
+                  />
+                  <span style={{ fontSize: ".9rem", color: "#64748b" }}>
                     Nuevos (16)
                   </span>
                 </div>
@@ -661,7 +721,7 @@ const FreelancerStatistics = () => {
                     <h4 className="project-name">{project.project}</h4>
                     <p
                       style={{
-                        fontSize: "0.85rem",
+                        fontSize: ".85rem",
                         color: "#64748b",
                         margin: "4px 0",
                       }}
@@ -692,7 +752,7 @@ const FreelancerStatistics = () => {
                         : "low"
                     }`}
                     style={{ width: `${project.progress}%` }}
-                  ></div>
+                  />
                 </div>
 
                 <div className="project-stats">

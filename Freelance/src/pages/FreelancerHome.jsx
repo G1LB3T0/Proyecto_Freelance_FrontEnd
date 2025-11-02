@@ -6,9 +6,40 @@ import "../styles/FreelancerHome.css";
 const FreelancerHome = () => {
   const [user, setUser] = useState(null);
 
+  // --- KPIs de cabecera: estado ---
+  const [kpis, setKpis] = useState({
+    rating: 4.8, // Calificación promedio ★
+    completed: 23, // Proyectos completados
+    activeClients: 7, // Clientes activos
+    satisfaction: 95, // % de satisfacción
+  });
+
   useEffect(() => {
     const userData = authService.getUser();
     setUser(userData);
+
+    // --- Intento de cargar KPIs desde backend (con fallback si no existe) ---
+    const fetchKpis = async () => {
+      try {
+        if (!userData?.id) return;
+        const res = await fetch(
+          `http://localhost:3000/api/freelancers/${userData.id}/kpis`
+        );
+        if (!res.ok) throw new Error("no kpis");
+        const data = await res.json();
+        // Normalización suave por si tu API usa otros nombres:
+        setKpis({
+          rating: data.rating ?? data.avg_rating ?? 4.8,
+          completed: data.completed ?? data.projects_completed ?? 23,
+          activeClients: data.activeClients ?? data.clients_active ?? 7,
+          satisfaction: data.satisfaction ?? data.csat ?? 95,
+        });
+      } catch {
+        // Fallback: se mantienen los valores de demo
+      }
+    };
+
+    fetchKpis();
   }, []);
 
   return (
@@ -21,8 +52,52 @@ const FreelancerHome = () => {
           </div>
         </header>
 
+        {/* --- KPIs de cabecera (nuevos) --- */}
+        <section className="kpis-header">
+          <div className="kpi-card pill">
+            <div className="kpi-top">
+              <span className="kpi-icon" aria-hidden>
+                ⭐
+              </span>
+              <span className="kpi-label">Calificación</span>
+            </div>
+            <div className="kpi-value">{kpis.rating}★</div>
+          </div>
+
+          <div className="kpi-card pill">
+            <div className="kpi-top">
+              <span className="kpi-icon" aria-hidden>
+                ✅
+              </span>
+              <span className="kpi-label">Completados</span>
+            </div>
+            <div className="kpi-value">{kpis.completed}</div>
+          </div>
+
+          <div className="kpi-card pill">
+            <div className="kpi-top">
+              <span className="kpi-icon" aria-hidden>
+                👥
+              </span>
+              <span className="kpi-label">Clientes activos</span>
+            </div>
+            <div className="kpi-value">{kpis.activeClients}</div>
+          </div>
+
+          <div className="kpi-card pill">
+            <div className="kpi-top">
+              <span className="kpi-icon" aria-hidden>
+                💯
+              </span>
+              <span className="kpi-label">Satisfacción</span>
+            </div>
+            <div className="kpi-value">{kpis.satisfaction}%</div>
+          </div>
+        </section>
+        {/* --- fin KPIs --- */}
+
         <main className="dashboard-content">
-          {/* Stats Overview */}
+          {/* Stats Overview (lo que ya tenías) */}
           <div className="stats-section">
             <div className="stat-card primary">
               <div className="stat-content">
@@ -85,7 +160,7 @@ const FreelancerHome = () => {
                 </div>
               </div>
 
-              {/* Posts Feed */}
+              {/* Posts Feed (mock) */}
               <div className="posts-feed">
                 <div className="post">
                   <div className="post-header">

@@ -51,6 +51,53 @@
 }
 
 /* ==========================
+   KPIs DE CABECERA (NUEVO)
+   – Fila de tarjetas tipo "píldora"
+========================== */
+.kpis-header {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 16px 0 8px;
+}
+
+.kpi-card.pill {
+  background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.06);
+}
+
+.kpi-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kpi-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* ==========================
    DASHBOARD CONTENT
 ========================== */
 .freelancer-home-content .dashboard-content {
@@ -399,7 +446,7 @@
   color: var(--color-dark);
 }
 
-/* Trending */
+/* Trending / Events / People */
 .freelancer-home-content .trending-list,
 .freelancer-home-content .events-list,
 .freelancer-home-content .people-list {
@@ -575,6 +622,11 @@
     gap: 12px;
     padding: 12px 16px;
   }
+
+  /* KPIs: 2 columnas en pantallas medianas */
+  .kpis-header {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* Móviles pequeños */
@@ -592,6 +644,11 @@
 
   .freelancer-home-content .publish-btn {
     align-self: stretch;
+  }
+
+  /* KPIs: 1 columna en móviles */
+  .kpis-header {
+    grid-template-columns: 1fr;
   }
 }
 

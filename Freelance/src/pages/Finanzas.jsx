@@ -312,6 +312,48 @@ const Finanzas = () => {
     anualesPct: summary?.kpis?.anualesPct ?? kpis.anualesPct,
   };
 
+  // Agrupar ingresos y gastos por mes (últimos 6 meses) y calcular alturas para el gráfico
+  const seriesMensual = useMemo(() => {
+    // construir últimos 6 meses (label corto y llave YYYY-MM)
+    const now = new Date();
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const label = d.toLocaleString("es-ES", { month: "short" }); // Ene, Feb...
+      months.push({ key, label, ingreso: 0, gasto: 0 });
+    }
+
+    // index para acceso rápido
+    const idx = new Map(months.map((m, i) => [m.key, i]));
+
+    // acumular montos por mes
+    for (const t of transacciones) {
+      const d = new Date(t.fecha);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const i = idx.get(key);
+      if (i === undefined) continue;
+      const amt = Number(t.monto) || 0;
+      if (t.tipo === "ingreso") months[i].ingreso += amt;
+      else if (t.tipo === "gasto") months[i].gasto += amt;
+    }
+
+    // escala para alturas (máximo 100px)
+    const maxVal = Math.max(
+      1,
+      ...months.map(m => Math.max(m.ingreso, m.gasto))
+    );
+    const toHeight = (v) => `${Math.round((v / maxVal) * 100)}px`;
+
+    return months.map(m => ({
+      label: m.label.charAt(0).toUpperCase() + m.label.slice(1, 3),
+      ingreso: m.ingreso,
+      gasto: m.gasto,
+      hIngreso: toHeight(m.ingreso),
+      hGasto: toHeight(m.gasto),
+    }));
+  }, [transacciones]);
+
   return (
     <Layout 
       currentPage="finance" 
@@ -609,45 +651,15 @@ const Finanzas = () => {
             <h3><i className="ri-bar-chart-2-line"></i> Gráfico de Ingresos vs Gastos</h3>
             <div className="mini-chart">
               <div className="chart-bars">
-                <div className="chart-month">
-                  <div className="bars-container">
-                    <div
-                      className="bar ingreso"
-                      style={{ height: "80px" }}
-                    ></div>
-                    <div
-                      className="bar gasto"
-                      style={{ height: "40px" }}
-                    ></div>
+                {seriesMensual.map((m) => (
+                  <div className="chart-month" key={m.label}>
+                    <div className="bars-container">
+                      <div className="bar ingreso" title={`Ingresos: ${GTQ.format(m.ingreso)}`} style={{ height: m.hIngreso }}></div>
+                      <div className="bar gasto" title={`Gastos: ${GTQ.format(m.gasto)}`} style={{ height: m.hGasto }}></div>
+                    </div>
+                    <span>{m.label}</span>
                   </div>
-                  <span>Ene</span>
-                </div>
-                <div className="chart-month">
-                  <div className="bars-container">
-                    <div
-                      className="bar ingreso"
-                      style={{ height: "90px" }}
-                    ></div>
-                    <div
-                      className="bar gasto"
-                      style={{ height: "45px" }}
-                    ></div>
-                  </div>
-                  <span>Feb</span>
-                </div>
-                <div className="chart-month">
-                  <div className="bars-container">
-                    <div
-                      className="bar ingreso"
-                      style={{ height: "100px" }}
-                    ></div>
-                    <div
-                      className="bar gasto"
-                      style={{ height: "50px" }}
-                    ></div>
-                  </div>
-                  <span>Mar</span>
-                </div>
+                ))}
               </div>
               <div className="chart-legend">
                 <span className="legend-item">

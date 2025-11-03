@@ -224,11 +224,9 @@ const Finanzas = () => {
     const payload = {
       user_id: user.id,
       title: nuevaTransaccion.concepto,
-      type: backendType,
-      amount: parseFloat(nuevaTransaccion.monto),
-      currency: "GTQ",
-      status: backendType === "income" ? "pending" : "posted",
-      transaction_date: nuevaTransaccion.fecha,
+      type: backendType, // "income" | "expense"
+      amount: Number(nuevaTransaccion.monto),
+      transaction_date: new Date(nuevaTransaccion.fecha).toISOString(),
       description: nuevaTransaccion.concepto,
       // category_id:  (opcional: mapear por nombre si ya tienes el id)
     };
@@ -242,7 +240,7 @@ const Finanzas = () => {
 
       if (!res.ok) {
         const t = await res.text();
-        throw new Error(t || `HTTP ${res.status}`);
+        throw new Error(t ? `${res.status}: ${t}` : `HTTP ${res.status}`);
       }
 
       const created = await res.json();

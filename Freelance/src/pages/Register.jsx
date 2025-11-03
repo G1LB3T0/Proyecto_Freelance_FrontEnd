@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../styles/Register.css';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -61,11 +63,11 @@ const Register = () => {
           formData.country && formData.postalCode && formData.userType;
       case 3:
         if (formData.password !== formData.confirmPassword) {
-          setPasswordError('Las contraseñas no coinciden');
+            setPasswordError(t('register.messages.passwordsMismatch'));
           return false;
         }
-        if (formData.password.length < 8) {
-          setPasswordError('La contraseña debe tener al menos 8 caracteres');
+          if (formData.password.length < 8) {
+            setPasswordError(t('register.messages.passwordTooShort'));
           return false;
         }
         return formData.password && formData.confirmPassword && formData.agreeTerms;
@@ -244,22 +246,13 @@ const Register = () => {
   };
 
   const renderStepTitle = () => {
-    switch (currentStep) {
-      case 1:
-        return "Información Personal";
-      case 2:
-        return "Información de Contacto";
-      case 3:
-        return "Contraseña y Términos";
-      default:
-        return "Crear Cuenta";
-    }
+    return t(`register.stepTitles.${currentStep}`);
   };
 
   const renderStep1 = () => (
     <>
       <div className="form-group">
-        <label htmlFor="firstName">Nombre</label>
+        <label htmlFor="firstName">{t('register.firstName')}</label>
         <div className="input-container">
           <span className="icon user-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -272,14 +265,14 @@ const Register = () => {
             type="text"
             value={formData.firstName}
             onChange={handleChange}
-            placeholder="Juan"
+            placeholder={t('register.placeholders.firstName')}
             required
           />
         </div>
       </div>
 
       <div className="form-group">
-        <label htmlFor="lastName">Apellido</label>
+        <label htmlFor="lastName">{t('register.lastName')}</label>
         <div className="input-container">
           <span className="icon user-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -292,14 +285,14 @@ const Register = () => {
             type="text"
             value={formData.lastName}
             onChange={handleChange}
-            placeholder="Pérez"
+            placeholder={t('register.placeholders.lastName')}
             required
           />
         </div>
       </div>
 
       <div className="form-group">
-        <label htmlFor="email">Correo electrónico</label>
+        <label htmlFor="email">{t('register.emailLabel')}</label>
         <div className="input-container">
           <span className="icon email-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -313,14 +306,14 @@ const Register = () => {
             type="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="usuario@ejemplo.com"
+            placeholder={t('register.placeholders.email')}
             required
           />
         </div>
       </div>
 
       <div className="form-group">
-        <label htmlFor="username">Nombre de usuario</label>
+        <label htmlFor="username">{t('register.usernameLabel')}</label>
         <div className="input-container">
           <span className="icon user-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -333,7 +326,7 @@ const Register = () => {
             type="text"
             value={formData.username}
             onChange={handleChange}
-            placeholder="juanperez"
+            placeholder={t('register.placeholders.username')}
             required
           />
         </div>
@@ -345,7 +338,7 @@ const Register = () => {
           className="next-button"
           onClick={handleNextClick}
         >
-          Siguiente
+          {t('register.next')}
         </button>
       </div>
     </>
@@ -453,14 +446,14 @@ const Register = () => {
           className="back-button"
           onClick={prevStep}
         >
-          Atrás
+          {t('register.back')}
         </button>
         <button
           type="button"
           className="next-button"
           onClick={handleNextClick}
         >
-          Siguiente
+          {t('register.next')}
         </button>
       </div>
     </>
@@ -563,14 +556,14 @@ const Register = () => {
           className="back-button"
           onClick={prevStep}
         >
-          Atrás
+          {t('register.back')}
         </button>
         <button
           type="submit"
           className={`register-button ${isSubmitting ? 'submitting' : ''}`}
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Registrando...' : 'Crear cuenta'}
+          {isSubmitting ? t('register.registering') : t('register.createAccount')}
         </button>
       </div>
     </>
@@ -593,7 +586,7 @@ const Register = () => {
     <div className="register-container">
       <div className="register-card">
         <div className="register-header">
-          <h1>Crear Cuenta</h1>
+          <h1>{t('register.title')}</h1>
           <p>{renderStepTitle()}</p>
           {renderProgressBar()}
         </div>
@@ -606,21 +599,21 @@ const Register = () => {
           <div className="success-message">
             <div className="success-icon">✓</div>
             <p>{registrationMessage}</p>
-            <p className="redirect-message">Serás redirigido al login en unos segundos...</p>
+            <p className="redirect-message">{t('register.messages.success')}</p>
           </div>
         )}
 
         <div className="login-link">
           <p>
-            ¿Ya tienes cuenta?{' '}
+            {t('login.noAccount')}{' '}
             <button type="button" className="link-button" onClick={handleLoginClick}>
-              Iniciar sesión
+              {t('register.loginLink')}
             </button>
           </p>
         </div>
 
         <div className="separator">
-          <span>O regístrate con</span>
+          <span>{t('register.orRegisterWith')}</span>
         </div>
 
         <div className="social-login">
@@ -631,13 +624,13 @@ const Register = () => {
                 d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
               />
             </svg>
-            Google
+            {t('login.social.google')}
           </button>
           <button type="button" className="social-button github-button">
             <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
             </svg>
-            GitHub
+            {t('login.social.github')}
           </button>
           <button type="button" className="social-button microsoft-button">
             <svg className="social-icon" viewBox="0 0 24 24">
@@ -646,7 +639,7 @@ const Register = () => {
               <path fill="#7fba00" d="M13 1h10v10H13z" />
               <path fill="#ffb900" d="M13 13h10v10H13z" />
             </svg>
-            Microsoft
+            {t('login.social.microsoft')}
           </button>
         </div>
       </div>
@@ -656,7 +649,7 @@ const Register = () => {
         <div className="modal-overlay" onClick={closeTermsModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Términos y Condiciones</h2>
+              <h2>{t('register.terms.title')}</h2>
               <button className="modal-close" onClick={closeTermsModal}>×</button>
             </div>
             <div className="modal-body">
@@ -676,7 +669,7 @@ const Register = () => {
               <p>No nos hacemos responsables por daños indirectos o consecuenciales.</p>
             </div>
             <div className="modal-footer">
-              <button className="modal-button" onClick={closeTermsModal}>Cerrar</button>
+              <button className="modal-button" onClick={closeTermsModal}>{t('register.terms.close')}</button>
             </div>
           </div>
         </div>
@@ -687,7 +680,7 @@ const Register = () => {
         <div className="modal-overlay" onClick={closePrivacyModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Política de Privacidad</h2>
+              <h2>{t('register.privacy.title')}</h2>
               <button className="modal-close" onClick={closePrivacyModal}>×</button>
             </div>
             <div className="modal-body">
@@ -710,7 +703,7 @@ const Register = () => {
               <p>Para preguntas sobre esta política, contáctanos en privacy@ejemplo.com</p>
             </div>
             <div className="modal-footer">
-              <button className="modal-button" onClick={closePrivacyModal}>Cerrar</button>
+              <button className="modal-button" onClick={closePrivacyModal}>{t('register.terms.close')}</button>
             </div>
           </div>
         </div>

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Layout from '../Components/Layout.jsx';
 import '../styles/Settings.css';
+import settingsService from '../services/serviceSettings.js';
+import authService from '../services/authService.js';
 
 const FreelancerSettings = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -8,22 +11,28 @@ const FreelancerSettings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
   
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
   // Estados específicos para freelancers
   const [profileData, setProfileData] = useState({
-    name: 'Ana García',
-    email: 'ana.garcia@email.com',
-    phone: '+502 9876-5432',
-    bio: 'Diseñadora UX/UI y desarrolladora frontend con 5 años de experiencia',
-    location: 'Ciudad de Guatemala, Guatemala',
-    website: 'www.anagarcia.dev',
-    linkedin: 'linkedin.com/in/anagarcia',
-    github: 'github.com/anagarcia',
-    portfolio: 'behance.net/anagarcia',
-    skills: 'React, JavaScript, Figma, Adobe Creative Suite',
-    hourlyRate: '25',
+    name: '',
+    email: '',
+    username: '',
+    phone: '',
+    bio: '',
+    location: '',
+    website: '',
+    linkedin: '',
+    github: '',
+    portfolio: '',
+    skills: '',
+    hourlyRate: '',
     availability: 'full-time',
-    experience: '5+',
-    avatar: null
+    experience: '0-1',
+    avatar: null,
+    first_name: '',
+    last_name: ''
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -99,40 +108,362 @@ const FreelancerSettings = () => {
     { id: 'billing', label: 'Facturación', icon: 'ri-bank-card-line' }
   ];
 
-  // Función para guardar cambios (reutilizada)
+  // Cargar datos del usuario al inicializar
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const { t, i18n } = useTranslation();
+
+  const loadUserData = async () => {
+    try {
+      setLoading(true);
+      setError('');
+
+      // Debug para FreelancerSettings
+      console.log("=== DEBUG FREELANCER SETTINGS ===");
+      
+      // Intentar múltiples fuentes de datos
+      let settings = {};
+      let user = {};
+
+      try {
+        // Obtener configuración del usuario
+        const settingsResponse = await settingsService.getUserSettings();
+        
+        // Obtener información del perfil del usuario
+        const profileResponse = await settingsService.getUserProfile();
+
+        console.log("Freelancer Settings Response:", settingsResponse);
+        console.log("Freelancer Profile Response:", profileResponse);
+
+        // Fuente 1: API responses
+        if (settingsResponse?.success) {
+          settings = settingsResponse.data || {};
+        }
+        
+        if (profileResponse?.success) {
+          user = profileResponse.data?.user || profileResponse.data || {};
+        }
+      } catch (apiError) {
+        console.log("API calls failed:", apiError);
+      }
+
+      // Fuente 2: Fallback a authService si API falla o no hay datos
+      if (!user || (!user.email && !user.name && !user.username)) {
+        const localUser = authService.getUser();
+        console.log("Freelancer fallback to local user:", localUser);
+        user = localUser || {};
+      }
+      
+      // Fuente 3: Si aún no hay datos, usar datos por defecto para freelancer
+      if (!user || Object.keys(user).length === 0) {
+        console.log("Using default freelancer data");
+        user = {
+          name: "Freelancer",
+          email: "",
+          username: "",
+          first_name: "",
+          last_name: ""
+        };
+      }
+
+      console.log("Final freelancer user data:", user);
+      console.log("Final freelancer settings data:", settings);
+      console.log("==================================");
+
+      // Mapear los datos del backend al estado local (específico para freelancers) con validaciones ultra-robustas
+      const safeUser = user || {};
+      const safeSettings = settings || {};
+      const socialLinks = safeSettings.social_links || {};
+      
+      setProfileData({
+        name: safeUser.full_name || safeUser.name || safeUser.username || 
+              `${safeUser.first_name || ''} ${safeUser.last_name || ''}`.trim() || 
+              "Freelancer",
+        email: safeUser.email || '',
+        username: safeUser.username || '',
+        phone: safeUser.phone || safeSettings.phone_e164 || '',
+        bio: safeSettings.bio || '',
+        location: safeSettings.location || '',
+        website: safeSettings.website_url || '',
+        linkedin: socialLinks.linkedin || '',
+        github: socialLinks.github || '',
+        portfolio: safeSettings.portfolio_url || '',
+        skills: safeSettings.skills || '',
+        hourlyRate: safeSettings.hourly_rate || '',
+        availability: safeSettings.availability || 'full-time',
+        experience: safeSettings.experience || '0-1',
+        avatar: safeSettings.profile_picture || null,
+        first_name: safeUser.first_name || safeSettings.first_name || '',
+        last_name: safeUser.last_name || safeSettings.last_name || ''
+      });      // Mapear configuraciones específicas del freelancer si existen
+      if (safeSettings.freelancer_settings) {
+        setFreelancerSettings(prev => ({
+          ...prev,
+          ...safeSettings.freelancer_settings
+        }));
+      }
+
+      // Mapear configuraciones de notificaciones
+      if (safeSettings.notification_settings) {
+        setNotificationSettings(prev => ({
+          ...prev,
+          ...safeSettings.notification_settings
+        }));
+      }
+
+      // Mapear configuraciones de privacidad
+      if (safeSettings.privacy_settings) {
+        setPrivacySettings(prev => ({
+          ...prev,
+          ...safeSettings.privacy_settings
+        }));
+      }
+      // Mapear configuraciones de idioma
+      setLanguageSettings({
+        language: safeSettings.language || safeSettings.locale || localStorage.getItem('appLanguage') || 'es',
+        timezone: safeSettings.timezone || languageSettings.timezone,
+        dateFormat: safeSettings.date_format || languageSettings.dateFormat,
+        timeFormat: safeSettings.time_format || languageSettings.timeFormat,
+      });
+
+    } catch (error) {
+      console.error('Error cargando datos del usuario:', error);
+      setError('Error al cargar la configuración. Por favor, recarga la página.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para validar datos
+  const validateProfileData = () => {
+    const errors = [];
+    
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (profileData.email && !emailRegex.test(profileData.email)) {
+      errors.push('El email no tiene un formato válido');
+    }
+    
+    // Validar username
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (profileData.username && !usernameRegex.test(profileData.username)) {
+      errors.push('El usuario solo puede contener letras, números y guiones bajos');
+    }
+    
+    if (profileData.username && profileData.username.length < 3) {
+      errors.push('El usuario debe tener al menos 3 caracteres');
+    }
+    
+    return errors;
+  };
+
+  // Función para guardar perfil freelancer
+  const handleSaveProfile = async () => {
+    try {
+      setSaveStatus('saving');
+      setError('');
+
+      // Validar datos antes de enviar
+      const validationErrors = validateProfileData();
+      if (validationErrors.length > 0) {
+        setError(validationErrors.join('. '));
+        setSaveStatus('');
+        return;
+      }
+
+      const updateData = {
+        first_name: profileData.first_name,
+        last_name: profileData.last_name,
+        email: profileData.email,
+        username: profileData.username,
+        phone_e164: profileData.phone,
+        bio: profileData.bio,
+        location: profileData.location,
+        website_url: profileData.website,
+        portfolio_url: profileData.portfolio,
+        skills: profileData.skills,
+        hourly_rate: profileData.hourlyRate,
+        availability: profileData.availability,
+        experience: profileData.experience,
+        social_links: {
+          linkedin: profileData.linkedin,
+          github: profileData.github,
+        },
+      };
+
+      const response = await settingsService.updateUserSettings(updateData);
+
+      if (response.success) {
+        // Actualizar usuario local (localStorage) para reflejar cambios en la UI global
+        try {
+          const local = authService.getUser() || {};
+          const updatedLocal = {
+            ...local,
+            email: profileData.email || local.email,
+            username: profileData.username || local.username,
+            first_name: profileData.first_name || local.first_name,
+            last_name: profileData.last_name || local.last_name,
+            name: profileData.name || `${profileData.first_name || local.first_name || ''} ${profileData.last_name || local.last_name || ''}`.trim() || local.name
+          };
+          authService.setUser(updatedLocal);
+          window.dispatchEvent(new CustomEvent('user-updated', { detail: updatedLocal }));
+        } catch (err) {
+          console.warn('No se pudo actualizar local user tras guardar perfil freelancer:', err);
+        }
+
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus(''), 2000);
+      } else {
+        throw new Error(response.error || 'Error al guardar');
+      }
+    } catch (error) {
+      console.error('Error guardando perfil freelancer:', error);
+      setError('Error al guardar los cambios. Inténtalo de nuevo.');
+      setSaveStatus('');
+    }
+  };
+
+  // Función para guardar configuración de freelancer
+  const handleSaveFreelancer = async () => {
+    try {
+      setSaveStatus('saving');
+      setError('');
+
+      const updateData = {
+        freelancer_settings: freelancerSettings
+      };
+
+      const response = await settingsService.updateUserSettings(updateData);
+
+      if (response.success) {
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus(''), 2000);
+      } else {
+        throw new Error(response.error || 'Error al guardar');
+      }
+    } catch (error) {
+      console.error('Error guardando configuración freelancer:', error);
+      setError('Error al guardar la configuración. Inténtalo de nuevo.');
+      setSaveStatus('');
+    }
+  };
+
+  // Función genérica para otras secciones
   const handleSave = async (section) => {
+    if (section === 'profile') {
+      return handleSaveProfile();
+    } else if (section === 'freelancer') {
+      return handleSaveFreelancer();
+    }
+    
+    // Para otras secciones, mantener funcionalidad local por ahora
     setSaveStatus('saving');
-    // Simular llamada API
     setTimeout(() => {
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus(''), 2000);
     }, 1000);
   };
 
-  // Función para subir avatar (reutilizada)
-  const handleAvatarUpload = (event) => {
+  // Función para subir avatar
+  const handleAvatarUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileData(prev => ({ ...prev, avatar: e.target.result }));
+      reader.onload = async (e) => {
+        const base64 = e.target.result;
+        
+        try {
+          setSaveStatus('saving');
+          setError('');
+          
+          // Actualizar estado local inmediatamente
+          setProfileData(prev => ({ ...prev, avatar: base64 }));
+          
+          // Subir al servidor
+          const response = await settingsService.uploadAvatar(base64);
+          
+          if (response.success) {
+            setSaveStatus('saved');
+            setTimeout(() => setSaveStatus(''), 2000);
+          } else {
+            throw new Error(response.error || 'Error al subir imagen');
+          }
+        } catch (error) {
+          console.error('Error subiendo avatar:', error);
+          setError('Error al subir la imagen. Inténtalo de nuevo.');
+          setSaveStatus('');
+          // Revertir cambio local si falló
+          setProfileData(prev => ({ ...prev, avatar: null }));
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Función para cambiar contraseña (reutilizada)
-  const handlePasswordChange = () => {
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
-      return;
+  // Función para cambiar contraseña
+  const handlePasswordChange = async () => {
+    try {
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        setError('Las contraseñas no coinciden');
+        return;
+      }
+      if (passwordData.newPassword.length < 8) {
+        setError('La contraseña debe tener al menos 8 caracteres');
+        return;
+      }
+
+      setSaveStatus('saving');
+      setError('');
+
+      const response = await settingsService.changePassword({
+        current_password: passwordData.currentPassword,
+        new_password: passwordData.newPassword,
+      });
+
+      if (response.success) {
+        setSaveStatus('saved');
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setTimeout(() => setSaveStatus(''), 2000);
+      } else {
+        throw new Error(response.error || 'Error al cambiar contraseña');
+      }
+    } catch (error) {
+      console.error('Error cambiando contraseña:', error);
+      setError(error.message || 'Error al cambiar la contraseña');
+      setSaveStatus('');
     }
-    if (passwordData.newPassword.length < 6) {
-      alert('La contraseña debe tener al menos 6 caracteres');
-      return;
+  };
+
+  // Función para guardar configuración de idioma (freelancer)
+  const handleSaveLanguage = async () => {
+    try {
+      setSaveStatus('saving');
+      setError('');
+
+      const payload = {
+        language: languageSettings.language,
+        timezone: languageSettings.timezone,
+        date_format: languageSettings.dateFormat,
+        time_format: languageSettings.timeFormat,
+      };
+
+      const response = await settingsService.updateUserSettings(payload);
+
+      if (response.success) {
+        localStorage.setItem('appLanguage', languageSettings.language);
+        window.dispatchEvent(new CustomEvent('language-changed', { detail: languageSettings.language }));
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus(''), 2000);
+      } else {
+        throw new Error(response.error || 'Error al guardar idioma');
+      }
+    } catch (err) {
+      console.error('Error guardando idioma (freelancer):', err);
+      setError('No fue posible guardar la configuración de idioma. Intenta de nuevo.');
+      setSaveStatus('');
     }
-    handleSave('password');
-    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
 
   // Componente de switch personalizado (reutilizado)
@@ -148,8 +479,22 @@ const FreelancerSettings = () => {
     </div>
   );
 
+  // Mostrar loading mientras cargan los datos
+  if (loading) {
+    return (
+      <Layout currentPage="FreelancerSettings">
+        <div className="settings-page">
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Cargando configuración...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
-    <Layout currentPage="FreelancerSettings" searchPlaceholder="Buscar en configuración...">
+    <Layout currentPage="FreelancerSettings" searchPlaceholder={t('top.searchPlaceholder')}>
       <div className="settings-page">
         {/* Estado de guardado */}
         {saveStatus && (
@@ -165,10 +510,21 @@ const FreelancerSettings = () => {
           </div>
         )}
 
+        {/* Mostrar errores */}
+        {error && (
+          <div className="error-message">
+            <i className="ri-error-warning-line" aria-hidden="true"></i>
+            {error}
+            <button onClick={() => setError('')} className="error-close">
+              <i className="ri-close-line" aria-hidden="true"></i>
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="settings-header">
-          <h1>Configuración Freelancer</h1>
-          <p>Personaliza tu perfil y configuración como freelancer</p>
+          <h1>{t('settings.title') + ' Freelancer'}</h1>
+          <p>{t('settings.description')}</p>
         </div>
 
         <div className="settings-layout">
@@ -225,12 +581,36 @@ const FreelancerSettings = () => {
                 {/* Formulario de perfil freelancer */}
                 <div className="form-grid">
                   <div className="form-group">
-                    <label>Nombre completo</label>
+                    <label>Nombre</label>
                     <input
                       type="text"
-                      value={profileData.name}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
+                      value={profileData.first_name}
+                      onChange={(e) =>
+                        setProfileData(prev => ({
+                          ...prev,
+                          first_name: e.target.value,
+                          name: `${e.target.value} ${prev.last_name}`.trim()
+                        }))
+                      }
                       className="form-input"
+                      placeholder="Tu nombre"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Apellido</label>
+                    <input
+                      type="text"
+                      value={profileData.last_name}
+                      onChange={(e) =>
+                        setProfileData(prev => ({
+                          ...prev,
+                          last_name: e.target.value,
+                          name: `${prev.first_name} ${e.target.value}`.trim()
+                        }))
+                      }
+                      className="form-input"
+                      placeholder="Tu apellido"
                     />
                   </div>
                   
@@ -243,8 +623,24 @@ const FreelancerSettings = () => {
                         value={profileData.email}
                         onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
                         className="form-input with-icon"
+                        placeholder="tu@email.com"
                       />
                     </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Usuario</label>
+                    <div className="input-with-icon">
+                      <span className="input-icon"><i className="ri-user-line" aria-hidden="true"></i></span>
+                      <input
+                        type="text"
+                        value={profileData.username}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, username: e.target.value }))}
+                        className="form-input with-icon"
+                        placeholder="nombre_usuario"
+                      />
+                    </div>
+                    <p className="help-text">Solo letras, números y guiones bajos</p>
                   </div>
 
                   <div className="form-group">
@@ -596,6 +992,43 @@ const FreelancerSettings = () => {
             )}
 
             {/* Las demás secciones (appearance, language, billing) pueden reutilizar la misma lógica del Settings original */}
+
+            {/* Idioma */}
+            {activeTab === 'language' && (
+              <div className="tab-content">
+                <h2>{t('settings.language.title')}</h2>
+
+                <div className="form-group">
+                  <label>{t('settings.language.interface')}</label>
+                  <select
+                    value={languageSettings.language}
+                    onChange={(e) => setLanguageSettings(prev => ({ ...prev, language: e.target.value }))}
+                    className="form-input"
+                  >
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>{t('settings.language.timezone')}</label>
+                  <input
+                    type="text"
+                    value={languageSettings.timezone}
+                    onChange={(e) => setLanguageSettings(prev => ({ ...prev, timezone: e.target.value }))}
+                    className="form-input"
+                    placeholder="America/Guatemala"
+                  />
+                </div>
+
+                <div className="form-actions">
+                  <button onClick={async () => { await handleSaveLanguage(); try { i18n.changeLanguage(languageSettings.language); } catch (err) {} }} className="btn btn-primary" disabled={saveStatus === 'saving'}>
+                    {saveStatus === 'saving' ? t('actions.saving') : t('actions.saveLanguage')}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'appearance' && (
               <div className="tab-content">
                 <h2>Apariencia</h2>

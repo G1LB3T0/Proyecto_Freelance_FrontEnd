@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";
 import "../styles/Layout.css";
 
@@ -11,6 +12,11 @@ const Layout = ({
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [appLanguage, setAppLanguage] = useState(
+    localStorage.getItem("appLanguage") || "es"
+  );
+
+  const { t, i18n } = useTranslation();
 
   // Obtener datos del usuario del localStorage
   useEffect(() => {
@@ -18,12 +24,77 @@ const Layout = ({
       const userData = localStorage.getItem("userData");
       if (userData) {
         const user = JSON.parse(userData);
-        setCurrentUser(user);
+        console.log("Layout - User data from localStorage:", user);
+        
+        // Validar que user sea un objeto válido
+        if (user && typeof user === 'object') {
+          setCurrentUser(user);
+        } else {
+          console.warn("Layout - Invalid user data structure:", user);
+          setCurrentUser({
+            name: "Usuario",
+            username: "usuario",
+            user_type: "unknown"
+          });
+        }
       }
     } catch (error) {
       console.error("Error al obtener datos del usuario:", error);
+      // Establecer un usuario por defecto en caso de error
+      setCurrentUser({
+        name: "Usuario",
+        username: "usuario", 
+        user_type: "unknown"
+      });
     }
   }, []);
+
+  // Escuchar actualizaciones de usuario (emitidas tras guardar perfil)
+  useEffect(() => {
+    const handler = (e) => {
+      try {
+        const updated = e?.detail;
+        if (updated && typeof updated === 'object') {
+          setCurrentUser(updated);
+          console.log('Layout - user-updated event received:', updated);
+        }
+      } catch (err) {
+        console.warn('Error handling user-updated event', err);
+      }
+    };
+
+    window.addEventListener('user-updated', handler);
+    return () => window.removeEventListener('user-updated', handler);
+  }, []);
+
+  // Escuchar cambios de idioma emitidos desde Settings
+  useEffect(() => {
+    const langHandler = (e) => {
+      try {
+        const lang = e?.detail;
+        if (lang) {
+          setAppLanguage(lang);
+          localStorage.setItem("appLanguage", lang);
+          console.log("Layout - language-changed event received:", lang);
+          try { i18n.changeLanguage(lang); } catch (err) {}
+        }
+      } catch (err) {
+        console.warn("Error handling language-changed event", err);
+      }
+    };
+
+    window.addEventListener("language-changed", langHandler);
+    return () => window.removeEventListener("language-changed", langHandler);
+  }, []);
+
+  // Aplicar atributo lang al documento cuando cambie el idioma
+  useEffect(() => {
+    try {
+      document.documentElement.lang = appLanguage || "es";
+    } catch (err) {
+      // Ignorar en entornos donde document no exista
+    }
+  }, [appLanguage]);
 
   // Menú para Project Manager y Emprendedor
   const projectManagerMenu = [
@@ -90,7 +161,7 @@ const Layout = ({
 
   // Determinar qué menú mostrar según el tipo de usuario
   const getMenuItems = () => {
-    if (!currentUser) return projectManagerMenu; // Por defecto
+    if (!currentUser || !currentUser.user_type) return projectManagerMenu; // Por defecto
 
     if (currentUser.user_type === "freelancer") {
       return freelancerMenu;
@@ -135,7 +206,7 @@ const Layout = ({
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h2 className="sidebar-title">FreelanceHub</h2>
+          <h2 className="sidebar-title">{t('app.title')}</h2>
         </div>
 
         <div className="user-profile">
@@ -155,14 +226,14 @@ const Layout = ({
               <i className="ri-user-line" aria-hidden="true"></i>
             )}
           </div>
-          <p>Bienvenido/a</p>
+          <p>{t('greeting')}</p>
           <h3>
-            {currentUser?.full_name ||
-              (currentUser?.first_name && currentUser?.last_name
+            {(currentUser && currentUser.full_name) ||
+              (currentUser && currentUser.first_name && currentUser.last_name
                 ? `${currentUser.first_name} ${currentUser.last_name}`
-                : currentUser?.name || currentUser?.username || "Usuario")}
+                : (currentUser && (currentUser.name || currentUser.username)) || t('greeting'))}
           </h3>
-          {currentUser?.user_type && (
+          {currentUser && currentUser.user_type && (
             <p style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
               {currentUser.user_type === "project_manager"
                 ? "Project Manager"
@@ -279,6 +350,24 @@ const Layout = ({
             </div>
             <div className="messages-icon">
               <i className="ri-mail-line" aria-hidden="true"></i>
+            </div>
+
+            {/* Language quick switch */}
+            <div style={{ marginLeft: 12, display: 'flex', alignItems: 'center' }}>
+              <select
+                value={appLanguage}
+                onChange={(e) => {
+                  const lang = e.target.value;
+                  setAppLanguage(lang);
+                  try { localStorage.setItem('appLanguage', lang); } catch (err) {}
+                  window.dispatchEvent(new CustomEvent('language-changed', { detail: lang }));
+                }}
+                aria-label="Seleccionar idioma"
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff' }}
+              >
+                <option value="es">ES</option>
+                <option value="en">EN</option>
+              </select>
             </div>
             <div className="user-menu">
               <span className="user-avatar">

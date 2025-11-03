@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
 import "../styles/Login.css";
@@ -12,6 +13,7 @@ const Login = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Inline styles to fix icon overlap without external CSS
   const styles = {
@@ -65,7 +67,7 @@ const Login = () => {
       const result = await authService.login(email, password);
 
       if (result.success) {
-        setMessage("Login exitoso - Redirigiendo...");
+  setMessage(t('login.messages.successRedirect'));
         setMessageType("success");
         console.log("Usuario autenticado:", result.data.user);
         console.log("Token guardado en localStorage");
@@ -86,12 +88,12 @@ const Login = () => {
           }
         }, 1000);
       } else {
-        setMessage(result.message || "Error al iniciar sesión");
+  setMessage(result.message || t('login.messages.errorLogin'));
         setMessageType("error");
       }
     } catch (error) {
       console.error("Error en login:", error);
-      setMessage("Error de conexión con el servidor");
+  setMessage(t('login.messages.errorConnection'));
       setMessageType("error");
     } finally {
       setIsSubmitting(false);
@@ -102,13 +104,13 @@ const Login = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>Iniciar Sesión</h1>
-          <p>Bienvenido de nuevo</p>
+          <h1>{t('login.title')}</h1>
+          <p>{t('login.welcome')}</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Correo electrónico</label>
+            <label htmlFor="email">{t('login.emailLabel')}</label>
             <div className="input-container" style={styles.inputContainer}>
               <span className="icon email-icon" style={styles.leftIcon}>
                 <svg
@@ -126,7 +128,7 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="usuario@ejemplo.com"
+                placeholder={t('login.emailPlaceholder')}
                 required
                 style={styles.inputWithIcon}
               />
@@ -135,9 +137,9 @@ const Login = () => {
 
           <div className="form-group">
             <div className="password-header">
-              <label htmlFor="password">Contraseña</label>
+              <label htmlFor="password">{t('login.passwordLabel')}</label>
               <a href="#" className="forgot-password">
-                ¿Olvidaste tu contraseña?
+                {t('login.forgotPassword')}
               </a>
             </div>
             <div className="input-container" style={styles.inputContainer}>
@@ -209,7 +211,7 @@ const Login = () => {
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
             />
-            <label htmlFor="remember-me">Recordarme</label>
+            <label htmlFor="remember-me">{t('login.rememberMe')}</label>
           </div>
 
           <button
@@ -217,7 +219,7 @@ const Login = () => {
             className={`login-button ${isSubmitting ? "submitting" : ""}`}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
+            {isSubmitting ? t('login.signingIn') : t('login.signIn')}
           </button>
         </form>
 
@@ -225,23 +227,24 @@ const Login = () => {
 
         <div className="register-link">
           <p>
-            ¿No tienes cuenta? <Link to="/register">Regístrate ahora</Link>
+            {t('login.noAccount')}
+            <Link to="/register">{t('login.registerNow')}</Link>
           </p>
         </div>
 
         <div className="separator">
-          <span>O continúa con</span>
+          <span>{t('login.continueWith')}</span>
         </div>
 
         <div className="social-login">
-          <button type="button" className="social-button google-button">
+            <button type="button" className="social-button google-button">
             <svg className="social-icon" viewBox="0 0 24 24">
               <path
                 fill="#3581edff"
                 d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
               />
             </svg>
-            Google
+            {t('login.social.google')}
           </button>
           <button type="button" className="social-button github-button">
             <svg
@@ -251,7 +254,7 @@ const Login = () => {
             >
               <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
             </svg>
-            GitHub
+            {t('login.social.github')}
           </button>
           <button type="button" className="social-button microsoft-button">
             <svg className="social-icon" viewBox="0 0 24 24">
@@ -260,7 +263,7 @@ const Login = () => {
               <path fill="#7fba00" d="M13 1h10v10H13z" />
               <path fill="#ffb900" d="M13 13h10v10H13z" />
             </svg>
-            Microsoft
+            {t('login.social.microsoft')}
           </button>
         </div>
       </div>

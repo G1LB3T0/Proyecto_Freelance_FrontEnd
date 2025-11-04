@@ -12,6 +12,18 @@ const PostsDeProyectos = () => {
   const [filterStatus, setFilterStatus] = useState("todos");
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProject, setEditingProject] = useState({
+    id: null,
+    title: "",
+    description: "",
+    budget: "",
+    deadline: "",
+    skills_required: "",
+    priority: "medium",
+    category_id: "",
+    status: "en-progreso",
+  });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAllActivity, setShowAllActivity] = useState(false);
   const [showAllDeadlines, setShowAllDeadlines] = useState(false);
@@ -74,7 +86,21 @@ const PostsDeProyectos = () => {
           body: JSON.stringify(projectData),
         }
       );
-      if (!response.ok) throw new Error("Error al actualizar el proyecto");
+      if (!response.ok) {
+        let details = '';
+        try {
+          const errJson = await response.json();
+          details = errJson?.error || errJson?.message || JSON.stringify(errJson);
+        } catch (_) {
+          try {
+            details = await response.text();
+          } catch (_) {
+            details = '';
+          }
+        }
+        const msg = `Error al actualizar el proyecto (HTTP ${response.status}). ${details || ''}`.trim();
+        throw new Error(msg);
+      }
       const updatedProject = await response.json();
       console.log("✅ Proyecto actualizado:", updatedProject);
       fetchProjects();
@@ -82,6 +108,7 @@ const PostsDeProyectos = () => {
     } catch (error) {
       console.error("❌ Error actualizando proyecto:", error);
       setError(error.message);
+      throw error;
     }
   };
 
@@ -116,10 +143,34 @@ const PostsDeProyectos = () => {
 
   const handleEditProject = (project) => {
     console.log("✏️ Editando proyecto:", project);
+    if (!project.canEdit) {
+      alert("No tienes permisos para editar este proyecto. Requiere ser Project Manager y dueño del proyecto (o admin).");
+      return;
+    }
     setSelectedProject(project);
-    alert(
-      `Editar proyecto: ${project.title}\n(Funcionalidad de edición pendiente)`
-    );
+
+    // Preparar estado inicial del formulario de edición
+    const normalizedStatus = project.status === "pausado" ? "en-progreso" : (project.status || "en-progreso");
+    setEditingProject({
+      id: project.id,
+      title: project.title || "",
+      description: project.description || "",
+      budget: typeof project.budget === "string"
+        ? project.budget.replace("$", "")
+        : project.budget || "",
+      deadline: project.endDate
+        ? new Date(project.endDate).toISOString().slice(0, 10)
+        : "",
+      skills_required:
+        Array.isArray(project.technologies)
+          ? project.technologies.join(", ")
+          : "",
+      priority: "medium",
+      category_id: "",
+      status: normalizedStatus,
+    });
+
+    setShowEditModal(true);
   };
 
   const handleDeleteProject = async (projectId) => {
@@ -215,6 +266,21 @@ const PostsDeProyectos = () => {
     });
   };
 
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingProject({
+      id: null,
+      title: "",
+      description: "",
+      budget: "",
+      deadline: "",
+      skills_required: "",
+      priority: "medium",
+      category_id: "",
+      status: "en-progreso",
+    });
+  };
+
   const handleLoadMoreProjects = () => {
     setLoadingMoreProjects(true);
     setTimeout(() => {
@@ -239,7 +305,7 @@ const PostsDeProyectos = () => {
         "en-progreso": "in_progress",
         pausado: "paused",
         abierto: "open",
-        cerrado: "closed",
+        cerrado: "cancelled",
       };
       const apiStatus = statusMap[filterStatus];
       if (apiStatus) {
@@ -247,6 +313,24 @@ const PostsDeProyectos = () => {
       }
     }
     return baseUrl;
+  };
+
+  const mapLocalToApiStatus = (localStatus) => {
+    switch ((localStatus || "").toLowerCase()) {
+      case "completado":
+        return "completed";
+      case "en-progreso":
+        return "in_progress";
+      case "pausado":
+        // Backend no acepta 'paused' en updates; usar 'in_progress'
+        return "in_progress";
+      case "abierto":
+        return "open";
+      case "cerrado":
+        return "cancelled"; // Backend espera 'cancelled'
+      default:
+        return "in_progress";
+    }
   };
 
   const renderProjectImage = (project) => {
@@ -296,8 +380,15 @@ const PostsDeProyectos = () => {
 
       const mapProject = (project) => {
         console.log("🔄 Mapeando proyecto:", project);
+        const ownerId = project.client_id || project.clientId;
+        const isOwner = user && (user.id === ownerId || user.user_type === "admin");
+        const hasEditRole = user && (user.user_type === "project_manager" || user.user_type === "admin");
+        const canEdit = Boolean(isOwner && hasEditRole);
         return {
           id: project.id,
+          ownerId,
+          isOwner,
+          canEdit,
           title: project.title || "Sin título",
           client:
             project.client_name ||
@@ -367,6 +458,8 @@ const PostsDeProyectos = () => {
         return "pausado";
       case "open":
         return "abierto";
+      case "cancelled":
+        return "cerrado";
       case "closed":
         return "cerrado";
       default:
@@ -464,6 +557,51 @@ const PostsDeProyectos = () => {
         return "Cerrado";
       default:
         return status;
+    }
+  };
+
+  const handleEditInputChange = (field, value) => {
+    setEditingProject((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
+    if (!editingProject.id) return;
+
+    try {
+      // Construir payload para backend
+      const payload = {
+        title: editingProject.title,
+        description: editingProject.description,
+        budget: editingProject.budget ? parseFloat(editingProject.budget) : undefined,
+        deadline: editingProject.deadline
+          ? new Date(editingProject.deadline).toISOString()
+          : undefined,
+        category_id: editingProject.category_id
+          ? parseInt(editingProject.category_id)
+          : undefined,
+        skills_required: editingProject.skills_required
+          ? editingProject.skills_required
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : undefined,
+        priority: editingProject.priority,
+        status: mapLocalToApiStatus(editingProject.status),
+      };
+
+      // Eliminar claves undefined para evitar sobreescrituras indeseadas
+      Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
+
+      await updateProject(editingProject.id, payload);
+      setShowEditModal(false);
+      alert("Proyecto actualizado exitosamente");
+    } catch (error) {
+      console.error("Error actualizando proyecto:", error);
+      alert(error?.message || "Error al actualizar el proyecto. Inténtalo de nuevo.");
     }
   };
 
@@ -740,8 +878,9 @@ const PostsDeProyectos = () => {
                   </div>
                   <div
                     className="action"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleEditProject(project)}
+                    style={{ cursor: project.canEdit ? "pointer" : "not-allowed", opacity: project.canEdit ? 1 : 0.5 }}
+                    onClick={() => project.canEdit && handleEditProject(project)}
+                    title={project.canEdit ? "Editar" : "Solo el Project Manager dueño (o admin) puede editar"}
                   >
                     <span className="action-icon">
                       <i className="ri-edit-line"></i>
@@ -949,7 +1088,7 @@ const PostsDeProyectos = () => {
                     <option value="low">Baja</option>
                     <option value="medium">Media</option>
                     <option value="high">Alta</option>
-                    <option value="urgent">Urgente</option>
+                    {/** Urgente removido: no soportado por backend (usa high) **/}
                   </select>
                 </div>
               </div>
@@ -1013,6 +1152,136 @@ const PostsDeProyectos = () => {
                   disabled={creatingProject}
                 >
                   {creatingProject ? "Creando..." : "Crear Proyecto"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditModal && (
+        <div className="modal-overlay" onClick={handleCloseEditModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Editar Proyecto</h3>
+              <button className="close-btn" onClick={handleCloseEditModal}>
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitEdit} className="project-form">
+              <div className="form-group">
+                <label htmlFor="edit_title">Título del Proyecto *</label>
+                <input
+                  type="text"
+                  id="edit_title"
+                  value={editingProject.title}
+                  onChange={(e) => handleEditInputChange("title", e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit_description">Descripción *</label>
+                <textarea
+                  id="edit_description"
+                  value={editingProject.description}
+                  onChange={(e) => handleEditInputChange("description", e.target.value)}
+                  rows="4"
+                  required
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="edit_budget">Presupuesto ($) *</label>
+                  <input
+                    type="number"
+                    id="edit_budget"
+                    value={editingProject.budget}
+                    onChange={(e) => handleEditInputChange("budget", e.target.value)}
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit_priority">Prioridad</label>
+                  <select
+                    id="edit_priority"
+                    value={editingProject.priority}
+                    onChange={(e) => handleEditInputChange("priority", e.target.value)}
+                  >
+                    <option value="low">Baja</option>
+                    <option value="medium">Media</option>
+                    <option value="high">Alta</option>
+                    {/** Urgente removido: backend usa 'high' en su lugar **/}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="edit_deadline">Fecha Límite</label>
+                  <input
+                    type="date"
+                    id="edit_deadline"
+                    value={editingProject.deadline}
+                    onChange={(e) => handleEditInputChange("deadline", e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit_category_id">Categoría</label>
+                  <select
+                    id="edit_category_id"
+                    value={editingProject.category_id}
+                    onChange={(e) => handleEditInputChange("category_id", e.target.value)}
+                  >
+                    <option value="">Selecciona una categoría</option>
+                    <option value="1">Desarrollo Web</option>
+                    <option value="2">Desarrollo Móvil</option>
+                    <option value="3">Diseño</option>
+                    <option value="4">Marketing</option>
+                    <option value="5">Redacción</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="edit_status">Estado</label>
+                  <select
+                    id="edit_status"
+                    value={editingProject.status}
+                    onChange={(e) => handleEditInputChange("status", e.target.value)}
+                  >
+                    <option value="abierto">Abierto</option>
+                    <option value="en-progreso">En Progreso</option>
+                    <option value="completado">Completado</option>
+                    <option value="cerrado">Cerrado</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit_skills_required">Habilidades</label>
+                  <input
+                    type="text"
+                    id="edit_skills_required"
+                    value={editingProject.skills_required}
+                    onChange={(e) => handleEditInputChange("skills_required", e.target.value)}
+                    placeholder="React, Node.js, MongoDB (separadas por comas)"
+                  />
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button type="button" className="cancel-btn" onClick={handleCloseEditModal}>
+                  Cancelar
+                </button>
+                <button type="submit" className="submit-btn">
+                  Guardar Cambios
                 </button>
               </div>
             </form>

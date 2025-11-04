@@ -7,12 +7,49 @@ import { useAuth } from "../hooks/useAuth.js";
 const API = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:3000";
 
 const Calendario = () => {
-  const { authenticatedFetch } = useAuth();
+  const { authenticatedFetch, user, isAuthenticated, isLoading } = useAuth();
   const [projects, setProjects] = React.useState([]);
   const [loadingProjects, setLoadingProjects] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
 
+  // Mostrar mensaje si no está autenticado
+  // Evitar doble ejecución en StrictMode (dev)
+  const eventsFetchedRef = React.useRef(false);
+
+  if (!isLoading && !isAuthenticated) {
+    return (
+      <Layout>
+        <div style={{
+          padding: '40px',
+          textAlign: 'center',
+          maxWidth: '600px',
+          margin: '0 auto'
+        }}>
+          <h2>🔒 Acceso Restringido</h2>
+          <p>Debes iniciar sesión para acceder al calendario.</p>
+          <button
+            onClick={() => window.location.href = '/login'}
+            style={{
+              marginTop: '20px',
+              padding: '10px 20px',
+              fontSize: '16px',
+              cursor: 'pointer'
+            }}
+          >
+            Ir al Login
+          </button>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Evitar doble ejecución en StrictMode (dev)
+  const projectsFetchedRef = React.useRef(false);
   React.useEffect(() => {
+    if (!isAuthenticated) return;
+    if (projectsFetchedRef.current) return;
+    projectsFetchedRef.current = true;
+
     const fetchProjects = async () => {
       try {
         const res = await authenticatedFetch(`${API}/projects`);
@@ -20,8 +57,8 @@ const Calendario = () => {
         const list = Array.isArray(data)
           ? data
           : Array.isArray(data.data)
-          ? data.data
-          : [];
+            ? data.data
+            : [];
         setProjects(list);
       } catch (err) {
         console.error("Error al cargar proyectos:", err);
@@ -31,7 +68,8 @@ const Calendario = () => {
       }
     };
     fetchProjects();
-  }, [authenticatedFetch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]); // Solo ejecutar cuando cambie autenticación
   const [eventos, setEventos] = React.useState([]);
   const [mesVisualizando, setMesVisualizando] = React.useState(8);
   const [nuevoEvento, setNuevoEvento] = React.useState({
@@ -138,28 +176,48 @@ const Calendario = () => {
 
   const fetchEventos = React.useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/events`);
+      // Incluir eventos públicos además de los del usuario autenticado
+      const res = await authenticatedFetch(`${API}/api/events?include_public=true`);
+
+      if (res.status === 401 || res.status === 403) {
+        console.warn('⚠️ No autenticado o token expirado. Redirigiendo al login...');
+        // El authService ya maneja el logout y redirección
+        return;
+      }
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const normalizados = Array.isArray(data)
-        ? data.map((e) => ({
-            ...e,
-            day: Number(e.day),
-            month: Number(e.month),
-            year: Number(e.year),
-            title: e.title ?? "",
-          }))
-        : [];
+      const json = await res.json();
+      const list = Array.isArray(json)
+        ? json
+        : Array.isArray(json?.data)
+          ? json.data
+          : [];
+      const normalizados = list.map((e) => ({
+        ...e,
+        day: Number(e.day),
+        month: Number(e.month),
+        year: Number(e.year),
+        title: e.title ?? "",
+      }));
       setEventos(normalizados);
     } catch (err) {
       console.error("Error al cargar eventos:", err);
+      if (err.message === 'Sesión expirada') {
+        console.warn('🔒 Sesión expirada, redirigiendo al login');
+      }
       setEventos([]);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Sin dependencias - authenticatedFetch es estable en useAuth
 
   React.useEffect(() => {
+    if (!isAuthenticated) return;
+    if (eventsFetchedRef.current) return;
+    eventsFetchedRef.current = true;
     fetchEventos();
-  }, [fetchEventos]);
+  }, [isAuthenticated, fetchEventos]);
+
+
 
   React.useEffect(() => {
     if (!eventoEditando) {
@@ -232,17 +290,27 @@ const Calendario = () => {
       : `${API}/api/events`;
     const method = eventoEditando ? "PUT" : "POST";
 
+    // El backend toma el usuario del token; no enviar user_id hardcodeado
     const eventoParaEnviar = {
-      ...nuevoEvento,
-      user_id: 1,
+      title: String(nuevoEvento.title || "").trim(),
+      day: Number(nuevoEvento.day),
+      month: Number(nuevoEvento.month),
+      year: Number(nuevoEvento.year),
+      // Campos opcionales si más adelante se agregan al formulario:
+      // description, location, event_time, category, is_public
     };
 
     try {
-      const response = await fetch(url, {
+      const response = await authenticatedFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(eventoParaEnviar),
       });
+
+      if (response.status === 401 || response.status === 403) {
+        alert('⚠️ Sesión expirada o sin permisos. Por favor, inicia sesión nuevamente.');
+        return;
+      }
 
       if (response.ok) {
         setShowModal(false);
@@ -266,7 +334,11 @@ const Calendario = () => {
       }
     } catch (error) {
       console.error("Error de conexión:", error);
-      alert("Error de conexión con el servidor");
+      if (error.message === 'Sesión expirada') {
+        alert('🔒 Tu sesión ha expirado. Serás redirigido al login.');
+      } else {
+        alert("Error de conexión con el servidor");
+      }
     }
   };
 
@@ -276,7 +348,13 @@ const Calendario = () => {
     }
 
     try {
-      const res = await fetch(`${API}/api/events/${id}`, { method: "DELETE" });
+      const res = await authenticatedFetch(`${API}/api/events/${id}`, { method: "DELETE" });
+
+      if (res.status === 401 || res.status === 403) {
+        alert('⚠️ No tienes permisos para eliminar este evento o tu sesión expiró.');
+        return;
+      }
+
       if (res.ok) {
         await fetchEventos();
         alert("Evento eliminado correctamente");
@@ -287,7 +365,11 @@ const Calendario = () => {
       }
     } catch (error) {
       console.error("Error de conexión al eliminar:", error);
-      alert("Error de conexión al eliminar el evento");
+      if (error.message === 'Sesión expirada') {
+        alert('🔒 Tu sesión ha expirado.');
+      } else {
+        alert("Error de conexión al eliminar el evento");
+      }
     }
   };
 
@@ -561,9 +643,9 @@ const Calendario = () => {
                             const isSelected =
                               vista === "month"
                                 ? mesVisualizando - 1 === idx &&
-                                  yearPicker === nuevoEvento.year
+                                yearPicker === nuevoEvento.year
                                 : anchorDate.getMonth() === idx &&
-                                  yearPicker === anchorDate.getFullYear();
+                                yearPicker === anchorDate.getFullYear();
                             return (
                               <button
                                 key={m}
@@ -874,192 +956,192 @@ const Calendario = () => {
             >
               {vista === "month"
                 ? diasMes.map((dia) => {
-                    const eventosDelDia = Array.isArray(filteredEventos)
-                      ? filteredEventos.filter(
-                          (e) =>
-                            Number(e.day) === dia &&
-                            Number(e.month) === mesVisualizando &&
-                            Number(e.year) === Number(nuevoEvento.year)
+                  const eventosDelDia = Array.isArray(filteredEventos)
+                    ? filteredEventos.filter(
+                      (e) =>
+                        Number(e.day) === dia &&
+                        Number(e.month) === mesVisualizando &&
+                        Number(e.year) === Number(nuevoEvento.year)
+                    )
+                    : [];
+
+                  const clases = ["day-cell"];
+                  if (esHoy(dia)) clases.push("hoy");
+                  if (eventosDelDia.length > 0) clases.push("evento-dia");
+                  const activo = diaActivo === dayKey(dia);
+
+                  return (
+                    <div
+                      key={`m-${dia}`}
+                      className={clases.join(" ")}
+                      style={{
+                        position: "relative",
+                        minWidth: 0,
+                        overflow: "visible",
+                      }}
+                      onClick={() =>
+                        setDiaActivo((prev) =>
+                          prev === dayKey(dia) ? null : dayKey(dia)
                         )
-                      : [];
-
-                    const clases = ["day-cell"];
-                    if (esHoy(dia)) clases.push("hoy");
-                    if (eventosDelDia.length > 0) clases.push("evento-dia");
-                    const activo = diaActivo === dayKey(dia);
-
-                    return (
-                      <div
-                        key={`m-${dia}`}
-                        className={clases.join(" ")}
-                        style={{
-                          position: "relative",
-                          minWidth: 0,
-                          overflow: "visible",
-                        }}
-                        onClick={() =>
-                          setDiaActivo((prev) =>
-                            prev === dayKey(dia) ? null : dayKey(dia)
-                          )
-                        }
-                      >
-                        <div>{dia}</div>
-                        {eventosDelDia.map((evento) => (
-                          <div
-                            key={
-                              evento.id ??
-                              `${evento.title}-${evento.day}-${evento.month}-${evento.year}`
-                            }
-                            className="evento"
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "6px",
-                            }}
-                          >
-                            <span className="evento-title">{evento.title}</span>
-                            {activo && !isProjectEvent(evento) && (
-                              <div
-                                className="evento-actions-overlay"
-                                style={{
-                                  position: "absolute",
-                                  top: -8,
-                                  right: -8,
-                                  background: "rgba(255,255,255,0.98)",
-                                  borderRadius: "8px",
-                                  padding: "6px 8px",
-                                  display: "flex",
-                                  gap: "8px",
-                                  boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
-                                  zIndex: 3000,
-                                  pointerEvents: "auto",
+                      }
+                    >
+                      <div>{dia}</div>
+                      {eventosDelDia.map((evento) => (
+                        <div
+                          key={
+                            evento.id ??
+                            `${evento.title}-${evento.day}-${evento.month}-${evento.year}`
+                          }
+                          className="evento"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <span className="evento-title">{evento.title}</span>
+                          {activo && !isProjectEvent(evento) && (
+                            <div
+                              className="evento-actions-overlay"
+                              style={{
+                                position: "absolute",
+                                top: -8,
+                                right: -8,
+                                background: "rgba(255,255,255,0.98)",
+                                borderRadius: "8px",
+                                padding: "6px 8px",
+                                display: "flex",
+                                gap: "8px",
+                                boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
+                                zIndex: 3000,
+                                pointerEvents: "auto",
+                              }}
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEventoEditando(evento);
+                                  setNuevoEvento({
+                                    title: evento.title,
+                                    day: Number(evento.day),
+                                    month: Number(evento.month),
+                                    year: Number(evento.year),
+                                  });
+                                  setShowModal(true);
                                 }}
+                                title="Editar"
                               >
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setEventoEditando(evento);
-                                    setNuevoEvento({
-                                      title: evento.title,
-                                      day: Number(evento.day),
-                                      month: Number(evento.month),
-                                      year: Number(evento.year),
-                                    });
-                                    setShowModal(true);
-                                  }}
-                                  title="Editar"
-                                >
-                                  ✏️
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    eliminarEvento(evento.id);
-                                  }}
-                                  title="Eliminar"
-                                >
-                                  🗑️
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })
+                                ✏️
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  eliminarEvento(evento.id);
+                                }}
+                                title="Eliminar"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })
                 : weekDays.map(({ day, month, year }) => {
-                    const eventosDelDia = Array.isArray(filteredEventos)
-                      ? filteredEventos.filter(
-                          (e) =>
-                            Number(e.day) === day &&
-                            Number(e.month) === month &&
-                            Number(e.year) === year
-                        )
-                      : [];
+                  const eventosDelDia = Array.isArray(filteredEventos)
+                    ? filteredEventos.filter(
+                      (e) =>
+                        Number(e.day) === day &&
+                        Number(e.month) === month &&
+                        Number(e.year) === year
+                    )
+                    : [];
 
-                    const clases = ["day-cell"];
-                    if (esHoy(day, month, year)) clases.push("hoy");
-                    if (eventosDelDia.length > 0) clases.push("evento-dia");
-                    const key = dayKey(day, month, year);
-                    const activo = diaActivo === key;
+                  const clases = ["day-cell"];
+                  if (esHoy(day, month, year)) clases.push("hoy");
+                  if (eventosDelDia.length > 0) clases.push("evento-dia");
+                  const key = dayKey(day, month, year);
+                  const activo = diaActivo === key;
 
-                    return (
-                      <div
-                        key={`w-${key}`}
-                        className={clases.join(" ")}
-                        style={{
-                          position: "relative",
-                          minWidth: 0,
-                          overflow: "visible",
-                        }}
-                        onClick={() =>
-                          setDiaActivo((prev) => (prev === key ? null : key))
-                        }
-                      >
-                        <div>{day}</div>
-                        {eventosDelDia.map((evento) => (
-                          <div
-                            key={
-                              evento.id ??
-                              `${evento.title}-${evento.day}-${evento.month}-${evento.year}`
-                            }
-                            className="evento"
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "6px",
-                            }}
-                          >
-                            <span className="evento-title">{evento.title}</span>
-                            {activo && !isProjectEvent(evento) && (
-                              <div
-                                className="evento-actions-overlay"
-                                style={{
-                                  position: "absolute",
-                                  top: -8,
-                                  right: -8,
-                                  background: "rgba(255,255,255,0.98)",
-                                  borderRadius: "8px",
-                                  padding: "6px 8px",
-                                  display: "flex",
-                                  gap: "8px",
-                                  boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
-                                  zIndex: 3000,
-                                  pointerEvents: "auto",
+                  return (
+                    <div
+                      key={`w-${key}`}
+                      className={clases.join(" ")}
+                      style={{
+                        position: "relative",
+                        minWidth: 0,
+                        overflow: "visible",
+                      }}
+                      onClick={() =>
+                        setDiaActivo((prev) => (prev === key ? null : key))
+                      }
+                    >
+                      <div>{day}</div>
+                      {eventosDelDia.map((evento) => (
+                        <div
+                          key={
+                            evento.id ??
+                            `${evento.title}-${evento.day}-${evento.month}-${evento.year}`
+                          }
+                          className="evento"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <span className="evento-title">{evento.title}</span>
+                          {activo && !isProjectEvent(evento) && (
+                            <div
+                              className="evento-actions-overlay"
+                              style={{
+                                position: "absolute",
+                                top: -8,
+                                right: -8,
+                                background: "rgba(255,255,255,0.98)",
+                                borderRadius: "8px",
+                                padding: "6px 8px",
+                                display: "flex",
+                                gap: "8px",
+                                boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
+                                zIndex: 3000,
+                                pointerEvents: "auto",
+                              }}
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEventoEditando(evento);
+                                  setNuevoEvento({
+                                    title: evento.title,
+                                    day: Number(evento.day),
+                                    month: Number(evento.month),
+                                    year: Number(evento.year),
+                                  });
+                                  setShowModal(true);
                                 }}
+                                title="Editar"
                               >
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setEventoEditando(evento);
-                                    setNuevoEvento({
-                                      title: evento.title,
-                                      day: Number(evento.day),
-                                      month: Number(evento.month),
-                                      year: Number(evento.year),
-                                    });
-                                    setShowModal(true);
-                                  }}
-                                  title="Editar"
-                                >
-                                  ✏️
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    eliminarEvento(evento.id);
-                                  }}
-                                  title="Eliminar"
-                                >
-                                  🗑️
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })}
+                                ✏️
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  eliminarEvento(evento.id);
+                                }}
+                                title="Eliminar"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
             </div>
           </div>
         </section>
@@ -1119,11 +1201,11 @@ const Calendario = () => {
                 if (loadingProjects) return <li>Cargando proyectos…</li>;
                 const recientes = Array.isArray(projects)
                   ? projects
-                      .filter((p) => p && p.title && p.deadline)
-                      .sort(
-                        (a, b) => new Date(b.deadline) - new Date(a.deadline)
-                      )
-                      .slice(0, 6)
+                    .filter((p) => p && p.title && p.deadline)
+                    .sort(
+                      (a, b) => new Date(b.deadline) - new Date(a.deadline)
+                    )
+                    .slice(0, 6)
                   : [];
                 if (recientes.length === 0)
                   return <li>No hay proyectos recientes</li>;

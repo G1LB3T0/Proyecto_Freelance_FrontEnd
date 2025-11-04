@@ -144,7 +144,7 @@ const PostsDeProyectos = () => {
   const handleEditProject = (project) => {
     console.log("✏️ Editando proyecto:", project);
     if (!project.canEdit) {
-      alert("No tienes permisos para editar este proyecto. Requiere ser Project Manager y dueño del proyecto (o admin).");
+      alert("No tienes permisos para editar este proyecto. Debes ser el dueño (cliente o PM) o admin.");
       return;
     }
     setSelectedProject(project);
@@ -382,7 +382,7 @@ const PostsDeProyectos = () => {
         console.log("🔄 Mapeando proyecto:", project);
         const ownerId = project.client_id || project.clientId;
         const isOwner = user && (user.id === ownerId || user.user_type === "admin");
-        const hasEditRole = user && (user.user_type === "project_manager" || user.user_type === "admin");
+  const hasEditRole = user && (user.user_type === "client" || user.user_type === "project_manager" || user.user_type === "admin");
         const canEdit = Boolean(isOwner && hasEditRole);
         return {
           id: project.id,
@@ -880,7 +880,7 @@ const PostsDeProyectos = () => {
                     className="action"
                     style={{ cursor: project.canEdit ? "pointer" : "not-allowed", opacity: project.canEdit ? 1 : 0.5 }}
                     onClick={() => project.canEdit && handleEditProject(project)}
-                    title={project.canEdit ? "Editar" : "Solo el Project Manager dueño (o admin) puede editar"}
+                    title={project.canEdit ? "Editar" : "Solo el dueño (cliente o PM) o admin puede editar"}
                   >
                     <span className="action-icon">
                       <i className="ri-edit-line"></i>

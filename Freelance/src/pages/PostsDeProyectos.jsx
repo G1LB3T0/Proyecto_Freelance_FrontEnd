@@ -141,10 +141,31 @@ const PostsDeProyectos = () => {
     );
   };
 
+  // Helpers para calcular permisos en tiempo real (evita valores obsoletos tras F5)
+  const getUserAccess = () => {
+    const userId = user?.id != null ? Number(user.id) : null;
+    const userType = (user?.user_type || "").toLowerCase();
+    const allowedRoles = ["client", "project_manager", "admin"];
+    return { userId, userType, allowedRoles };
+  };
+
+  const isOwnerNow = (project) => {
+    const { userId, userType } = getUserAccess();
+    const ownerId = project.ownerId != null
+      ? Number(project.ownerId)
+      : Number(project.client_id ?? project.clientId);
+    return !!user && (userType === "admin" || (userId != null && ownerId != null && userId === ownerId));
+  };
+
+  const canEditNow = (project) => {
+    const { userType, allowedRoles } = getUserAccess();
+    return isOwnerNow(project) && allowedRoles.includes(userType);
+  };
+
   const handleEditProject = (project) => {
     console.log("✏️ Editando proyecto:", project);
-    if (!project.canEdit) {
-      alert("No tienes permisos para editar este proyecto. Requiere ser Project Manager y dueño del proyecto (o admin).");
+    if (!canEditNow(project)) {
+      alert("No tienes permisos para editar este proyecto. Debes ser el dueño (cliente o PM) o admin.");
       return;
     }
     setSelectedProject(project);
@@ -168,6 +189,7 @@ const PostsDeProyectos = () => {
       priority: "medium",
       category_id: "",
       status: normalizedStatus,
+      progress: typeof project.progress === "number" ? project.progress : 0,
     });
 
     setShowEditModal(true);
@@ -380,10 +402,21 @@ const PostsDeProyectos = () => {
 
       const mapProject = (project) => {
         console.log("🔄 Mapeando proyecto:", project);
-        const ownerId = project.client_id || project.clientId;
-        const isOwner = user && (user.id === ownerId || user.user_type === "admin");
-        const hasEditRole = user && (user.user_type === "project_manager" || user.user_type === "admin");
+        const ownerId = Number(project.client_id ?? project.clientId);
+        const userId = user?.id != null ? Number(user.id) : null;
+        const userType = (user?.user_type || "").toLowerCase();
+        const isOwner = !!user && (userId === ownerId || userType === "admin");
+        const hasEditRole = ["client", "project_manager", "admin"].includes(userType);
         const canEdit = Boolean(isOwner && hasEditRole);
+        const computedProgress = calculateProgress(
+          project.status,
+          project.start_date || project.startDate,
+          project.end_date || project.endDate
+        );
+        const progress =
+          typeof project.progress === "number" && project.progress >= 0 && project.progress <= 100
+            ? project.progress
+            : computedProgress;
         return {
           id: project.id,
           ownerId,
@@ -406,11 +439,7 @@ const PostsDeProyectos = () => {
           budget: project.budget ? `$${project.budget}` : "No especificado",
           icon: getProjectIcon(project.category || project.title),
           image_url: project.image_url || null,
-          progress: calculateProgress(
-            project.status,
-            project.start_date || project.startDate,
-            project.end_date || project.endDate
-          ),
+          progress,
         };
       };
 
@@ -591,6 +620,9 @@ const PostsDeProyectos = () => {
           : undefined,
         priority: editingProject.priority,
         status: mapLocalToApiStatus(editingProject.status),
+        progress: (editingProject.progress !== undefined && editingProject.progress !== null && editingProject.progress !== "")
+          ? Math.max(0, Math.min(100, parseInt(editingProject.progress, 10)))
+          : undefined,
       };
 
       // Eliminar claves undefined para evitar sobreescrituras indeseadas
@@ -878,9 +910,9 @@ const PostsDeProyectos = () => {
                   </div>
                   <div
                     className="action"
-                    style={{ cursor: project.canEdit ? "pointer" : "not-allowed", opacity: project.canEdit ? 1 : 0.5 }}
-                    onClick={() => project.canEdit && handleEditProject(project)}
-                    title={project.canEdit ? "Editar" : "Solo el Project Manager dueño (o admin) puede editar"}
+                    style={{ cursor: canEditNow(project) ? "pointer" : "not-allowed", opacity: canEditNow(project) ? 1 : 0.5 }}
+                    onClick={() => canEditNow(project) && handleEditProject(project)}
+                    title={canEditNow(project) ? "Editar" : "Solo el dueño (cliente o PM) o admin puede editar"}
                   >
                     <span className="action-icon">
                       <i className="ri-edit-line"></i>
@@ -1272,6 +1304,20 @@ const PostsDeProyectos = () => {
                     value={editingProject.skills_required}
                     onChange={(e) => handleEditInputChange("skills_required", e.target.value)}
                     placeholder="React, Node.js, MongoDB (separadas por comas)"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="edit_progress">Progreso (%)</label>
+                  <input
+                    type="number"
+                    id="edit_progress"
+                    min="0"
+                    max="100"
+                    value={editingProject.progress ?? 0}
+                    onChange={(e) => handleEditInputChange("progress", e.target.value)}
                   />
                 </div>
               </div>

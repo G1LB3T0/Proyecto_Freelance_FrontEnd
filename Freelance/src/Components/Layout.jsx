@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";
 import "../styles/Layout.css";
+import authService from "../services/authService";
 
 const Layout = ({
   children,
@@ -12,6 +13,7 @@ const Layout = ({
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [appLanguage, setAppLanguage] = useState(
     localStorage.getItem("appLanguage") || "es"
   );
@@ -193,6 +195,18 @@ const Layout = ({
     }
   };
 
+  // Cerrar menú de usuario al hacer clic fuera
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      const container = document.querySelector('.user-menu');
+      if (container && !container.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('click', onClickOutside);
+    return () => document.removeEventListener('click', onClickOutside);
+  }, []);
+
   // ✅ NUEVO - Handler para búsqueda
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -370,7 +384,12 @@ const Layout = ({
               </select>
             </div>
             <div className="user-menu">
-              <span className="user-avatar">
+              <span
+                className="user-avatar"
+                onClick={() => setShowUserMenu((v) => !v)}
+                style={{ cursor: 'pointer' }}
+                title="Menú de usuario"
+              >
                 {currentUser?.avatar ? (
                   <img
                     src={currentUser.avatar}
@@ -386,9 +405,28 @@ const Layout = ({
                   <i className="ri-user-line" aria-hidden="true"></i>
                 )}
               </span>
-              <span className="dropdown-arrow">
+              <span
+                className="dropdown-arrow"
+                onClick={() => setShowUserMenu((v) => !v)}
+                style={{ cursor: 'pointer' }}
+                aria-label="Abrir menú de usuario"
+              >
                 <i className="ri-arrow-down-s-line" aria-hidden="true"></i>
               </span>
+
+              {showUserMenu && (
+                <div className="user-dropdown" role="menu" aria-label="Menú de usuario">
+                  {/* Futuro: <button className="user-dropdown-item" role="menuitem">Perfil</button> */}
+                  <button
+                    className="user-dropdown-item"
+                    role="menuitem"
+                    onClick={() => authService.logout()}
+                  >
+                    <i className="ri-logout-box-r-line" aria-hidden="true" style={{ marginRight: 8 }}></i>
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>

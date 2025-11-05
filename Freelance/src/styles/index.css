@@ -30,6 +30,21 @@ body {
   min-height: 100vh;
 }
 
+/* Force readable text in form controls across the app (fixes white-on-white text) */
+input,
+textarea,
+select {
+  color: #111 !important;
+  background-color: #fff !important;
+  caret-color: #111;
+  color-scheme: light; /* keep controls in light mode even if OS is dark */
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280; /* slate-500 */
+}
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;

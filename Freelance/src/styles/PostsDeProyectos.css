@@ -1,4 +1,3 @@
-v
 /* PostsDeProyectos.css - Layout de 3 columnas para proyectos */
 
 /* ==========================
@@ -1141,6 +1140,8 @@ v
   font-size: 14px;
   transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
+  color: var(--color-dark);
+  background-color: #fff;
 }
 
 .form-group input:focus,

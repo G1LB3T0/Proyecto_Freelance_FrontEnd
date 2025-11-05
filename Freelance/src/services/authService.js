@@ -130,7 +130,7 @@ class AuthService {
             console.log('Sesión cerrada exitosamente');
 
             // Opcional: Redirigir al login
-            window.location.href = '/login';
+            window.location.href = '/home';
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
         }

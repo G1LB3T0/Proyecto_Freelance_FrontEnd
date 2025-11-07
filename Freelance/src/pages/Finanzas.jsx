@@ -5,7 +5,7 @@ import "../styles/Finanzas.css";
 import { useAuth } from "../hooks/useAuth.js";
 
 const Finanzas = () => {
-  const { authenticatedFetch, user } = useAuth();
+  const { authenticatedFetch, user, isAuthenticated } = useAuth();
   const API = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:3000";
   const GTQ = new Intl.NumberFormat("es-GT", { style: "currency", currency: "GTQ" });
 
@@ -34,8 +34,12 @@ const Finanzas = () => {
   ]);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Evitar doble ejecución bajo StrictMode y recargar cuando cambie el usuario autenticado
+  const financeFetchedRef = React.useRef(null);
   useEffect(() => {
-    if (!user?.id) return;
+    if (!isAuthenticated || !user?.id) return;
+    if (financeFetchedRef.current === user.id) return;
+    financeFetchedRef.current = user.id;
 
     const normalizeTx = (t) => ({
       id: t.id,
@@ -55,6 +59,13 @@ const Finanzas = () => {
           authenticatedFetch(`${API}/api/finance/user/${user.id}/dashboard`),
           authenticatedFetch(`${API}/api/finance/categories`),
         ]);
+
+        // Manejo 401/403 centralizado
+        if ([txRes, dashRes, catRes].some(r => r?.status === 401 || r?.status === 403)) {
+          setSummaryLoading(false);
+          console.warn('⚠️ Sesión expirada o sin permisos en Finanzas.');
+          return;
+        }
 
         // Dashboard / Summary (opcional si backend lo expone)
         if (dashRes.ok) {
@@ -131,7 +142,8 @@ const Finanzas = () => {
         console.error("Error cargando finanzas:", e);
       }
     })();
-  }, [API, authenticatedFetch, user?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user?.id]);
 
   const resumenFinanciero = useMemo(() => {
     const now = new Date();
@@ -252,6 +264,11 @@ const Finanzas = () => {
         body: JSON.stringify(payload),
       });
 
+      if (res.status === 401 || res.status === 403) {
+        alert('⚠️ Sesión expirada o sin permisos. Vuelve a iniciar sesión.');
+        return;
+      }
+
       if (!res.ok) {
         const t = await res.text();
         throw new Error(t ? `${res.status}: ${t}` : `HTTP ${res.status}`);
@@ -367,8 +384,8 @@ const Finanzas = () => {
   }, [transacciones]);
 
   return (
-    <Layout 
-      currentPage="finance" 
+    <Layout
+      currentPage="finance"
       searchPlaceholder="Buscar transacciones, clientes o categorías..."
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}

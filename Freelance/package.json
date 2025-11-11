@@ -18,9 +18,10 @@
     "@fullcalendar/react": "^6.1.17",
     "chart.js": "^4.4.0",
     "i18next": "^23.0.1",
-    "react-i18next": "^13.0.0",
     "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.0.0",
+    "react-i18next": "^13.0.0",
     "react-router-dom": "^6.x.x"
   },
   "devDependencies": {

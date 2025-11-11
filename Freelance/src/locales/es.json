@@ -1,0 +1,412 @@
+{
+  "app": { "title": "FreelanceHub" },
+  "greeting": "Bienvenido/a",
+  "top": { "searchPlaceholder": "Buscar..." },
+  "premium": { "upgrade": "Actualizar a Premium" },
+  "settings": {
+    "title": "Configuración",
+    "description": "Personaliza tu experiencia en la plataforma",
+  "language": { "title": "Idioma", "interface": "Idioma de la interfaz", "saveError": "No fue posible guardar la configuración de idioma. Intenta de nuevo." },
+    "saveChanges": "Guardar cambios",
+    "loading": "Cargando configuración...",
+    "filterHint": { "prefix": "Mostrando pestañas que coinciden con" },
+    "noTabsFound": "No se encontraron pestañas para \"{{query}}\".",
+    "viewAll": "Ver todas",
+    "tabs": {
+      "profile": "Perfil",
+      "notifications": "Notificaciones",
+      "privacy": "Privacidad",
+      "language": "Idioma",
+      "billing": "Facturación",
+      "data": "Datos"
+    },
+    "searchPlaceholder": "Buscar en configuración...",
+    "profile": {
+      "title": "Información del Perfil",
+      "photoLabel": "Foto de Perfil",
+      "changePhoto": "Cambiar foto",
+      "avatarHelp": "JPG, PNG o GIF. Máximo 2MB.",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "emailHelp": "Asegúrate de usar un email válido",
+      "username": "Usuario",
+      "usernameHelp": "Solo letras, números y guiones bajos",
+      "usernamePlaceholder": "nombre_usuario",
+      "phone": "Teléfono",
+      "location": "Ubicación",
+      "socialTitle": "Enlaces Sociales",
+      "bioLabel": "Biografía",
+      "bioHelp": "Cuéntanos un poco sobre ti y tu trabajo",
+      "website": "Sitio web",
+      "websitePlaceholder": "www.tusitio.com",
+      "linkedin": "LinkedIn",
+      "linkedinPlaceholder": "linkedin.com/in/tuusuario",
+      "github": "GitHub",
+      "githubPlaceholder": "github.com/tuusuario",
+      "validation": {
+        "emailInvalid": "El email no tiene un formato válido",
+        "usernameInvalidChars": "El usuario solo puede contener letras, números y guiones bajos",
+        "usernameTooShort": "El usuario debe tener al menos 3 caracteres"
+      },
+      "saveError": "Error al guardar los cambios. Inténtalo de nuevo.",
+      "avatarUploadError": "Error al subir la imagen. Inténtalo de nuevo."
+    },
+    "password": {
+      "title": "Cambiar Contraseña",
+      "update": "Actualizar contraseña",
+      "updating": "Actualizando...",
+      "currentLabel": "Contraseña actual",
+      "newLabel": "Nueva contraseña",
+      "confirmLabel": "Confirmar nueva contraseña",
+      "messages": {
+        "mismatch": "Las contraseñas no coinciden",
+        "tooShort": "La contraseña debe tener al menos 8 caracteres",
+        "changeError": "Error al cambiar la contraseña"
+      }
+    },
+    "saving": "Guardando...",
+    "saved": "Guardado",
+    "loadError": "Error cargando la configuración del usuario. Inténtalo de nuevo."
+  },
+  "login": {
+    "title": "Iniciar Sesión",
+    "welcome": "Bienvenido de nuevo",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "usuario@ejemplo.com",
+    "passwordLabel": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme",
+    "signingIn": "Iniciando sesión...",
+    "signIn": "Iniciar sesión",
+    "noAccount": "¿No tienes cuenta? ",
+    "registerNow": "Regístrate ahora",
+    "continueWith": "O continúa con",
+    "social": { "google": "Google", "github": "GitHub", "microsoft": "Microsoft" },
+    "messages": { "successRedirect": "Login exitoso - Redirigiendo...", "errorLogin": "Error al iniciar sesión", "errorConnection": "Error de conexión con el servidor" }
+  },
+  "register": {
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "emailLabel": "Correo electrónico",
+    "usernameLabel": "Nombre de usuario",
+    "placeholders": { "firstName": "Juan", "lastName": "Pérez", "email": "usuario@ejemplo.com", "username": "juanperez" },
+    "next": "Siguiente",
+    "back": "Atrás",
+    "registering": "Registrando...",
+    "createAccount": "Crear cuenta",
+    "loginLink": "Iniciar sesión",
+    "messages": { "passwordsMismatch": "Las contraseñas no coinciden", "passwordTooShort": "La contraseña debe tener al menos 8 caracteres", "success": "¡Registro exitoso! Cuenta creada." }
+  },
+  "home": {
+    "communityTitle": "Publicaciones de la Comunidad",
+    "createPostPlaceholder": "¿Qué quieres compartir hoy?",
+    "imageUrlPlaceholder": "URL de imagen (opcional)",
+    "eventsTitle": "Próximos Eventos",
+    "seeAll": "Ver Todos",
+    "noPosts": "No hay publicaciones disponibles",
+    "loading": "Cargando...",
+    "errorLoadingPosts": "Error al cargar los posts",
+    "stats": { "projects": "Proyectos", "contacts": "Contactos", "visits": "Visitas" },
+    "filters": { "recent": "Recientes", "popular": "Populares", "following": "Siguiendo" },
+    "publish": "Publicar",
+    "loadMore": "Cargar más publicaciones",
+    "premium": { "title": "Potencia tu Carrera Freelance", "desc": "Accede a clientes exclusivos y herramientas avanzadas.", "cta": "Conocer más" },
+    "suggestedContacts": "Personas que quizás conozcas",
+    "suggestionsLoading": "Cargando...",
+    "connect": "+",
+    "undefined": "Por definir",
+    "close": "Cerrar",
+    "viewInCalendar": "Ver en Calendario",
+    "sampleEvents": {
+      "1": { "title": "Webinar: Marketing Digital", "description": "Aprende las últimas estrategias de posicionamiento en redes sociales con expertos en marketing digital." },
+      "2": { "title": "Workshop de React", "description": "Taller práctico sobre React Hooks y buenas prácticas en el desarrollo frontend moderno." },
+      "3": { "title": "Networking Online", "description": "Conecta con otros freelancers y profesionales de tecnología en un encuentro virtual interactivo." }
+    }
+    ,
+    "tuActividad": "Tu Actividad",
+    "tendencias": "Tendencias"
+  },
+  "calendar": {
+    "accessRestrictedTitle": "🔒 Acceso Restringido",
+    "accessRestrictedText": "Debes iniciar sesión para acceder al calendario.",
+    "goToLogin": "Ir al Login",
+    "createEvent": "Crear evento",
+    "eventCreated": "Evento creado correctamente",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar este evento?",
+    "premium": { "title": "Mejora tu organización", "desc": "Accede a un calendario completo y gestiona tus tareas fácilmente.", "cta": "Descubrir más" },
+    "recentEventsTitle": "Eventos Recientes",
+    "noRecentEvents": "No hay eventos recientes",
+    "recentProjectsTitle": "Proyectos Recientes",
+    "loadingProjects": "Cargando proyectos…",
+    "noRecentProjects": "No hay proyectos recientes"
+    ,
+    "searchPlaceholder": "Buscar eventos...",
+    "modal": {
+      "addTitle": "Agregar evento",
+      "editTitle": "Editar evento"
+    },
+    "form": {
+      "titlePlaceholder": "Título",
+      "dayPlaceholder": "Día (1-31)",
+      "selectMonth": "Selecciona mes",
+      "months": {
+        "1": "Enero",
+        "2": "Febrero",
+        "3": "Marzo",
+        "4": "Abril",
+        "5": "Mayo",
+        "6": "Junio",
+        "7": "Julio",
+        "8": "Agosto",
+        "9": "Septiembre",
+        "10": "Octubre",
+        "11": "Noviembre",
+        "12": "Diciembre"
+      },
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "update": "Actualizar"
+    }
+  },
+  "finance": {
+    "title": "Finanzas",
+    "searchPlaceholder": "Buscar transacciones, clientes o categorías...",
+    "addTransaction": "Agregar transacción",
+    "newExpense": "+ Nuevo Gasto",
+    "newIncome": "+ Nuevo Ingreso",
+    "cards": {
+      "incomeMonth": "Ingresos del Mes",
+      "expenseMonth": "Gastos del Mes",
+      "yearlyIncome": "Ingresos Anuales"
+    },
+    "categoriesTitle": "Categorías",
+  "transactionsTitle": "Transacciones",
+    "filters": {
+      "all": "Todos",
+      "income": "Ingresos",
+      "expense": "Gastos"
+    },
+    "form": {
+      "typeLabel": "Tipo",
+      "categoryLabel": "Categoría",
+      "conceptLabel": "Concepto",
+      "conceptPlaceholder": "Descripción de la transacción",
+      "clientOptional": "Cliente (opcional)",
+      "amountLabel": "Monto (Q)",
+      "amountPlaceholder": "0.00",
+      "dateLabel": "Fecha",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "income": "Ingreso",
+      "expense": "Gasto"
+    },
+    "noTransactions": "No hay transacciones"
+  },
+  "freelancer": {
+    "panelTitle": "Panel Freelancer",
+    "kpis": { "rating": "Calificación", "completed": "Completados", "activeClients": "Clientes activos", "satisfaction": "Satisfacción" }
+  },
+  "actions": { "save": "Guardar", "saving": "Guardando...", "saved": "Guardado", "delete": "Eliminar", "confirm": "Confirmar", "edit": "Editar", "saveLanguage": "Guardar idioma", "clearSearch": "Limpiar búsqueda", "logout": "Cerrar sesión", "close": "Cerrar" },
+
+  "menu": {
+    "home": "Inicio",
+    "calendar": "Calendario",
+    "projects": "Proyectos",
+    "proposals": "Propuestas",
+    "contracts": "Contratos",
+    "finance": "Finanzas",
+    "stats": "Estadísticas",
+    "settings": "Configuración"
+  },
+
+  "notifications": {
+    "title": "Notificaciones",
+    "sample": {
+      "messageFromPancho": "Mensaje de Pancho: ¿podemos hablar sobre el alcance?",
+      "newOpportunity": "Nueva oportunidad: cliente busca diseñador UI/UX",
+      "projectPaused": "Proyecto pausado: revisión pendiente"
+    }
+  },
+
+  "roles": {
+    "project_manager": "Project Manager",
+    "freelancer": "Freelancer",
+    "client": "Cliente"
+  },
+  "posts": {
+    "searchPlaceholder": "Buscar proyectos, clientes o tecnologías...",
+    "loading": "🔄 Cargando proyectos...",
+    "connecting": "Conectando a: {{url}}",
+    "errorTitle": "❌ Error al cargar los proyectos",
+    "error": {
+      "routesTitle": "Rutas disponibles:"
+    },
+    "retry": "🔄 Reintentar",
+    "summary": { "title": "Resumen de Proyectos", "completed": "Completados", "inProgress": "En Progreso", "total": "Total" },
+    "activity": { "title": "Actividad Reciente", "items": { "completedProject": "Proyecto completado", "progressUpdate": "Actualización de progreso", "newProject": "Nuevo proyecto iniciado", "clientApproved": "Cliente aprobó propuesta", "followUpMeeting": "Reunión de seguimiento" } },
+    "actions": { "seeLess": "Ver menos", "seeAll": "Ver Todos", "seeMore": "Ver más" , "view": "Ver"},
+    "myProjects": "Mis Proyectos",
+    "shown": "mostrados",
+    "filteredByApi": "Filtrado por API",
+    "filters": { "todos": "Todos", "en-progreso": "En Progreso", "completado": "Completados", "pausado": "Pausados", "abierto": "Abiertos" },
+    "createPlaceholder": "Crear nuevo proyecto...",
+    "newProject": "+ Nuevo Proyecto",
+    "progress": "Progreso",
+    "trending": { "title": "Tecnologías Más Usadas" },
+    "upcoming": { "title": "Próximos Vencimientos" },
+    "empty": { "title": "No se encontraron proyectos", "noMatch": "No hay proyectos que coincidan con \"{{query}}\"", "tryCreate": "Intenta cambiar los filtros o crear un nuevo proyecto", "viewAll": "Ver todos", "create": "+ Crear Proyecto" },
+    "loadMore": { "loading": "Cargando...", "more": "Ver más proyectos" },
+    "viewProjectTitle": "Ver proyecto",
+    "client": "Cliente",
+    "statusLabel": "Estado",
+    "messages": {
+      "noEditPermission": "No tienes permisos para editar este proyecto. Debes ser el dueño (cliente o PM) o admin.",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar este proyecto?",
+      "loginRequired": "Debes estar logueado para crear un proyecto",
+      "fillRequired": "Por favor, completa los campos requeridos: título, descripción y presupuesto",
+      "createdSuccess": "¡Proyecto creado exitosamente!",
+      "createError": "Error al crear el proyecto. Inténtalo de nuevo.",
+      "updatedSuccess": "Proyecto actualizado exitosamente",
+      "updateError": "Error al actualizar el proyecto. Inténtalo de nuevo."
+    },
+    "modal": { "createTitle": "Crear Nuevo Proyecto", "editTitle": "Editar Proyecto" },
+    "form": {
+      "titleLabel": "Título del Proyecto",
+      "titlePlaceholder": "Ej: Desarrollo de App Móvil",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Describe los objetivos y alcance del proyecto...",
+      "budgetLabel": "Presupuesto",
+      "budgetPlaceholder": "5000",
+      "priorityLabel": "Prioridad",
+      "priority": { "low": "Baja", "medium": "Media", "high": "Alta" },
+      "skillsLabel": "Habilidades Requeridas",
+      "skillsPlaceholder": "React, Node.js, MongoDB (separadas por comas)",
+      "cancel": "Cancelar",
+      "create": "Crear Proyecto",
+      "creating": "Creando...",
+      "saveChanges": "Guardar Cambios"
+    }
+  ,
+  "statistics": {
+    "searchPlaceholder": "Buscar tareas y métricas...",
+    "title": "Dashboard de Productividad",
+    "description": "Seguimiento completo de tareas, rendimiento y métricas como freelancer",
+    "metrics": {
+      "completed": "Tareas Completadas",
+      "inProgress": "En Progreso",
+      "pending": "Pendientes",
+      "efficiency": "Eficiencia",
+      "completedToday": "+{{count}} hoy",
+      "percentOfTotalSuffix": "del total",
+      "streak": "Racha: {{days}} días"
+    },
+    "charts": {
+      "weeklyTitle": "Rendimiento Semanal",
+      "taskStateTitle": "Estado de Tareas",
+      "hourlyTitle": "Productividad por Hora",
+      "monthlyTitle": "Tendencia Mensual",
+      "weekly": {
+        "completed": "Completadas",
+        "inProgress": "En Progreso",
+        "pending": "Pendientes"
+      },
+      "hourly": {
+        "focus": "Concentración (%)",
+        "tasks": "Tareas/Hora"
+      },
+      "monthly": {
+        "completed": "Tareas Completadas",
+        "productivity": "Productividad (%)",
+        "efficiency": "Eficiencia (%)"
+      }
+    },
+    "projects": {
+      "title": "Progreso por Proyecto",
+      "noResults": "No se encontraron resultados para \"{{query}}\"",
+      "viewAll": "Ver todas",
+      "percentCompleted": "% completado",
+      "completed": "completadas",
+      "inProgress": "en progreso",
+      "pending": "pendientes"
+    },
+    "activityTitle": "Actividad de Hoy"
+  ,
+    "kpis": {
+      "finishRateTitle": "Completados / Totales",
+      "finishRate": "Tasa de finalización",
+      "completedSub": "Completados: {{completed}} / {{total}}",
+      "onTimeTitle": "Entregados en fecha",
+      "onTime": "A tiempo",
+      "byMilestones": "Según hitos",
+      "avgDurationTitle": "Duración promedio",
+      "avgDuration": "Duración promedio",
+      "days": "días",
+      "startToClose": "Inicio → cierre",
+      "revenuePerProject": "Ingreso por proyecto",
+      "average": "Promedio"
+    }
+  }
+  ,
+  "freelancerHome": {
+    "progressTitle": "Tu Progreso",
+    "profileCompleted": "Perfil completado",
+    "projectsTitle": "Proyectos",
+    "projectsSubtitle": "En tu área de interés",
+    "connectionsTitle": "Conexiones",
+    "connectionsSubtitle": "En tu red profesional",
+    "connect": "Conectar"
+  }
+  ,
+  "freelancerFinance": {
+    "cards": {
+      "incomeProjects": "Ingresos de Proyectos",
+      "operationalExpenses": "Gastos Operativos",
+      "monthlyBalance": "Balance Mensual",
+      "yearlyIncome": "Ingresos Anuales"
+    },
+    "summaryTitle": "Resumen de Proyectos"
+  }
+  ,
+  "freelancerSettings": {
+    "tabs": {
+      "freelancer": "Configuración Freelancer"
+    },
+    "profileTitle": "Perfil de Freelancer",
+    "hourlyRateLabel": "Tarifa por hora (USD)",
+    "availabilityLabel": "Disponibilidad",
+    "experienceLabel": "Años de experiencia",
+    "preferencesTitle": "Preferencias de Proyectos",
+    "autoAcceptLabel": "Aceptar proyectos automáticamente",
+    "showPortfolioLabel": "Mostrar portafolio en el perfil público",
+    "acceptTestProjectsLabel": "Aceptar proyectos de prueba",
+    "minimumProjectValueLabel": "Valor mínimo de proyecto (USD)",
+    "minimumProjectHelp": "Solo recibirás invitaciones de proyectos que superen este valor",
+    "notificationsTitle": "Notificaciones de Proyectos",
+    "notifications": {
+      "projectInvitations": "Invitaciones a proyectos",
+      "projectDeadlines": "Recordatorios de fechas límite",
+      "clientFeedback": "Comentarios de clientes"
+    },
+    "visibilityTitle": "Visibilidad del Perfil",
+    "visibilityLabel": "Visibilidad del perfil",
+    "visibility": {
+      "public": "Público - Visible para todos",
+      "clients": "Solo clientes - Visible para clientes registrados",
+      "private": "Privado - Solo por invitación"
+    }
+  }
+  ,
+  "privacy": {
+    "title": "Privacidad",
+    "intro": "Controla tus ajustes de privacidad y revisa las políticas.",
+    "permissions": "Permisos de la aplicación",
+    "permissionsText": "Administra qué permisos puede usar la aplicación (cámara, almacenamiento, notificaciones).",
+    "permissionsManage": "Administrar permisos",
+    "policy": "Política de Privacidad",
+    "policyText": "Lee nuestra política de privacidad para saber cómo manejamos tus datos.",
+    "policyLink": "Abrir Política de Privacidad"
+  }
+}
+}

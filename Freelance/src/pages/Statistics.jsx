@@ -1,6 +1,7 @@
 // src/pages/Statistics.jsx
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Layout from "../Components/Layout.jsx";
+import { useTranslation } from 'react-i18next';
 import "../styles/Statistics.css";
 import {
   Chart as ChartJS,
@@ -11,12 +12,13 @@ import {
   BarElement,
   ArcElement,
   Title,
-  Tooltip,
-  Legend,
+  Tooltip as ChartTooltip,
+  Legend as ChartLegend,
   Filler,
-} from "chart.js";
+} from 'chart.js';
+import { Bar, Line, Doughnut } from 'react-chartjs-2';
 
-// Registrar TODOS los componentes necesarios de Chart.js
+// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -25,26 +27,23 @@ ChartJS.register(
   BarElement,
   ArcElement,
   Title,
-  Tooltip,
-  Legend,
+  ChartTooltip,
+  ChartLegend,
   Filler
 );
 
 const Statistics = () => {
-  // Referencias para los canvas de los gráficos
-  const weeklyChartRef = useRef(null);
-  const pieChartRef = useRef(null);
-  const hourlyChartRef = useRef(null);
-  const monthlyChartRef = useRef(null);
-
-  // Referencias para las instancias de los gráficos
-  const weeklyChartInstance = useRef(null);
-  const pieChartInstance = useRef(null);
-  const hourlyChartInstance = useRef(null);
-  const monthlyChartInstance = useRef(null);
+  // Usaremos Chart.js a través de react-chartjs-2 (componentes Bar, Line, Doughnut)
 
   // Estado de búsqueda
   const [searchQuery, setSearchQuery] = useState("");
+  const { t } = useTranslation();
+  // Fallbacks: some keys were rendering as the literal key name if translations
+  // weren't available at render time. Provide a safe fallback in Spanish.
+  const _statisticsTitle = t('statistics.title');
+  const statisticsTitle = _statisticsTitle === 'statistics.title' ? 'Estadísticas' : _statisticsTitle;
+  const _statisticsDescription = t('statistics.description');
+  const statisticsDescription = _statisticsDescription === 'statistics.description' ? 'Seguimiento completo de tareas, rendimiento y métricas como freelancer' : _statisticsDescription;
 
   // Estado de tareas y productividad
   const [taskStats, setTaskStats] = useState({
@@ -276,322 +275,141 @@ const Statistics = () => {
     );
   }, [todayActivity, searchQuery]);
 
-  // Función para crear el gráfico de barras semanal
-  const createWeeklyChart = () => {
-    if (!weeklyChartRef.current || !weeklyPerformance.length) return;
+  // Prepare Chart.js data objects using the existing state arrays
+  const weeklyData = React.useMemo(() => ({
+    labels: weeklyPerformance.map((i) => i.day),
+    datasets: [
+      {
+        label: "Completadas",
+        data: weeklyPerformance.map((i) => i.completed),
+        backgroundColor: "#10B981",
+        borderColor: "#059669",
+      },
+      {
+        label: "En Progreso",
+        data: weeklyPerformance.map((i) => i.inProgress),
+        backgroundColor: "#3B82F6",
+        borderColor: "#2563eb",
+      },
+      {
+        label: "Pendientes",
+        data: weeklyPerformance.map((i) => i.pending),
+        backgroundColor: "#F59E0B",
+        borderColor: "#d97706",
+      },
+    ],
+  }), [weeklyPerformance]);
 
-    const ctx = weeklyChartRef.current.getContext("2d");
-
-    // Destruir instancia previa si existe
-    if (weeklyChartInstance.current) {
-      weeklyChartInstance.current.destroy();
+  const weeklyOptions = React.useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+      tooltip: { enabled: true }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#64748b' } },
+      y: { grid: { color: '#f0f0f0' }, ticks: { color: '#64748b' } }
     }
+  }), [weeklyPerformance]);
 
-    weeklyChartInstance.current = new ChartJS(ctx, {
-      type: "bar",
-      data: {
-        labels: weeklyPerformance.map((item) => item.day),
-        datasets: [
-          {
-            label: "Completadas",
-            data: weeklyPerformance.map((item) => item.completed),
-            backgroundColor: "#10B981",
-            borderColor: "#059669",
-            borderWidth: 1,
-            borderRadius: 4,
-          },
-          {
-            label: "En Progreso",
-            data: weeklyPerformance.map((item) => item.inProgress),
-            backgroundColor: "#3B82F6",
-            borderColor: "#2563eb",
-            borderWidth: 1,
-            borderRadius: 4,
-          },
-          {
-            label: "Pendientes",
-            data: weeklyPerformance.map((item) => item.pending),
-            backgroundColor: "#F59E0B",
-            borderColor: "#d97706",
-            borderWidth: 1,
-            borderRadius: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: {
-              usePointStyle: true,
-              padding: 20,
-            },
-          },
-          tooltip: {
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            titleColor: "#1e3a8a",
-            bodyColor: "#64748b",
-            borderColor: "#e2e8f0",
-            borderWidth: 1,
-            cornerRadius: 8,
-          },
-        },
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-            ticks: {
-              color: "#64748b",
-            },
-          },
-          y: {
-            grid: {
-              color: "#f0f0f0",
-            },
-            ticks: {
-              color: "#64748b",
-            },
-          },
-        },
-      },
-    });
-  };
+  const doughnutData = React.useMemo(() => ({
+    labels: taskDistribution.map((d) => d.name),
+    datasets: [
+      {
+        data: taskDistribution.map((d) => d.value),
+        backgroundColor: taskDistribution.map((d) => d.color),
+        borderColor: '#ffffff',
+        borderWidth: 3,
+      }
+    ]
+  }), [taskDistribution]);
 
-  // Función para crear el gráfico circular
-  const createPieChart = () => {
-    if (!pieChartRef.current || !taskDistribution.length) return;
-
-    const ctx = pieChartRef.current.getContext("2d");
-
-    if (pieChartInstance.current) {
-      pieChartInstance.current.destroy();
+  const doughnutOptions = React.useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '60%',
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const idx = context.dataIndex;
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const pct = taskDistribution[idx]?.percentage;
+            return `${label}: ${value} (${pct}%)`;
+          }
+        }
+      }
     }
+  }), [taskDistribution]);
 
-    pieChartInstance.current = new ChartJS(ctx, {
-      type: "doughnut",
-      data: {
-        labels: taskDistribution.map((item) => item.name),
-        datasets: [
-          {
-            data: taskDistribution.map((item) => item.value),
-            backgroundColor: taskDistribution.map((item) => item.color),
-            borderColor: "#ffffff",
-            borderWidth: 3,
-          },
-        ],
+  const hourlyData = React.useMemo(() => ({
+    labels: hourlyProductivity.map((h) => h.hour),
+    datasets: [
+      {
+        label: 'Concentración (%)',
+        data: hourlyProductivity.map((h) => h.focus),
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        fill: true,
+        tension: 0.4,
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: "60%",
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: {
-              usePointStyle: true,
-              padding: 20,
-            },
-          },
-          tooltip: {
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            titleColor: "#1e3a8a",
-            bodyColor: "#64748b",
-            borderColor: "#e2e8f0",
-            borderWidth: 1,
-            cornerRadius: 8,
-            callbacks: {
-              label: function (context) {
-                const percentage =
-                  taskDistribution[context.dataIndex].percentage;
-                return `${context.label}: ${context.parsed} (${percentage}%)`;
-              },
-            },
-          },
-        },
+      {
+        label: 'Tareas/Hora',
+        data: hourlyProductivity.map((h) => h.tasks),
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        fill: true,
+        tension: 0.4,
+      }
+    ]
+  }), [hourlyProductivity]);
+
+  const hourlyOptions = React.useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }, tooltip: { enabled: true } },
+    scales: { x: { grid: { display: false }, ticks: { color: '#64748b' } }, y: { grid: { color: '#f0f0f0' }, ticks: { color: '#64748b' } } }
+  }), [hourlyProductivity]);
+
+  const monthlyData = React.useMemo(() => ({
+    labels: monthlyTrend.map((m) => m.month),
+    datasets: [
+      {
+        label: 'Tareas Completadas',
+        data: monthlyTrend.map((m) => m.completed),
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.3,
+        fill: false,
       },
-    });
-  };
-
-  // Función para crear el gráfico de área de productividad por hora
-  const createHourlyChart = () => {
-    if (!hourlyChartRef.current || !hourlyProductivity.length) return;
-
-    const ctx = hourlyChartRef.current.getContext("2d");
-
-    if (hourlyChartInstance.current) {
-      hourlyChartInstance.current.destroy();
-    }
-
-    hourlyChartInstance.current = new ChartJS(ctx, {
-      type: "line",
-      data: {
-        labels: hourlyProductivity.map((item) => item.hour),
-        datasets: [
-          {
-            label: "Concentración (%)",
-            data: hourlyProductivity.map((item) => item.focus),
-            borderColor: "#8b5cf6",
-            backgroundColor: "rgba(139, 92, 246, 0.1)",
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: "#8b5cf6",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 2,
-            pointRadius: 5,
-          },
-          {
-            label: "Tareas/Hora",
-            data: hourlyProductivity.map((item) => item.tasks),
-            borderColor: "#10b981",
-            backgroundColor: "rgba(16, 185, 129, 0.1)",
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: "#10b981",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 2,
-            pointRadius: 5,
-          },
-        ],
+      {
+        label: 'Productividad (%)',
+        data: monthlyTrend.map((m) => m.productivity),
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.3,
+        fill: false,
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: {
-              usePointStyle: true,
-              padding: 20,
-            },
-          },
-          tooltip: {
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            titleColor: "#1e3a8a",
-            bodyColor: "#64748b",
-            borderColor: "#e2e8f0",
-            borderWidth: 1,
-            cornerRadius: 8,
-          },
-        },
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-            ticks: {
-              color: "#64748b",
-            },
-          },
-          y: {
-            grid: {
-              color: "#f0f0f0",
-            },
-            ticks: {
-              color: "#64748b",
-            },
-          },
-        },
-      },
-    });
-  };
+      {
+        label: 'Eficiencia (%)',
+        data: monthlyTrend.map((m) => m.efficiency),
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        tension: 0.3,
+        fill: false,
+      }
+    ]
+  }), [monthlyTrend]);
 
-  // Función para crear el gráfico de líneas mensual
-  const createMonthlyChart = () => {
-    if (!monthlyChartRef.current || !monthlyTrend.length) return;
-
-    const ctx = monthlyChartRef.current.getContext("2d");
-
-    if (monthlyChartInstance.current) {
-      monthlyChartInstance.current.destroy();
-    }
-
-    monthlyChartInstance.current = new ChartJS(ctx, {
-      type: "line",
-      data: {
-        labels: monthlyTrend.map((item) => item.month),
-        datasets: [
-          {
-            label: "Tareas Completadas",
-            data: monthlyTrend.map((item) => item.completed),
-            borderColor: "#10b981",
-            backgroundColor: "rgba(16, 185, 129, 0.1)",
-            borderWidth: 3,
-            pointBackgroundColor: "#10b981",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 3,
-            pointRadius: 6,
-            tension: 0.3,
-          },
-          {
-            label: "Productividad (%)",
-            data: monthlyTrend.map((item) => item.productivity),
-            borderColor: "#3b82f6",
-            backgroundColor: "rgba(59, 130, 246, 0.1)",
-            borderWidth: 3,
-            pointBackgroundColor: "#3b82f6",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 3,
-            pointRadius: 6,
-            tension: 0.3,
-          },
-          {
-            label: "Eficiencia (%)",
-            data: monthlyTrend.map((item) => item.efficiency),
-            borderColor: "#8b5cf6",
-            backgroundColor: "rgba(139, 92, 246, 0.1)",
-            borderWidth: 3,
-            pointBackgroundColor: "#8b5cf6",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 3,
-            pointRadius: 6,
-            tension: 0.3,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: {
-              usePointStyle: true,
-              padding: 20,
-            },
-          },
-          tooltip: {
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            titleColor: "#1e3a8a",
-            bodyColor: "#64748b",
-            borderColor: "#e2e8f0",
-            borderWidth: 1,
-            cornerRadius: 8,
-          },
-        },
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-            ticks: {
-              color: "#64748b",
-            },
-          },
-          y: {
-            grid: {
-              color: "#f0f0f0",
-            },
-            ticks: {
-              color: "#64748b",
-            },
-          },
-        },
-      },
-    });
-  };
+  const monthlyOptions = React.useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }, tooltip: { enabled: true } },
+    scales: { x: { grid: { display: false }, ticks: { color: '#64748b' } }, y: { grid: { color: '#f0f0f0' }, ticks: { color: '#64748b' } } }
+  }), [monthlyTrend]);
 
   // Función para simular actualizaciones dinámicas
   const simulateRealTimeUpdate = () => {
@@ -656,17 +474,7 @@ const Statistics = () => {
     }
   };
 
-  // Crear gráficos cuando el componente se monta - CON DELAY para asegurar DOM
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      createWeeklyChart();
-      createPieChart();
-      createHourlyChart();
-      createMonthlyChart();
-    }, 300); // Delay de 300ms para asegurar que DOM esté listo
-
-    return () => clearTimeout(timer);
-  }, [weeklyPerformance, taskDistribution, hourlyProductivity, monthlyTrend]);
+  // Charts are rendered using Chart.js via react-chartjs-2 components below.
 
   // Simular carga de datos y actualizaciones en tiempo real
   useEffect(() => {
@@ -677,20 +485,12 @@ const Statistics = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Limpiar gráficos al desmontar el componente
-  useEffect(() => {
-    return () => {
-      if (weeklyChartInstance.current) weeklyChartInstance.current.destroy();
-      if (pieChartInstance.current) pieChartInstance.current.destroy();
-      if (hourlyChartInstance.current) hourlyChartInstance.current.destroy();
-      if (monthlyChartInstance.current) monthlyChartInstance.current.destroy();
-    };
-  }, []);
+  // No manual Chart.js cleanup required when using Recharts
 
   return (
     <Layout
-      currentPage="statistics"
-      searchPlaceholder="Buscar tareas y métricas..."
+  currentPage="stats"
+      searchPlaceholder={t('statistics.searchPlaceholder')}
       // barra controlada por props
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
@@ -700,11 +500,10 @@ const Statistics = () => {
         <div className="statistics-header">
           <h1 className="page-title">
             <i className="ri-bar-chart-2-line" aria-hidden="true"></i>
-            Dashboard de Productividad
+            {statisticsTitle}
           </h1>
           <p className="page-description">
-            Seguimiento completo de tareas, rendimiento y métricas como
-            freelancer
+            {statisticsDescription}
           </p>
         </div>
 
@@ -714,11 +513,9 @@ const Statistics = () => {
             <div className="metric-icon">
               <i className="ri-check-line" aria-hidden="true"></i>
             </div>
-            <div className="metric-value">{taskStats.completedTasks}</div>
-            <div className="metric-label">Tareas Completadas</div>
-            <div className="metric-subtitle">
-              +{taskStats.tasksCompletedToday} hoy
-            </div>
+              <div className="metric-value">{taskStats.completedTasks}</div>
+              <div className="metric-label">{t('statistics.metrics.completed')}</div>
+              <div className="metric-subtitle">{t('statistics.metrics.completedToday', { count: taskStats.tasksCompletedToday })}</div>
           </div>
 
           <div className="metric-card in-progress">
@@ -726,13 +523,8 @@ const Statistics = () => {
               <i className="ri-loader-4-line" aria-hidden="true"></i>
             </div>
             <div className="metric-value">{taskStats.inProgressTasks}</div>
-            <div className="metric-label">En Progreso</div>
-            <div className="metric-subtitle">
-              {Math.round(
-                (taskStats.inProgressTasks / taskStats.totalTasks) * 100
-              )}
-              % del total
-            </div>
+            <div className="metric-label">{t('statistics.metrics.inProgress')}</div>
+            <div className="metric-subtitle">{Math.round((taskStats.inProgressTasks / taskStats.totalTasks) * 100)}% {t('statistics.metrics.percentOfTotalSuffix')}</div>
           </div>
 
           <div className="metric-card pending">
@@ -740,21 +532,17 @@ const Statistics = () => {
               <i className="ri-time-line" aria-hidden="true"></i>
             </div>
             <div className="metric-value">{taskStats.pendingTasks}</div>
-            <div className="metric-label">Pendientes</div>
-            <div className="metric-subtitle">Por hacer esta semana</div>
+            <div className="metric-label">{t('statistics.metrics.pending')}</div>
+            <div className="metric-subtitle">{t('statistics.metrics.pendingSubtitle') || t('statistics.metrics.pending')}</div>
           </div>
 
           <div className="metric-card efficiency">
             <div className="metric-icon">
               <i className="ri-flashlight-line" aria-hidden="true"></i>
             </div>
-            <div className="metric-value">
-              {Math.round(productivityMetrics.efficiency)}%
-            </div>
-            <div className="metric-label">Eficiencia</div>
-            <div className="metric-subtitle">
-              Racha: {productivityMetrics.currentStreak} días
-            </div>
+            <div className="metric-value">{Math.round(productivityMetrics.efficiency)}%</div>
+            <div className="metric-label">{t('statistics.metrics.efficiency')}</div>
+            <div className="metric-subtitle">{t('statistics.metrics.streak', { days: productivityMetrics.currentStreak })}</div>
           </div>
         </div>
 
@@ -764,10 +552,11 @@ const Statistics = () => {
           <div className="chart-container">
             <h3 className="chart-title">
               <i className="ri-line-chart-line" aria-hidden="true"></i>
-              Rendimiento Semanal
+              {t('statistics.charts.weeklyTitle')}
             </h3>
-            <div className="chart-wrapper">
-              <canvas ref={weeklyChartRef}></canvas>
+            <div className="chart-wrapper" style={{ height: 260 }}>
+              {/* Chart.js Bar (weekly) */}
+              <Bar data={weeklyData} options={weeklyOptions} />
             </div>
           </div>
 
@@ -775,10 +564,11 @@ const Statistics = () => {
           <div className="chart-container">
             <h3 className="chart-title">
               <i className="ri-target-line" aria-hidden="true"></i>
-              Estado de Tareas
+              {t('statistics.charts.taskStateTitle')}
             </h3>
-            <div className="chart-wrapper">
-              <canvas ref={pieChartRef}></canvas>
+            <div className="chart-wrapper" style={{ height: 260 }}>
+              {/* Chart.js Doughnut (task distribution) */}
+              <Doughnut data={doughnutData} options={doughnutOptions} />
             </div>
 
             <div className="task-distribution-stats">
@@ -811,8 +601,9 @@ const Statistics = () => {
               <i className="ri-time-line" aria-hidden="true"></i>
               Productividad por Hora
             </h3>
-            <div className="chart-wrapper">
-              <canvas ref={hourlyChartRef}></canvas>
+            <div className="chart-wrapper" style={{ height: 260 }}>
+              {/* Chart.js Line (hourly productivity) */}
+              <Line data={hourlyData} options={hourlyOptions} />
             </div>
           </div>
 
@@ -822,8 +613,9 @@ const Statistics = () => {
               <i className="ri-calendar-line" aria-hidden="true"></i>
               Tendencia Mensual
             </h3>
-            <div className="chart-wrapper">
-              <canvas ref={monthlyChartRef}></canvas>
+            <div className="chart-wrapper" style={{ height: 260 }}>
+              {/* Chart.js Line (monthly trend) */}
+              <Line data={monthlyData} options={monthlyOptions} />
             </div>
           </div>
         </div>
@@ -848,8 +640,8 @@ const Statistics = () => {
                 }}
               >
                 <p style={{ fontSize: 18, color: "#64748b" }}>
-                  No se encontraron resultados para "{searchQuery}"
-                </p>
+                    {t('statistics.projects.noResults', { query: searchQuery })}
+                  </p>
                 <button
                   onClick={() => setSearchQuery("")}
                   style={{
@@ -862,7 +654,7 @@ const Statistics = () => {
                     cursor: "pointer",
                   }}
                 >
-                  Ver todas
+                  {t('statistics.projects.viewAll')}
                 </button>
               </div>
             )}
@@ -876,7 +668,7 @@ const Statistics = () => {
                   <div key={index} className="project-card">
                     <div className="project-header">
                       <h4 className="project-name">{project.project}</h4>
-                      <span
+                                <span
                         className={`completion-badge ${
                           completionRate >= 80
                             ? "high"
@@ -885,7 +677,7 @@ const Statistics = () => {
                             : "low"
                         }`}
                       >
-                        {Math.round(completionRate)}% completado
+                                  {Math.round(completionRate)}{t('statistics.projects.percentCompleted')}
                       </span>
                     </div>
 
@@ -907,9 +699,7 @@ const Statistics = () => {
                         <span className="stat-icon completed">
                           <i className="ri-check-line" aria-hidden="true"></i>
                         </span>
-                        <span className="stat-text">
-                          {project.completed} completadas
-                        </span>
+                        <span className="stat-text">{project.completed} {t('statistics.projects.completed')}</span>
                       </div>
                       <div className="project-stat">
                         <span className="stat-icon in-progress">
@@ -918,17 +708,13 @@ const Statistics = () => {
                             aria-hidden="true"
                           ></i>
                         </span>
-                        <span className="stat-text">
-                          {project.inProgress} en progreso
-                        </span>
+                        <span className="stat-text">{project.inProgress} {t('statistics.projects.inProgress')}</span>
                       </div>
                       <div className="project-stat">
                         <span className="stat-icon pending">
                           <i className="ri-time-line" aria-hidden="true"></i>
                         </span>
-                        <span className="stat-text">
-                          {project.pending} pendientes
-                        </span>
+                        <span className="stat-text">{project.pending} {t('statistics.projects.pending')}</span>
                       </div>
                     </div>
                   </div>

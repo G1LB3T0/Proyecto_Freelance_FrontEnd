@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import Layout from "../Components/Layout.jsx";
 import "../styles/Statistics.css";
 
@@ -132,6 +133,13 @@ const FreelancerStatistics = () => {
     },
   ];
 
+  // i18n
+  const { t } = useTranslation();
+  const _statisticsTitle = t('statistics.title');
+  const statisticsTitle = _statisticsTitle === 'statistics.title' ? 'Estadísticas' : _statisticsTitle;
+  const _statisticsDescription = t('statistics.description');
+  const statisticsDescription = _statisticsDescription === 'statistics.description' ? 'Seguimiento completo de tareas, rendimiento y métricas como freelancer' : _statisticsDescription;
+
   // Icono por tipo de actividad
   const getActivityIcon = (type) => {
     switch (type) {
@@ -178,18 +186,18 @@ const FreelancerStatistics = () => {
 
   return (
     <Layout
-      currentPage="statistics"
-      searchPlaceholder="Buscar proyectos y métricas..."
+  currentPage="stats"
+      searchPlaceholder={t('statistics.searchPlaceholder')}
     >
       <div className="statistics-page">
         {/* Header */}
         <div className="statistics-header">
           <h1 className="page-title">
             <i className="ri-bar-chart-2-line"></i>
-            Estadísticas Freelancer
+            {statisticsTitle}
           </h1>
           <p className="page-description">
-            Análisis completo de rendimiento, ingresos y proyectos
+            {statisticsDescription}
           </p>
         </div>
 
@@ -202,9 +210,9 @@ const FreelancerStatistics = () => {
             <div className="metric-value">
               {freelancerStats.completedProjects}
             </div>
-            <div className="metric-label">Proyectos Completados</div>
+            <div className="metric-label">{t('statistics.metrics.completed')}</div>
             <div className="metric-subtitle">
-              {freelancerStats.activeProjects} activos
+              {freelancerStats.activeProjects} {t('statistics.projects') || t('statistics.metrics.inProgress')}
             </div>
           </div>
 
@@ -215,9 +223,9 @@ const FreelancerStatistics = () => {
             <div className="metric-value">
               Q{freelancerStats.monthlyEarnings.toLocaleString()}
             </div>
-            <div className="metric-label">Ingresos del Mes</div>
+            <div className="metric-label">{t('statistics.metrics.monthlyIncome') || t('statistics.charts.monthlyTitle')}</div>
             <div className="metric-subtitle">
-              Q{freelancerStats.totalEarnings.toLocaleString()} total
+              Q{freelancerStats.totalEarnings.toLocaleString()} {t('statistics.metrics.total') || 'total'}
             </div>
           </div>
 
@@ -226,9 +234,9 @@ const FreelancerStatistics = () => {
               <i className="ri-star-line"></i>
             </div>
             <div className="metric-value">{freelancerStats.averageRating}</div>
-            <div className="metric-label">Calificación Promedio</div>
+            <div className="metric-label">{t('statistics.metrics.averageRating') || t('statistics.metrics.completed')}</div>
             <div className="metric-subtitle">
-              {freelancerStats.totalClients} clientes
+              {freelancerStats.totalClients} {t('statistics.metrics.clients') || 'clientes'}
             </div>
           </div>
 
@@ -237,9 +245,9 @@ const FreelancerStatistics = () => {
               <i className="ri-time-line"></i>
             </div>
             <div className="metric-value">{freelancerStats.hoursWorked}h</div>
-            <div className="metric-label">Horas Trabajadas</div>
+            <div className="metric-label">{t('statistics.metrics.hoursWorked') || 'Horas Trabajadas'}</div>
             <div className="metric-subtitle">
-              {freelancerStats.proposalSuccessRate}% éxito en propuestas
+              {freelancerStats.proposalSuccessRate}% {t('statistics.metrics.percentOfTotalSuffix') || 'éxito en propuestas'}
             </div>
           </div>
         </div>
@@ -248,7 +256,7 @@ const FreelancerStatistics = () => {
         <section className="kpis-completed">
           <h3 className="section-title" style={{ marginBottom: 12 }}>
             <i className="ri-check-double-line"></i>
-            KPIs de proyectos completados
+            {t('statistics.projects.title')}
           </h3>
 
           {/* Cálculos rápidos (mock + derivados) */}
@@ -272,44 +280,39 @@ const FreelancerStatistics = () => {
             return (
               <div className="kpis-completed__grid">
                 {/* Tasa de finalización */}
-                <div className="kpi-box success" title="Completados / Totales">
+                <div className="kpi-box success" title={t('statistics.kpis.finishRateTitle')}>
                   <div className="kpi-box__top">
                     <span className="kpi-box__icon" aria-hidden>
                       ✅
                     </span>
-                    <span className="kpi-box__label">Tasa de finalización</span>
+                    <span className="kpi-box__label">{t('statistics.kpis.finishRate')}</span>
                   </div>
                   <div className="kpi-box__value">{completionRate}%</div>
-                  <div className="kpi-box__sub">
-                    Completados: {completed} / {total}
-                  </div>
+                  <div className="kpi-box__sub">{t('statistics.kpis.completedSub', { completed, total })}</div>
                 </div>
 
                 {/* A tiempo */}
-                <div className="kpi-box info" title="Entregados en fecha">
+                <div className="kpi-box info" title={t('statistics.kpis.onTimeTitle')}>
                   <div className="kpi-box__top">
                     <span className="kpi-box__icon" aria-hidden>
                       ⏱️
                     </span>
-                    <span className="kpi-box__label">A tiempo</span>
+                    <span className="kpi-box__label">{t('statistics.kpis.onTime')}</span>
                   </div>
                   <div className="kpi-box__value">{onTimeRate}%</div>
-                  <div className="kpi-box__sub">Según hitos</div>
+                  <div className="kpi-box__sub">{t('statistics.kpis.byMilestones')}</div>
                 </div>
 
                 {/* Duración promedio */}
-                <div
-                  className="kpi-box warning"
-                  title="Días promedio por proyecto"
-                >
+                <div className="kpi-box warning" title={t('statistics.kpis.avgDurationTitle')}>
                   <div className="kpi-box__top">
                     <span className="kpi-box__icon" aria-hidden>
                       📅
                     </span>
-                    <span className="kpi-box__label">Duración promedio</span>
+                    <span className="kpi-box__label">{t('statistics.kpis.avgDuration')}</span>
                   </div>
-                  <div className="kpi-box__value">{avgDurationDays} días</div>
-                  <div className="kpi-box__sub">Inicio → cierre</div>
+                  <div className="kpi-box__value">{avgDurationDays} {t('statistics.kpis.days')}</div>
+                  <div className="kpi-box__sub">{t('statistics.kpis.startToClose')}</div>
                 </div>
 
                 {/* Ingreso por proyecto */}
@@ -321,7 +324,7 @@ const FreelancerStatistics = () => {
                     <span className="kpi-box__icon" aria-hidden>
                       💸
                     </span>
-                    <span className="kpi-box__label">Ingreso por proyecto</span>
+                    <span className="kpi-box__label">{t('statistics.kpis.revenuePerProject')}</span>
                   </div>
                   <div className="kpi-box__value">
                     {new Intl.NumberFormat("es-GT", {
@@ -330,7 +333,7 @@ const FreelancerStatistics = () => {
                       maximumFractionDigits: 0,
                     }).format(revenuePerCompleted)}
                   </div>
-                  <div className="kpi-box__sub">Promedio</div>
+                  <div className="kpi-box__sub">{t('statistics.kpis.average')}</div>
                 </div>
               </div>
             );
@@ -344,7 +347,7 @@ const FreelancerStatistics = () => {
           <div className="chart-container">
             <h3 className="chart-title">
               <i className="ri-line-chart-line"></i>
-              Ingresos Mensuales
+              {t('statistics.charts.monthlyTitle')}
             </h3>
             <div style={{ padding: "20px" }}>
               <div

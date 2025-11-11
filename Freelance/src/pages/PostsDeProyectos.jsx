@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../Components/Layout.jsx";
 import { useAuth } from "../hooks/useAuth.js";
+import { useTranslation } from "react-i18next";
 import "../styles/PostsDeProyectos.css";
 
 const PostsDeProyectos = () => {
+  const { t } = useTranslation();
   const { user, isAuthenticated, authenticatedFetch } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -135,9 +137,7 @@ const PostsDeProyectos = () => {
     const fullProject = await fetchProjectById(project.id);
     setSelectedProject(fullProject || project);
     alert(
-      `Ver proyecto: ${project.title}\nCliente: ${
-        project.client
-      }\nEstado: ${getStatusText(project.status)}`
+      `${t("posts.viewProjectTitle")}: ${project.title}\n${t("posts.client")}: ${project.client}\n${t("posts.statusLabel")}: ${getStatusText(project.status)}`
     );
   };
 
@@ -165,7 +165,7 @@ const PostsDeProyectos = () => {
   const handleEditProject = (project) => {
     console.log("✏️ Editando proyecto:", project);
     if (!canEditNow(project)) {
-      alert("No tienes permisos para editar este proyecto. Debes ser el dueño (cliente o PM) o admin.");
+      alert(t("posts.messages.noEditPermission"));
       return;
     }
     setSelectedProject(project);
@@ -197,7 +197,7 @@ const PostsDeProyectos = () => {
 
   const handleDeleteProject = async (projectId) => {
     if (
-      window.confirm("¿Estás seguro de que quieres eliminar este proyecto?")
+      window.confirm(t("posts.messages.deleteConfirm"))
     ) {
       console.log("🗑️ Eliminando proyecto:", projectId);
       await deleteProject(projectId);
@@ -220,7 +220,7 @@ const PostsDeProyectos = () => {
     e.preventDefault();
 
     if (!isAuthenticated || !user) {
-      alert("Debes estar logueado para crear un proyecto");
+      alert(t("posts.messages.loginRequired"));
       return;
     }
 
@@ -229,9 +229,7 @@ const PostsDeProyectos = () => {
       !newProject.description.trim() ||
       !newProject.budget
     ) {
-      alert(
-        "Por favor, completa los campos requeridos: título, descripción y presupuesto"
-      );
+      alert(t("posts.messages.fillRequired"));
       return;
     }
 
@@ -266,10 +264,10 @@ const PostsDeProyectos = () => {
         category_id: "",
       });
       setShowCreateModal(false);
-      alert("¡Proyecto creado exitosamente!");
+      alert(t("posts.messages.createdSuccess"));
     } catch (error) {
       console.error("Error creando proyecto:", error);
-      alert("Error al crear el proyecto. Inténtalo de nuevo.");
+      alert(t("posts.messages.createError"));
     } finally {
       setCreatingProject(false);
     }
@@ -575,15 +573,15 @@ const PostsDeProyectos = () => {
   const getStatusText = (status) => {
     switch (status) {
       case "completado":
-        return "Completado";
+        return t("posts.status.completed");
       case "en-progreso":
-        return "En Progreso";
+        return t("posts.status.inProgress");
       case "pausado":
-        return "Pausado";
+        return t("posts.status.paused");
       case "abierto":
-        return "Abierto";
+        return t("posts.status.open");
       case "cerrado":
-        return "Cerrado";
+        return t("posts.status.closed");
       default:
         return status;
     }
@@ -630,10 +628,10 @@ const PostsDeProyectos = () => {
 
       await updateProject(editingProject.id, payload);
       setShowEditModal(false);
-      alert("Proyecto actualizado exitosamente");
+      alert(t('posts.messages.updatedSuccess'));
     } catch (error) {
       console.error("Error actualizando proyecto:", error);
-      alert(error?.message || "Error al actualizar el proyecto. Inténtalo de nuevo.");
+      alert(error?.message || t('posts.messages.updateError'));
     }
   };
 
@@ -642,11 +640,12 @@ const PostsDeProyectos = () => {
       <Layout
         currentPage="projects"
         searchQuery={searchQuery}
+        searchPlaceholder={t('posts.searchPlaceholder')}
         onSearchChange={setSearchQuery}
       >
         <div className="loading">
-          <p>🔄 Cargando proyectos...</p>
-          <small>Conectando a: http://localhost:3000/projects</small>
+          <p>{t('posts.loading')}</p>
+          <small>{t('posts.connecting', { url: 'http://localhost:3000/projects' })}</small>
         </div>
       </Layout>
     );
@@ -656,14 +655,15 @@ const PostsDeProyectos = () => {
       <Layout
         currentPage="projects"
         searchQuery={searchQuery}
+        searchPlaceholder={t('posts.searchPlaceholder')}
         onSearchChange={setSearchQuery}
       >
         <div className="error">
-          <h3>❌ Error al cargar los proyectos</h3>
+          <h3>{t('posts.errorTitle')}</h3>
           <p>{error}</p>
           <div className="error-suggestions">
             <p>
-              <strong>Rutas disponibles:</strong>
+              <strong>{t('posts.error.routesTitle')}</strong>
             </p>
             <ul>
               <li>
@@ -681,7 +681,7 @@ const PostsDeProyectos = () => {
             </ul>
           </div>
           <button onClick={fetchProjects} className="retry-btn">
-            🔄 Reintentar
+            {t('posts.retry')}
           </button>
         </div>
       </Layout>
@@ -690,48 +690,48 @@ const PostsDeProyectos = () => {
   return (
     <Layout
       currentPage="projects"
-      searchPlaceholder="Buscar proyectos, clientes o tecnologías..."
+      searchPlaceholder={t('posts.searchPlaceholder')}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
     >
       <div className="posts-grid">
         <section className="sidebar-left">
           <div className="widget profile-stats">
-            <h3>Resumen de Proyectos</h3>
+            <h3>{t('posts.summary.title')}</h3>
             <div className="stats-container">
               <div className="stat-item">
                 <span className="stat-value">
                   {projects.filter((p) => p.status === "completado").length}
                 </span>
-                <span className="stat-label">Completados</span>
+                <span className="stat-label">{t('posts.summary.completed')}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-value">
                   {projects.filter((p) => p.status === "en-progreso").length}
                 </span>
-                <span className="stat-label">En Progreso</span>
+                <span className="stat-label">{t('posts.summary.inProgress')}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-value">{projects.length}</span>
-                <span className="stat-label">Total</span>
+                <span className="stat-label">{t('posts.summary.total')}</span>
               </div>
             </div>
           </div>
 
           <div className="widget events-widget">
-            <h3>Actividad Reciente</h3>
+            <h3>{t('posts.activity.title')}</h3>
             <ul className="events-list">
               <li className="event-item">
                 <div className="event-date">Hace 2 días</div>
-                <div className="event-title">Proyecto completado</div>
+                <div className="event-title">{t('posts.activity.items.completedProject')}</div>
               </li>
               <li className="event-item">
                 <div className="event-date">Hace 1 semana</div>
-                <div className="event-title">Actualización de progreso</div>
+                <div className="event-title">{t('posts.activity.items.progressUpdate')}</div>
               </li>
               <li className="event-item">
                 <div className="event-date">Hace 2 semanas</div>
-                <div className="event-title">Nuevo proyecto iniciado</div>
+                <div className="event-title">{t('posts.activity.items.newProject')}</div>
               </li>
               {showAllActivity && (
                 <>
@@ -747,7 +747,7 @@ const PostsDeProyectos = () => {
               )}
             </ul>
             <button className="see-all-btn" onClick={handleShowAllActivity}>
-              {showAllActivity ? "Ver menos" : "Ver Todos"}
+              {showAllActivity ? t('posts.actions.seeLess') : t('posts.actions.seeAll')}
             </button>
           </div>
         </section>
@@ -755,11 +755,11 @@ const PostsDeProyectos = () => {
         <section className="feed">
           <div className="section-header">
             <h2>
-              Mis Proyectos
+              {t('posts.myProjects')}
               <small style={{ color: "#666", fontSize: "14px" }}>
                 ({projects.length}{" "}
-                {filterStatus !== "todos" ? `${filterStatus}` : "total"},{" "}
-                {filteredProjects.length} mostrados)
+                {filterStatus !== "todos" ? t(`posts.filters.${filterStatus}`) : t('posts.filters.todos')},{" "}
+                {filteredProjects.length} {t('posts.shown')})
               </small>
               {filterStatus !== "todos" && (
                 <small
@@ -769,7 +769,7 @@ const PostsDeProyectos = () => {
                     marginLeft: "8px",
                   }}
                 >
-                  📡 Filtrado por API
+                  📡 {t('posts.filteredByApi')}
                 </small>
               )}
             </h2>
@@ -778,7 +778,7 @@ const PostsDeProyectos = () => {
                 className={filterStatus === "todos" ? "active-filter" : ""}
                 onClick={() => setFilterStatus("todos")}
               >
-                Todos
+                {t('posts.filters.todos')}
               </span>
               <span
                 className={
@@ -786,25 +786,25 @@ const PostsDeProyectos = () => {
                 }
                 onClick={() => setFilterStatus("en-progreso")}
               >
-                En Progreso
+                {t('posts.filters.en-progreso')}
               </span>
               <span
                 className={filterStatus === "completado" ? "active-filter" : ""}
                 onClick={() => setFilterStatus("completado")}
               >
-                Completados
+                {t('posts.filters.completado')}
               </span>
               <span
                 className={filterStatus === "pausado" ? "active-filter" : ""}
                 onClick={() => setFilterStatus("pausado")}
               >
-                Pausados
+                {t('posts.filters.pausado')}
               </span>
               <span
                 className={filterStatus === "abierto" ? "active-filter" : ""}
                 onClick={() => setFilterStatus("abierto")}
               >
-                Abiertos
+                {t('posts.filters.abierto')}
               </span>
             </div>
           </div>
@@ -815,7 +815,7 @@ const PostsDeProyectos = () => {
             </div>
             <input
               type="text"
-              placeholder="Crear nuevo proyecto..."
+              placeholder={t('posts.createPlaceholder')}
               onFocus={() => setShowCreateModal(true)}
               readOnly
             />
@@ -823,7 +823,7 @@ const PostsDeProyectos = () => {
               className="post-btn"
               onClick={() => setShowCreateModal(true)}
             >
-              + Nuevo Proyecto
+              {t('posts.newProject')}
             </button>
           </div>
 
@@ -863,7 +863,7 @@ const PostsDeProyectos = () => {
 
                   <div className="project-progress">
                     <div className="progress-header">
-                      <span className="progress-label">Progreso</span>
+                      <span className="progress-label">{t('posts.progress')}</span>
                       <span className="progress-percentage">
                         {project.progress}%
                       </span>
@@ -906,18 +906,18 @@ const PostsDeProyectos = () => {
                     <span className="action-icon">
                       <i className="ri-eye-line"></i>
                     </span>
-                    <span className="action-label">Ver</span>
+                    <span className="action-label">{t('posts.actions.view')}</span>
                   </div>
                   <div
                     className="action"
                     style={{ cursor: canEditNow(project) ? "pointer" : "not-allowed", opacity: canEditNow(project) ? 1 : 0.5 }}
                     onClick={() => canEditNow(project) && handleEditProject(project)}
-                    title={canEditNow(project) ? "Editar" : "Solo el dueño (cliente o PM) o admin puede editar"}
+                    title={canEditNow(project) ? t('actions.edit') : t('posts.messages.noEditPermission')}
                   >
                     <span className="action-icon">
                       <i className="ri-edit-line"></i>
                     </span>
-                    <span className="action-label">Editar</span>
+                    <span className="action-label">{t('actions.edit')}</span>
                   </div>
                   <div
                     className="action"
@@ -927,7 +927,7 @@ const PostsDeProyectos = () => {
                     <span className="action-icon">
                       <i className="ri-delete-bin-6-line"></i>
                     </span>
-                    <span className="action-label">Eliminar</span>
+                    <span className="action-label">{t('actions.delete')}</span>
                   </div>
                 </div>
               </div>
@@ -939,19 +939,19 @@ const PostsDeProyectos = () => {
               <div className="empty-icon">
                 <i className="ri-file-list-3-line"></i>
               </div>
-              <h3>No se encontraron proyectos</h3>
+              <h3>{t('posts.empty.title')}</h3>
               <p>
                 {searchQuery
-                  ? `No hay proyectos que coincidan con "${searchQuery}"`
-                  : "Intenta cambiar los filtros o crear un nuevo proyecto"}
+                  ? t('posts.empty.noMatch', { query: searchQuery })
+                  : t('posts.empty.tryCreate')}
               </p>
               {searchQuery ? (
                 <button className="post-btn" onClick={() => setSearchQuery("")}>
-                  Ver todos
+                  {t('posts.empty.viewAll')}
                 </button>
               ) : (
                 <button className="post-btn" onClick={handleCreateProject}>
-                  + Crear Proyecto
+                  {t('posts.empty.create')}
                 </button>
               )}
             </div>
@@ -962,22 +962,22 @@ const PostsDeProyectos = () => {
             onClick={handleLoadMoreProjects}
             disabled={loadingMoreProjects}
           >
-            {loadingMoreProjects ? "Cargando..." : "Ver más proyectos"}
+            {loadingMoreProjects ? t('posts.loadMore.loading') : t('posts.loadMore.more')}
           </button>
         </section>
 
         <section className="right-sidebar">
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
-            <h3>Potencia tu Carrera Freelance</h3>
-            <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
+            <h3>{t('premium.title')}</h3>
+            <p>{t('premium.desc')}</p>
             <Link to="/premium">
-              <button className="upgrade-btn">Conocer más</button>
+              <button className="upgrade-btn">{t('premium.cta')}</button>
             </Link>
           </div>
 
           <div className="widget trending-topics">
-            <h3>Tecnologías Más Usadas</h3>
+            <h3>{t('posts.trending.title')}</h3>
             <ul className="topics-list">
               <li>#React</li>
               <li>#Node.js</li>
@@ -988,7 +988,7 @@ const PostsDeProyectos = () => {
           </div>
 
           <div className="widget suggested-contacts">
-            <h3>Próximos Vencimientos</h3>
+            <h3>{t('posts.upcoming.title')}</h3>
             <div className="contact-suggestions">
               <div className="contact-item">
                 <div className="contact-avatar">
@@ -1048,7 +1048,7 @@ const PostsDeProyectos = () => {
               )}
             </div>
             <button className="see-all-btn" onClick={handleShowAllDeadlines}>
-              {showAllDeadlines ? "Ver menos" : "Ver más"}
+              {showAllDeadlines ? t('posts.actions.seeLess') : t('posts.actions.seeMore')}
             </button>
           </div>
         </section>
@@ -1058,7 +1058,7 @@ const PostsDeProyectos = () => {
         <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Crear Nuevo Proyecto</h3>
+              <h3>{t('posts.modal.createTitle')}</h3>
               <button className="close-btn" onClick={handleCloseModal}>
                 ×
               </button>
@@ -1066,26 +1066,26 @@ const PostsDeProyectos = () => {
 
             <form onSubmit={handleSubmitProject} className="project-form">
               <div className="form-group">
-                <label htmlFor="title">Título del Proyecto *</label>
+                <label htmlFor="title">{t('posts.form.titleLabel')} *</label>
                 <input
                   type="text"
                   id="title"
                   value={newProject.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  placeholder="Ej: Desarrollo de App Móvil"
+                  placeholder={t('posts.form.titlePlaceholder')}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="description">Descripción *</label>
+                <label htmlFor="description">{t('posts.form.descriptionLabel')} *</label>
                 <textarea
                   id="description"
                   value={newProject.description}
                   onChange={(e) =>
                     handleInputChange("description", e.target.value)
                   }
-                  placeholder="Describe los objetivos y alcance del proyecto..."
+                  placeholder={t('posts.form.descriptionPlaceholder')}
                   rows="4"
                   required
                 />
@@ -1093,7 +1093,7 @@ const PostsDeProyectos = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="budget">Presupuesto ($) *</label>
+                  <label htmlFor="budget">{t('posts.form.budgetLabel')} ($) *</label>
                   <input
                     type="number"
                     id="budget"
@@ -1101,7 +1101,7 @@ const PostsDeProyectos = () => {
                     onChange={(e) =>
                       handleInputChange("budget", e.target.value)
                     }
-                    placeholder="5000"
+                    placeholder={t('posts.form.budgetPlaceholder')}
                     min="0"
                     step="0.01"
                     required
@@ -1109,7 +1109,7 @@ const PostsDeProyectos = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="priority">Prioridad</label>
+                  <label htmlFor="priority">{t('posts.form.priorityLabel')}</label>
                   <select
                     id="priority"
                     value={newProject.priority}
@@ -1117,9 +1117,9 @@ const PostsDeProyectos = () => {
                       handleInputChange("priority", e.target.value)
                     }
                   >
-                    <option value="low">Baja</option>
-                    <option value="medium">Media</option>
-                    <option value="high">Alta</option>
+                    <option value="low">{t('posts.form.priority.low')}</option>
+                    <option value="medium">{t('posts.form.priority.medium')}</option>
+                    <option value="high">{t('posts.form.priority.high')}</option>
                     {/** Urgente removido: no soportado por backend (usa high) **/}
                   </select>
                 </div>
@@ -1158,7 +1158,7 @@ const PostsDeProyectos = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="skills_required">Habilidades Requeridas</label>
+                <label htmlFor="skills_required">{t('posts.form.skillsLabel')}</label>
                 <input
                   type="text"
                   id="skills_required"
@@ -1166,7 +1166,7 @@ const PostsDeProyectos = () => {
                   onChange={(e) =>
                     handleInputChange("skills_required", e.target.value)
                   }
-                  placeholder="React, Node.js, MongoDB (separadas por comas)"
+                  placeholder={t('posts.form.skillsPlaceholder')}
                 />
               </div>
               <div className="form-actions">
@@ -1176,14 +1176,14 @@ const PostsDeProyectos = () => {
                   onClick={handleCloseModal}
                   disabled={creatingProject}
                 >
-                  Cancelar
+                  {t('posts.form.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="submit-btn"
                   disabled={creatingProject}
                 >
-                  {creatingProject ? "Creando..." : "Crear Proyecto"}
+                  {creatingProject ? t('posts.form.creating') : t('posts.form.create')}
                 </button>
               </div>
             </form>
@@ -1195,7 +1195,7 @@ const PostsDeProyectos = () => {
         <div className="modal-overlay" onClick={handleCloseEditModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Editar Proyecto</h3>
+              <h3>{t('posts.modal.editTitle')}</h3>
               <button className="close-btn" onClick={handleCloseEditModal}>
                 ×
               </button>
@@ -1324,10 +1324,10 @@ const PostsDeProyectos = () => {
 
               <div className="form-actions">
                 <button type="button" className="cancel-btn" onClick={handleCloseEditModal}>
-                  Cancelar
+                  {t('posts.form.cancel')}
                 </button>
                 <button type="submit" className="submit-btn">
-                  Guardar Cambios
+                  {t('posts.form.saveChanges')}
                 </button>
               </div>
             </form>

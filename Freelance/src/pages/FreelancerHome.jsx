@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import Layout from "../Components/Layout.jsx";
 import authService from "../services/authService";
 import "../styles/FreelancerHome.css";
@@ -42,13 +43,15 @@ const FreelancerHome = () => {
     fetchKpis();
   }, []);
 
+  const { t } = useTranslation();
+
   return (
-    <Layout currentPage="home" searchPlaceholder="Buscar publicaciones...">
+    <Layout currentPage="home" searchPlaceholder={t('top.searchPlaceholder')}>
       <div className="freelancer-home-content">
         <header className="header">
           <div className="header-left">
-            <h1>Panel Freelancer</h1>
-            <p>Descubre oportunidades y mantente conectado</p>
+            <h1>{t('freelancer.panelTitle')}</h1>
+            <p>{t('freelancer.panelTitle')}</p>
           </div>
         </header>
 
@@ -59,7 +62,7 @@ const FreelancerHome = () => {
               <span className="kpi-icon" aria-hidden>
                 ⭐
               </span>
-              <span className="kpi-label">Calificación</span>
+              <span className="kpi-label">{t('freelancer.kpis.rating')}</span>
             </div>
             <div className="kpi-value">{kpis.rating}★</div>
           </div>
@@ -69,7 +72,7 @@ const FreelancerHome = () => {
               <span className="kpi-icon" aria-hidden>
                 ✅
               </span>
-              <span className="kpi-label">Completados</span>
+              <span className="kpi-label">{t('freelancer.kpis.completed')}</span>
             </div>
             <div className="kpi-value">{kpis.completed}</div>
           </div>
@@ -79,7 +82,7 @@ const FreelancerHome = () => {
               <span className="kpi-icon" aria-hidden>
                 👥
               </span>
-              <span className="kpi-label">Clientes activos</span>
+              <span className="kpi-label">{t('freelancer.kpis.activeClients')}</span>
             </div>
             <div className="kpi-value">{kpis.activeClients}</div>
           </div>
@@ -89,7 +92,7 @@ const FreelancerHome = () => {
               <span className="kpi-icon" aria-hidden>
                 💯
               </span>
-              <span className="kpi-label">Satisfacción</span>
+              <span className="kpi-label">{t('freelancer.kpis.satisfaction')}</span>
             </div>
             <div className="kpi-value">{kpis.satisfaction}%</div>
           </div>
@@ -101,27 +104,27 @@ const FreelancerHome = () => {
           <div className="stats-section">
             <div className="stat-card primary">
               <div className="stat-content">
-                <h3>Tu Progreso</h3>
+                <h3>{t('freelancerHome.progressTitle')}</h3>
                 <div className="stat-number">78%</div>
-                <p>Perfil completado</p>
+                <p>{t('freelancerHome.profileCompleted')}</p>
               </div>
               <div className="stat-icon">📈</div>
             </div>
 
             <div className="stat-card success">
               <div className="stat-content">
-                <h3>Proyectos</h3>
+                <h3>{t('freelancerHome.projectsTitle')}</h3>
                 <div className="stat-number">12</div>
-                <p>En tu área de interés</p>
+                <p>{t('freelancerHome.projectsSubtitle')}</p>
               </div>
               <div className="stat-icon">💼</div>
             </div>
 
             <div className="stat-card info">
               <div className="stat-content">
-                <h3>Conexiones</h3>
+                <h3>{t('freelancerHome.connectionsTitle')}</h3>
                 <div className="stat-number">48</div>
-                <p>En tu red profesional</p>
+                <p>{t('freelancerHome.connectionsSubtitle')}</p>
               </div>
               <div className="stat-icon">👥</div>
             </div>
@@ -132,11 +135,11 @@ const FreelancerHome = () => {
             {/* Publicaciones de la Comunidad */}
             <div className="community-section">
               <div className="section-header">
-                <h2>Publicaciones de la Comunidad</h2>
+                <h2>{t('home.communityTitle')}</h2>
                 <div className="filter-tabs">
-                  <button className="tab active">Recientes</button>
-                  <button className="tab">Populares</button>
-                  <button className="tab">Siguiendo</button>
+                  <button className="tab active">{t('home.filters.recent')}</button>
+                  <button className="tab">{t('home.filters.popular')}</button>
+                  <button className="tab">{t('home.filters.following')}</button>
                 </div>
               </div>
 
@@ -150,12 +153,12 @@ const FreelancerHome = () => {
                 <div className="post-input">
                   <input
                     type="text"
-                    placeholder="¿Qué quieres compartir hoy?"
+                    placeholder={t('home.createPostPlaceholder')}
                   />
                   <div className="post-actions">
                     <button className="post-btn">📷</button>
                     <button className="post-btn">📎</button>
-                    <button className="publish-btn">Publicar</button>
+                    <button className="publish-btn">{t('home.publish')}</button>
                   </div>
                 </div>
               </div>
@@ -249,7 +252,7 @@ const FreelancerHome = () => {
             <div className="right-sidebar">
               {/* Tendencias */}
               <div className="widget">
-                <h3>Tendencias</h3>
+                <h3>{t('home.tendencias')}</h3>
                 <div className="trending-list">
                   <div className="trending-item">
                     <span className="trend-tag">#DiseñoUX</span>
@@ -276,7 +279,7 @@ const FreelancerHome = () => {
 
               {/* Próximos Eventos */}
               <div className="widget">
-                <h3>Próximos Eventos</h3>
+                <h3>{t('home.eventsTitle')}</h3>
                 <div className="events-list">
                   <div className="event-item">
                     <div className="event-date">
@@ -313,7 +316,7 @@ const FreelancerHome = () => {
 
               {/* Personas Recomendadas */}
               <div className="widget">
-                <h3>Conecta con Profesionales</h3>
+                <h3>{t('home.suggestedContacts')}</h3>
                 <div className="people-list">
                   <div className="person-item">
                     <div className="person-avatar">JS</div>
@@ -321,7 +324,7 @@ const FreelancerHome = () => {
                       <h4>Julia Sánchez</h4>
                       <p>Product Designer</p>
                     </div>
-                    <button className="connect-btn">Conectar</button>
+                    <button className="connect-btn">{t('freelancerHome.connect')}</button>
                   </div>
                   <div className="person-item">
                     <div className="person-avatar">MR</div>
@@ -329,7 +332,7 @@ const FreelancerHome = () => {
                       <h4>Miguel Rodríguez</h4>
                       <p>Full Stack Developer</p>
                     </div>
-                    <button className="connect-btn">Conectar</button>
+                    <button className="connect-btn">{t('freelancerHome.connect')}</button>
                   </div>
                   <div className="person-item">
                     <div className="person-avatar">LC</div>
@@ -337,7 +340,7 @@ const FreelancerHome = () => {
                       <h4>Laura Castro</h4>
                       <p>Digital Marketing</p>
                     </div>
-                    <button className="connect-btn">Conectar</button>
+                    <button className="connect-btn">{t('freelancerHome.connect')}</button>
                   </div>
                 </div>
               </div>

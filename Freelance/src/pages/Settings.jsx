@@ -57,14 +57,6 @@ const Settings = () => {
     dataCollection: true,
     twoFactorAuth: false,
   });
-
-  const [themeSettings, setThemeSettings] = useState({
-    theme: "light",
-    accentColor: "#3b82f6",
-    fontSize: "medium",
-    compactMode: false,
-  });
-
   const [languageSettings, setLanguageSettings] = useState({
     language: "es",
     timezone: "America/Guatemala",
@@ -73,17 +65,9 @@ const Settings = () => {
   });
 
   const tabs = [
-    { id: "profile", label: "Perfil", icon: "ri-user-3-line" },
-    {
-      id: "notifications",
-      label: "Notificaciones",
-      icon: "ri-notification-3-line",
-    },
-    { id: "privacy", label: "Privacidad", icon: "ri-shield-keyhole-line" },
-    { id: "appearance", label: "Apariencia", icon: "ri-palette-line" },
-    { id: "language", label: "Idioma", icon: "ri-earth-line" },
-    { id: "billing", label: "Facturación", icon: "ri-bank-card-line" },
-    { id: "data", label: "Datos", icon: "ri-download-2-line" },
+    { id: "profile", labelKey: "tabs.profile", icon: "ri-user-3-line" },
+    { id: "privacy", labelKey: "tabs.privacy", icon: "ri-shield-keyhole-line" },
+    { id: "language", labelKey: "tabs.language", icon: "ri-earth-line" }
   ];
 
   // Cargar datos del usuario al inicializar el componente
@@ -183,7 +167,7 @@ const Settings = () => {
 
     } catch (error) {
       console.error("Error cargando datos del usuario:", error);
-      setError("Error cargando la configuración del usuario. Inténtalo de nuevo.");
+  setError(t('settings.loadError'));
     } finally {
       setLoading(false);
     }
@@ -211,17 +195,17 @@ const Settings = () => {
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (profileData.email && !emailRegex.test(profileData.email)) {
-      errors.push('El email no tiene un formato válido');
+      errors.push(t('settings.profile.validation.emailInvalid'));
     }
     
     // Validar username
     const usernameRegex = /^[a-zA-Z0-9_]+$/;
     if (profileData.username && !usernameRegex.test(profileData.username)) {
-      errors.push('El usuario solo puede contener letras, números y guiones bajos');
+      errors.push(t('settings.profile.validation.usernameInvalidChars'));
     }
     
     if (profileData.username && profileData.username.length < 3) {
-      errors.push('El usuario debe tener al menos 3 caracteres');
+      errors.push(t('settings.profile.validation.usernameTooShort'));
     }
     
     return errors;
@@ -280,11 +264,11 @@ const Settings = () => {
         setSaveStatus("saved");
         setTimeout(() => setSaveStatus(""), 2000);
       } else {
-        throw new Error(response.error || "Error al guardar");
+  throw new Error(response.error || t('settings.profile.saveError'));
       }
     } catch (error) {
       console.error("Error guardando perfil:", error);
-      setError("Error al guardar los cambios. Inténtalo de nuevo.");
+  setError(t('settings.profile.saveError'));
       setSaveStatus("");
     }
   };
@@ -320,11 +304,11 @@ const Settings = () => {
             setSaveStatus("saved");
             setTimeout(() => setSaveStatus(""), 2000);
           } else {
-            throw new Error(response.error || "Error al subir imagen");
+              throw new Error(response.error || t('settings.profile.avatarUploadError'));
           }
         } catch (error) {
           console.error("Error subiendo avatar:", error);
-          setError("Error al subir la imagen. Inténtalo de nuevo.");
+          setError(t('settings.profile.avatarUploadError'));
           setSaveStatus("");
           // Revertir cambio local si falló
           setProfileData((prev) => ({ ...prev, avatar: null }));
@@ -338,11 +322,11 @@ const Settings = () => {
   const handlePasswordChange = async () => {
     try {
       if (passwordData.new_password !== passwordData.confirmPassword) {
-        setError("Las contraseñas no coinciden");
+        setError(t('settings.password.messages.mismatch'));
         return;
       }
       if (passwordData.new_password.length < 8) {
-        setError("La contraseña debe tener al menos 8 caracteres");
+        setError(t('settings.password.messages.tooShort'));
         return;
       }
 
@@ -363,11 +347,11 @@ const Settings = () => {
         });
         setTimeout(() => setSaveStatus(""), 2000);
       } else {
-        throw new Error(response.error || "Error al cambiar la contraseña");
+  throw new Error(response.error || t('settings.password.messages.changeError'));
       }
     } catch (error) {
       console.error("Error cambiando contraseña:", error);
-      setError(error.message || "Error al cambiar la contraseña");
+  setError(error.message || t('settings.password.messages.changeError'));
       setSaveStatus("");
     }
   };
@@ -394,11 +378,11 @@ const Settings = () => {
         setSaveStatus("saved");
         setTimeout(() => setSaveStatus(""), 2000);
       } else {
-        throw new Error(response.error || "Error al guardar idioma");
+  throw new Error(response.error || t('settings.language.saveError'));
       }
     } catch (err) {
       console.error("Error guardando idioma:", err);
-      setError("No fue posible guardar la configuración de idioma. Intenta de nuevo.");
+  setError(t('settings.language.saveError'));
       setSaveStatus("");
     }
   };
@@ -423,7 +407,7 @@ const Settings = () => {
         <div className="settings-page">
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p>Cargando configuración...</p>
+            <p>{t('settings.loading')}</p>
           </div>
         </div>
       </Layout>
@@ -433,13 +417,13 @@ const Settings = () => {
   return (
     <Layout
       currentPage="Settings"
-      searchPlaceholder="Buscar en configuración..."
+      searchPlaceholder={t('settings.searchPlaceholder')}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
     >
       <div className="settings-page">
         {/* Estado de guardado */}
-        {saveStatus && (
+            {saveStatus && (
           <div className={`save-status ${saveStatus}`}>
             <span className="save-icon">
               {saveStatus === "saved" ? (
@@ -448,7 +432,7 @@ const Settings = () => {
                 <i className="ri-time-line" aria-hidden="true"></i>
               )}
             </span>
-            {saveStatus === "saved" ? "Guardado" : "Guardando..."}
+            {saveStatus === "saved" ? t('settings.saved') : t('settings.saving')}
           </div>
         )}
 
@@ -469,8 +453,7 @@ const Settings = () => {
         <p>{t('settings.description')}</p>
           {q && (
             <div className="filter-hint">
-              Mostrando pestañas que coinciden con{" "}
-              <strong>"{searchQuery}"</strong>
+              {t('settings.filterHint.prefix')} <strong>"{searchQuery}"</strong>
             </div>
           )}
         </div>
@@ -493,18 +476,18 @@ const Settings = () => {
                     <span className="nav-icon">
                       <i className={tab.icon} aria-hidden="true"></i>
                     </span>
-                    <span className="nav-label">{tab.label}</span>
+                    <span className="nav-label">{t(`settings.${tab.labelKey}`)}</span>
                   </button>
                 ))
               ) : (
                 <div className="no-results">
-                  <p>No se encontraron pestañas para "{searchQuery}".</p>
+                  <p>{t('settings.noTabsFound', { query: searchQuery })}</p>
                   <button
                     onClick={() => setSearchQuery("")}
                     className="btn btn-primary"
                     style={{ marginTop: 8 }}
                   >
-                    Ver todas
+                    {t('settings.viewAll')}
                   </button>
                 </div>
               )}
@@ -516,11 +499,11 @@ const Settings = () => {
             {/* Contenido de Perfil */}
             {activeTab === "profile" && (
               <div className="tab-content">
-                <h2>Información del Perfil</h2>
+                <h2>{t('settings.profile.title')}</h2>
 
                 {/* Avatar */}
                 <div className="form-section">
-                  <label className="section-label">Foto de Perfil</label>
+                  <label className="section-label">{t('settings.profile.photoLabel')}</label>
                   <div className="avatar-upload">
                     <div className="avatar-preview">
                       {profileData.avatar ? (
@@ -544,9 +527,9 @@ const Settings = () => {
                         className="btn btn-primary"
                       >
                         <i className="ri-camera-line" aria-hidden="true"></i>{" "}
-                        Cambiar foto
+                        {t('settings.profile.changePhoto')}
                       </label>
-                      <p className="help-text">JPG, PNG o GIF. Máximo 2MB.</p>
+                      <p className="help-text">{t('settings.profile.avatarHelp')}</p>
                     </div>
                   </div>
                 </div>
@@ -554,7 +537,7 @@ const Settings = () => {
                 {/* Formulario de perfil */}
                 <div className="form-grid">
                   <div className="form-group">
-                    <label>Nombre</label>
+                    <label>{t('settings.profile.firstName')}</label>
                     <input
                       type="text"
                       value={profileData.first_name}
@@ -570,7 +553,7 @@ const Settings = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Apellido</label>
+                    <label>{t('settings.profile.lastName')}</label>
                     <input
                       type="text"
                       value={profileData.last_name}
@@ -586,7 +569,7 @@ const Settings = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Email</label>
+                    <label>{t('settings.profile.email')}</label>
                     <div className="input-with-icon">
                       <span className="input-icon">
                         <i className="ri-mail-line" aria-hidden="true"></i>
@@ -601,14 +584,14 @@ const Settings = () => {
                           }))
                         }
                         className="form-input with-icon"
-                        placeholder="tu@email.com"
+                        placeholder={t('settings.profile.emailPlaceholder')}
                       />
                     </div>
-                    <p className="help-text">Asegúrate de usar un email válido</p>
+                    <p className="help-text">{t('settings.profile.emailHelp')}</p>
                   </div>
 
                   <div className="form-group">
-                    <label>Usuario</label>
+                    <label>{t('settings.profile.username')}</label>
                     <input
                       type="text"
                       value={profileData.username}
@@ -619,13 +602,13 @@ const Settings = () => {
                         }))
                       }
                       className="form-input"
-                      placeholder="nombre_usuario"
+                      placeholder={t('settings.profile.usernamePlaceholder')}
                     />
-                    <p className="help-text">Solo letras, números y guiones bajos</p>
+                    <p className="help-text">{t('settings.profile.usernameHelp')}</p>
                   </div>
 
                   <div className="form-group">
-                    <label>Teléfono</label>
+                    <label>{t('settings.profile.phone')}</label>
                     <div className="input-with-icon">
                       <span className="input-icon">
                         <i
@@ -648,7 +631,7 @@ const Settings = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Ubicación</label>
+                    <label>{t('settings.profile.location')}</label>
                     <input
                       type="text"
                       value={profileData.location}
@@ -664,7 +647,7 @@ const Settings = () => {
                 </div>
 
                 <div className="form-group full-width">
-                  <label>Biografía</label>
+                  <label>{t('settings.profile.bioLabel')}</label>
                   <textarea
                     value={profileData.bio}
                     onChange={(e) =>
@@ -677,16 +660,16 @@ const Settings = () => {
                     className="form-textarea"
                   />
                   <p className="help-text">
-                    Cuéntanos un poco sobre ti y tu trabajo
+                    {t('settings.profile.bioHelp')}
                   </p>
                 </div>
 
                 {/* Enlaces sociales */}
                 <div className="form-section">
-                  <h3>Enlaces Sociales</h3>
+                  <h3>{t('settings.profile.socialTitle')}</h3>
                   <div className="form-grid">
                     <div className="form-group">
-                      <label>Sitio web</label>
+                      <label>{t('settings.profile.website')}</label>
                       <input
                         type="url"
                         value={profileData.website}
@@ -696,13 +679,13 @@ const Settings = () => {
                             website: e.target.value,
                           }))
                         }
-                        placeholder="www.tusitio.com"
+                        placeholder={t('settings.profile.websitePlaceholder')}
                         className="form-input"
                       />
                     </div>
 
                     <div className="form-group">
-                      <label>LinkedIn</label>
+                      <label>{t('settings.profile.linkedin')}</label>
                       <input
                         type="url"
                         value={profileData.linkedin}
@@ -712,13 +695,13 @@ const Settings = () => {
                             linkedin: e.target.value,
                           }))
                         }
-                        placeholder="linkedin.com/in/tuusuario"
+                        placeholder={t('settings.profile.linkedinPlaceholder')}
                         className="form-input"
                       />
                     </div>
 
                     <div className="form-group">
-                      <label>GitHub</label>
+                      <label>{t('settings.profile.github')}</label>
                       <input
                         type="url"
                         value={profileData.github}
@@ -728,7 +711,7 @@ const Settings = () => {
                             github: e.target.value,
                           }))
                         }
-                        placeholder="github.com/tuusuario"
+                        placeholder={t('settings.profile.githubPlaceholder')}
                         className="form-input"
                       />
                     </div>
@@ -737,10 +720,10 @@ const Settings = () => {
 
                 {/* Cambio de contraseña */}
                 <div className="form-section password-section">
-                  <h3>Cambiar Contraseña</h3>
+                  <h3>{t('settings.password.title')}</h3>
                   <div className="form-grid">
-                    <div className="form-group">
-                      <label>Contraseña actual</label>
+            <div className="form-group">
+              <label>{t('settings.password.currentLabel')}</label>
                       <div className="password-input">
                         <span className="input-icon">
                           <i className="ri-lock-2-line" aria-hidden="true"></i>
@@ -774,7 +757,7 @@ const Settings = () => {
                     </div>
 
                     <div className="form-group">
-                      <label>Nueva contraseña</label>
+                      <label>{t('settings.password.newLabel')}</label>
                       <div className="password-input">
                         <span className="input-icon">
                           <i className="ri-lock-2-line" aria-hidden="true"></i>
@@ -809,7 +792,7 @@ const Settings = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Confirmar nueva contraseña</label>
+                    <label>{t('settings.password.confirmLabel')}</label>
                     <input
                       type="password"
                       value={passwordData.confirmPassword}
@@ -829,7 +812,7 @@ const Settings = () => {
                     className="btn btn-danger"
                     disabled={saveStatus === "saving"}
                   >
-                    {saveStatus === "saving" ? "Actualizando..." : "Actualizar contraseña"}
+                    {saveStatus === "saving" ? t('settings.password.updating') : t('settings.password.update')}
                   </button>
                 </div>
 
@@ -839,7 +822,7 @@ const Settings = () => {
                   disabled={saveStatus === "saving"}
                 >
                   <i className="ri-save-3-line" aria-hidden="true"></i> 
-                  {saveStatus === "saving" ? "Guardando..." : "Guardar cambios"}
+                  {saveStatus === "saving" ? t('settings.saving') : t('settings.saveChanges')}
                 </button>
               </div>
             )}
@@ -893,6 +876,34 @@ const Settings = () => {
                   >
                     {saveStatus === "saving" ? t('actions.saving') : t('actions.saveLanguage')}
                   </button>
+                </div>
+              </div>
+            )}
+
+            {/* Privacidad */}
+            {activeTab === "privacy" && (
+              <div className="tab-content">
+                <h2>Privacidad</h2>
+                <p className="help-text">Tu privacidad es importante para nosotros. Aquí puedes revisar y controlar cómo se usan tus datos personales en la aplicación.</p>
+
+                <div className="form-section">
+                  <h3>{t('privacy.permissions')}</h3>
+                  <p className="help-text">{t('privacy.permissionsText', 'Control the app permissions and what data it can access.')}</p>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => window.open('/settings/permissions', '_self')}
+                  >
+                    {t('privacy.permissionsManage')}
+                  </button>
+                </div>
+
+                <div className="form-section">
+                  <h3>{t('privacy.policy')}</h3>
+                  <p className="help-text">{t('privacy.policyText', 'Read how we collect and use your data.')}</p>
+                  <a href="/privacy-policy.pdf" target="_blank" rel="noreferrer" className="btn btn-link">
+                    {t('privacy.policyLink')}
+                  </a>
                 </div>
               </div>
             )}

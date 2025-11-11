@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from 'react-i18next';
 import { createPortal } from "react-dom";
 import Layout from "../Components/Layout.jsx";
 import "../styles/Calendario.css";
@@ -7,6 +8,7 @@ import { useAuth } from "../hooks/useAuth.js";
 const API = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:3000";
 
 const Calendario = () => {
+  const { t } = useTranslation();
   const { authenticatedFetch, user, isAuthenticated, isLoading } = useAuth();
   const [projects, setProjects] = React.useState([]);
   const [loadingProjects, setLoadingProjects] = React.useState(true);
@@ -25,8 +27,8 @@ const Calendario = () => {
           maxWidth: '600px',
           margin: '0 auto'
         }}>
-          <h2>🔒 Acceso Restringido</h2>
-          <p>Debes iniciar sesión para acceder al calendario.</p>
+          <h2>{t('calendar.accessRestrictedTitle')}</h2>
+          <p>{t('calendar.accessRestrictedText')}</p>
           <button
             onClick={() => window.location.href = '/login'}
             style={{
@@ -36,7 +38,7 @@ const Calendario = () => {
               cursor: 'pointer'
             }}
           >
-            Ir al Login
+            {t('calendar.goToLogin')}
           </button>
         </div>
       </Layout>
@@ -271,7 +273,7 @@ const Calendario = () => {
       !nuevoEvento.month ||
       !nuevoEvento.year
     ) {
-      alert("Por favor, completa todos los campos");
+      alert(t('calendar.errors.fillAllFields'));
       return;
     }
 
@@ -281,7 +283,7 @@ const Calendario = () => {
     }
 
     if (nuevoEvento.month < 1 || nuevoEvento.month > 12) {
-      alert("El mes debe estar entre 1 y 12");
+      alert(t('calendar.errors.monthRange'));
       return;
     }
 
@@ -308,7 +310,7 @@ const Calendario = () => {
       });
 
       if (response.status === 401 || response.status === 403) {
-        alert('⚠️ Sesión expirada o sin permisos. Por favor, inicia sesión nuevamente.');
+        alert(t('calendar.errors.sessionExpiredPermissions'));
         return;
       }
 
@@ -335,15 +337,15 @@ const Calendario = () => {
     } catch (error) {
       console.error("Error de conexión:", error);
       if (error.message === 'Sesión expirada') {
-        alert('🔒 Tu sesión ha expirado. Serás redirigido al login.');
+        alert(t('calendar.errors.sessionExpired'));
       } else {
-        alert("Error de conexión con el servidor");
+        alert(t('calendar.errors.connection'));
       }
     }
   };
 
   const eliminarEvento = async (id) => {
-    if (!confirm("¿Estás seguro de que quieres eliminar este evento?")) {
+    if (!window.confirm(t('calendar.deleteConfirm'))) {
       return;
     }
 
@@ -351,7 +353,7 @@ const Calendario = () => {
       const res = await authenticatedFetch(`${API}/api/events/${id}`, { method: "DELETE" });
 
       if (res.status === 401 || res.status === 403) {
-        alert('⚠️ No tienes permisos para eliminar este evento o tu sesión expiró.');
+        alert(t('calendar.errors.noDeletePermission'));
         return;
       }
 
@@ -366,9 +368,9 @@ const Calendario = () => {
     } catch (error) {
       console.error("Error de conexión al eliminar:", error);
       if (error.message === 'Sesión expirada') {
-        alert('🔒 Tu sesión ha expirado.');
+        alert(t('calendar.errors.sessionExpired'));
       } else {
-        alert("Error de conexión al eliminar el evento");
+        alert(t('calendar.errors.deleteConnection'));
       }
     }
   };
@@ -383,20 +385,7 @@ const Calendario = () => {
   const esHoy = (d, m = mesVisualizando, y = nuevoEvento.year) =>
     d === hoy.getDate() && m === hoy.getMonth() + 1 && y === hoy.getFullYear();
 
-  const MESES = [
-    "enero",
-    "febrero",
-    "marzo",
-    "abril",
-    "mayo",
-    "junio",
-    "julio",
-    "agosto",
-    "septiembre",
-    "octubre",
-    "noviembre",
-    "diciembre",
-  ];
+  const MESES = Array.from({ length: 12 }, (_, i) => t(`calendar.form.months.${i + 1}`));
   const fechaCorta = (d, m, y) => `${d} ${MESES[m - 1]}`;
 
   const handlePrev = () => {
@@ -521,7 +510,7 @@ const Calendario = () => {
   return (
     <Layout
       currentPage="calendar"
-      searchPlaceholder="Buscar eventos..."
+      searchPlaceholder={t('calendar.searchPlaceholder')}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
     >
@@ -746,7 +735,7 @@ const Calendario = () => {
                 className="add-event-btn"
                 onClick={handleNewEvent}
               >
-                Agregar evento
+                {t('calendar.createEvent')}
               </button>
             </div>
           </div>
@@ -793,7 +782,7 @@ const Calendario = () => {
                   }}
                 >
                   <h3 style={{ margin: "0 0 12px" }}>
-                    {eventoEditando ? "Editar evento" : "Agregar evento"}
+                    {eventoEditando ? t('calendar.modal.editTitle') : t('calendar.modal.addTitle')}
                   </h3>
                   <form
                     onSubmit={handleSubmit}
@@ -803,7 +792,7 @@ const Calendario = () => {
                     <input
                       ref={titleInputRef}
                       type="text"
-                      placeholder="Título"
+                      placeholder={t('calendar.form.titlePlaceholder')}
                       value={nuevoEvento.title}
                       onChange={(e) =>
                         setNuevoEvento({
@@ -823,7 +812,7 @@ const Calendario = () => {
                     />
                     <input
                       type="number"
-                      placeholder="Día (1-31)"
+                      placeholder={t('calendar.form.dayPlaceholder')}
                       min="1"
                       max="31"
                       value={nuevoEvento.day}
@@ -861,19 +850,19 @@ const Calendario = () => {
                         outline: "none",
                       }}
                     >
-                      <option value="">Selecciona mes</option>
-                      <option value="1">Enero</option>
-                      <option value="2">Febrero</option>
-                      <option value="3">Marzo</option>
-                      <option value="4">Abril</option>
-                      <option value="5">Mayo</option>
-                      <option value="6">Junio</option>
-                      <option value="7">Julio</option>
-                      <option value="8">Agosto</option>
-                      <option value="9">Septiembre</option>
-                      <option value="10">Octubre</option>
-                      <option value="11">Noviembre</option>
-                      <option value="12">Diciembre</option>
+                      <option value="">{t('calendar.form.selectMonth')}</option>
+                      <option value="1">{t('calendar.form.months.1')}</option>
+                      <option value="2">{t('calendar.form.months.2')}</option>
+                      <option value="3">{t('calendar.form.months.3')}</option>
+                      <option value="4">{t('calendar.form.months.4')}</option>
+                      <option value="5">{t('calendar.form.months.5')}</option>
+                      <option value="6">{t('calendar.form.months.6')}</option>
+                      <option value="7">{t('calendar.form.months.7')}</option>
+                      <option value="8">{t('calendar.form.months.8')}</option>
+                      <option value="9">{t('calendar.form.months.9')}</option>
+                      <option value="10">{t('calendar.form.months.10')}</option>
+                      <option value="11">{t('calendar.form.months.11')}</option>
+                      <option value="12">{t('calendar.form.months.12')}</option>
                     </select>
                     <div
                       style={{
@@ -896,22 +885,21 @@ const Calendario = () => {
                           cursor: "pointer",
                         }}
                       >
-                        Cancelar
+                        {t('calendar.form.cancel')}
                       </button>
                       <button
                         type="submit"
                         style={{
                           padding: "10px 14px",
                           borderRadius: "10px",
-                          background: "#1e3a8a",
-                          border: "none",
+                          background: "#0f172a",
+                          border: "1px solid rgba(0,0,0,0.05)",
                           color: "#ffffff",
                           fontWeight: 700,
                           cursor: "pointer",
-                          boxShadow: "0 6px 14px rgba(30, 58, 138, 0.25)",
                         }}
                       >
-                        {eventoEditando ? "Actualizar" : "Guardar"}
+                        {eventoEditando ? t('calendar.form.update') : t('calendar.form.save')}
                       </button>
                     </div>
                   </form>
@@ -1029,7 +1017,7 @@ const Calendario = () => {
                                   });
                                   setShowModal(true);
                                 }}
-                                title="Editar"
+                                title={t('actions.edit')}
                               >
                                 ✏️
                               </button>
@@ -1038,7 +1026,7 @@ const Calendario = () => {
                                   e.stopPropagation();
                                   eliminarEvento(evento.id);
                                 }}
-                                title="Eliminar"
+                                title={t('actions.delete')}
                               >
                                 🗑️
                               </button>
@@ -1122,7 +1110,7 @@ const Calendario = () => {
                                   });
                                   setShowModal(true);
                                 }}
-                                title="Editar"
+                                title={t('actions.edit')}
                               >
                                 ✏️
                               </button>
@@ -1131,7 +1119,7 @@ const Calendario = () => {
                                   e.stopPropagation();
                                   eliminarEvento(evento.id);
                                 }}
-                                title="Eliminar"
+                                title={t('actions.delete')}
                               >
                                 🗑️
                               </button>
@@ -1158,15 +1146,13 @@ const Calendario = () => {
         >
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
-            <h3>Mejora tu organización</h3>
-            <p>
-              Accede a un calendario completo y gestiona tus tareas fácilmente.
-            </p>
-            <button className="upgrade-btn">Descubrir más</button>
+            <h3>{t('calendar.premium.title')}</h3>
+            <p>{t('calendar.premium.desc')}</p>
+            <button className="upgrade-btn">{t('calendar.premium.cta')}</button>
           </div>
 
           <div className="widget trending-topics" style={{ marginTop: 16 }}>
-            <h3>Eventos Recientes</h3>
+            <h3>{t('calendar.recentEventsTitle')}</h3>
             <ul className="topics-list">
               {(() => {
                 const recientes = [...filteredEventos]
@@ -1178,7 +1164,7 @@ const Calendario = () => {
                   )
                   .slice(0, 6);
                 if (recientes.length === 0)
-                  return <li>No hay eventos recientes</li>;
+                  return <li>{t('calendar.noRecentEvents')}</li>;
                 return recientes.map((e) => (
                   <li key={e.id ?? `${e.title}-${e.day}-${e.month}-${e.year}`}>
                     {e.title} -{" "}
@@ -1195,10 +1181,10 @@ const Calendario = () => {
           />
 
           <div className="widget trending-topics" style={{ marginTop: 16 }}>
-            <h3>Proyectos Recientes</h3>
+            <h3>{t('calendar.recentProjectsTitle')}</h3>
             <ul className="topics-list">
               {(() => {
-                if (loadingProjects) return <li>Cargando proyectos…</li>;
+                if (loadingProjects) return <li>{t('calendar.loadingProjects')}</li>;
                 const recientes = Array.isArray(projects)
                   ? projects
                     .filter((p) => p && p.title && p.deadline)
@@ -1208,7 +1194,7 @@ const Calendario = () => {
                     .slice(0, 6)
                   : [];
                 if (recientes.length === 0)
-                  return <li>No hay proyectos recientes</li>;
+                  return <li>{t('calendar.noRecentProjects')}</li>;
                 return recientes.map((p) => {
                   const d = new Date(p.deadline);
                   const day = d.getDate();

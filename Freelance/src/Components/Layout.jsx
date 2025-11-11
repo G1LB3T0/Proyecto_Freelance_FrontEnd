@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import "../styles/Layout.css";
 import authService from "../services/authService";
@@ -27,16 +27,16 @@ const Layout = ({
       if (userData) {
         const user = JSON.parse(userData);
         console.log("Layout - User data from localStorage:", user);
-        
+
         // Validar que user sea un objeto válido
-        if (user && typeof user === 'object') {
+        if (user && typeof user === "object") {
           setCurrentUser(user);
         } else {
           console.warn("Layout - Invalid user data structure:", user);
           setCurrentUser({
             name: "Usuario",
             username: "usuario",
-            user_type: "unknown"
+            user_type: "unknown",
           });
         }
       }
@@ -45,8 +45,8 @@ const Layout = ({
       // Establecer un usuario por defecto en caso de error
       setCurrentUser({
         name: "Usuario",
-        username: "usuario", 
-        user_type: "unknown"
+        username: "usuario",
+        user_type: "unknown",
       });
     }
   }, []);
@@ -56,17 +56,17 @@ const Layout = ({
     const handler = (e) => {
       try {
         const updated = e?.detail;
-        if (updated && typeof updated === 'object') {
+        if (updated && typeof updated === "object") {
           setCurrentUser(updated);
-          console.log('Layout - user-updated event received:', updated);
+          console.log("Layout - user-updated event received:", updated);
         }
       } catch (err) {
-        console.warn('Error handling user-updated event', err);
+        console.warn("Error handling user-updated event", err);
       }
     };
 
-    window.addEventListener('user-updated', handler);
-    return () => window.removeEventListener('user-updated', handler);
+    window.addEventListener("user-updated", handler);
+    return () => window.removeEventListener("user-updated", handler);
   }, []);
 
   // Escuchar cambios de idioma emitidos desde Settings
@@ -78,7 +78,9 @@ const Layout = ({
           setAppLanguage(lang);
           localStorage.setItem("appLanguage", lang);
           console.log("Layout - language-changed event received:", lang);
-          try { i18n.changeLanguage(lang); } catch (err) {}
+          try {
+            i18n.changeLanguage(lang);
+          } catch (err) {}
         }
       } catch (err) {
         console.warn("Error handling language-changed event", err);
@@ -100,65 +102,24 @@ const Layout = ({
 
   // Menú para Project Manager y Emprendedor
   const projectManagerMenu = [
-    { path: "/home", label: " Inicio", key: "home", icon: "ri-home-2-line" },
-    {
-      path: "/calendario",
-      label: " Calendario",
-      key: "calendar",
-      icon: "ri-calendar-line",
-    },
-    {
-      path: "/proyectos",
-      label: " Proyectos",
-      key: "projects",
-      icon: "ri-briefcase-line",
-    },
-    {
-      path: "/finanzas",
-      label: " Finanzas",
-      key: "finance",
-      icon: "ri-money-dollar-circle-line",
-    },
-    {
-      path: "/estadisticas",
-      label: " Estadísticas",
-      key: "stats",
-      icon: "ri-bar-chart-2-line",
-    },
-    {
-      path: "/Settings",
-      label: " Settings",
-      key: "Settings",
-      icon: "ri-settings-3-line",
-    },
+    { path: "/home", labelKey: "menu.home", key: "home", icon: "ri-home-2-line" },
+    { path: "/calendario", labelKey: "menu.calendar", key: "calendar", icon: "ri-calendar-line" },
+    { path: "/proyectos", labelKey: "menu.projects", key: "projects", icon: "ri-briefcase-line" },
+    { path: "/gestionar-propuestas", labelKey: "menu.proposals", key: "proposals", icon: "ri-file-list-3-line" },
+    { path: "/mis-contratos", labelKey: "menu.contracts", key: "contracts", icon: "ri-file-text-line" },
+    { path: "/finanzas", labelKey: "menu.finance", key: "finance", icon: "ri-money-dollar-circle-line" },
+    { path: "/estadisticas", labelKey: "menu.stats", key: "stats", icon: "ri-bar-chart-2-line" },
+    { path: "/Settings", labelKey: "menu.settings", key: "Settings", icon: "ri-settings-3-line" },
   ];
 
   // Menú para Freelancer
   const freelancerMenu = [
-    {
-      path: "/freelancer-home",
-      label: " Inicio",
-      key: "home",
-      icon: "ri-home-2-line",
-    },
-    {
-      path: "/freelancer-finanzas",
-      label: " Finanzas",
-      key: "finance",
-      icon: "ri-money-dollar-circle-line",
-    },
-    {
-      path: "/freelancer-estadisticas",
-      label: " Estadísticas",
-      key: "stats",
-      icon: "ri-bar-chart-2-line",
-    },
-    {
-      path: "/freelancer-settings",
-      label: " Settings",
-      key: "Settings",
-      icon: "ri-settings-3-line",
-    },
+    { path: "/freelancer-home", labelKey: "menu.home", key: "home", icon: "ri-home-2-line" },
+    { path: "/ver-proyectos-freelancer", labelKey: "menu.projects", key: "freelancer-projects", icon: "ri-briefcase-line" },
+    { path: "/mis-contratos", labelKey: "menu.contracts", key: "contracts", icon: "ri-file-text-line" },
+    { path: "/freelancer-finanzas", labelKey: "menu.finance", key: "finance", icon: "ri-money-dollar-circle-line" },
+    { path: "/freelancer-estadisticas", labelKey: "menu.stats", key: "stats", icon: "ri-bar-chart-2-line" },
+    { path: "/freelancer-settings", labelKey: "menu.settings", key: "Settings", icon: "ri-settings-3-line" },
   ];
 
   // Determinar qué menú mostrar según el tipo de usuario
@@ -180,12 +141,9 @@ const Layout = ({
   const menuItems = getMenuItems();
 
   const notifications = [
-    { icon: "ri-mail-line", text: "Pancho te envió un mensaje" },
-    { icon: "ri-briefcase-line", text: "Nueva oportunidad de trabajo" },
-    {
-      icon: "ri-pause-circle-line",
-      text: "Has pausado el proyecto Sistema de Inventario",
-    },
+    { icon: "ri-mail-line", key: "notifications.sample.messageFromPancho" },
+    { icon: "ri-briefcase-line", key: "notifications.sample.newOpportunity" },
+    { icon: "ri-pause-circle-line", key: "notifications.sample.projectPaused" },
   ];
 
   // Handler para cerrar el popup al hacer clic fuera
@@ -198,13 +156,13 @@ const Layout = ({
   // Cerrar menú de usuario al hacer clic fuera
   useEffect(() => {
     const onClickOutside = (e) => {
-      const container = document.querySelector('.user-menu');
+      const container = document.querySelector(".user-menu");
       if (container && !container.contains(e.target)) {
         setShowUserMenu(false);
       }
     };
-    document.addEventListener('click', onClickOutside);
-    return () => document.removeEventListener('click', onClickOutside);
+    document.addEventListener("click", onClickOutside);
+    return () => document.removeEventListener("click", onClickOutside);
   }, []);
 
   // ✅ NUEVO - Handler para búsqueda
@@ -220,7 +178,7 @@ const Layout = ({
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h2 className="sidebar-title">{t('app.title')}</h2>
+          <h2 className="sidebar-title">{t("app.title")}</h2>
         </div>
 
         <div className="user-profile">
@@ -240,21 +198,22 @@ const Layout = ({
               <i className="ri-user-line" aria-hidden="true"></i>
             )}
           </div>
-          <p>{t('greeting')}</p>
+          <p>{t("greeting")}</p>
           <h3>
             {(currentUser && currentUser.full_name) ||
               (currentUser && currentUser.first_name && currentUser.last_name
                 ? `${currentUser.first_name} ${currentUser.last_name}`
-                : (currentUser && (currentUser.name || currentUser.username)) || t('greeting'))}
+                : (currentUser && (currentUser.name || currentUser.username)) ||
+                  t("greeting"))}
           </h3>
           {currentUser && currentUser.user_type && (
             <p style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
               {currentUser.user_type === "project_manager"
-                ? "Project Manager"
+                ? t('roles.project_manager')
                 : currentUser.user_type === "freelancer"
-                ? "Freelancer"
+                ? t('roles.freelancer')
                 : currentUser.user_type === "client"
-                ? "Cliente"
+                ? t('roles.client')
                 : currentUser.user_type}
             </p>
           )}
@@ -271,7 +230,7 @@ const Layout = ({
                   <span className="icon">
                     <i className={item.icon} aria-hidden="true"></i>
                   </span>
-                  <span className="label">{item.label}</span>
+                  <span className="label">{item.labelKey ? t(item.labelKey) : item.label}</span>
                 </Link>
               </li>
             ))}
@@ -279,7 +238,7 @@ const Layout = ({
         </nav>
 
         <div className="sidebar-footer">
-          <button className="premium-btn">Actualizar a Premium</button>
+          <button className="premium-btn">{t('premium.upgrade')}</button>
         </div>
       </aside>
 
@@ -315,7 +274,7 @@ const Layout = ({
                   display: "flex",
                   alignItems: "center",
                 }}
-                title="Limpiar búsqueda"
+                title={t('actions.clearSearch')}
               >
                 <i className="ri-close-line" aria-hidden="true"></i>
               </button>
@@ -328,7 +287,7 @@ const Layout = ({
                 className="notification-icon"
                 onClick={() => setShowNotifications(!showNotifications)}
                 style={{ cursor: "pointer" }}
-                title="Ver notificaciones"
+                title={t('notifications.title')}
               >
                 <i className="ri-notification-3-line" aria-hidden="true"></i>
               </div>
@@ -341,11 +300,11 @@ const Layout = ({
                     <button
                       className="notification-close-btn"
                       onClick={() => setShowNotifications(false)}
-                      aria-label="Cerrar"
+                      aria-label={t('actions.close')}
                     >
                       <i className="ri-close-line" aria-hidden="true"></i>
                     </button>
-                    <h4 className="notification-title">Notificaciones</h4>
+                    <h4 className="notification-title">{t('notifications.title')}</h4>
                     <ul className="notification-list">
                       {notifications.map((notification, index) => (
                         <li className="notification-item" key={index}>
@@ -354,7 +313,7 @@ const Layout = ({
                             aria-hidden="true"
                             style={{ marginRight: "8px" }}
                           ></i>
-                          {notification.text}
+                          {t(notification.key)}
                         </li>
                       ))}
                     </ul>
@@ -367,17 +326,28 @@ const Layout = ({
             </div>
 
             {/* Language quick switch */}
-            <div style={{ marginLeft: 12, display: 'flex', alignItems: 'center' }}>
+            <div
+              style={{ marginLeft: 12, display: "flex", alignItems: "center" }}
+            >
               <select
                 value={appLanguage}
                 onChange={(e) => {
                   const lang = e.target.value;
                   setAppLanguage(lang);
-                  try { localStorage.setItem('appLanguage', lang); } catch (err) {}
-                  window.dispatchEvent(new CustomEvent('language-changed', { detail: lang }));
+                  try {
+                    localStorage.setItem("appLanguage", lang);
+                  } catch (err) {}
+                  window.dispatchEvent(
+                    new CustomEvent("language-changed", { detail: lang })
+                  );
                 }}
-                aria-label="Seleccionar idioma"
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff' }}
+                aria-label={t('settings.language.interface')}
+                style={{
+                  padding: "6px 8px",
+                  borderRadius: 6,
+                  border: "1px solid #e2e8f0",
+                  background: "#fff",
+                }}
               >
                 <option value="es">ES</option>
                 <option value="en">EN</option>
@@ -387,7 +357,7 @@ const Layout = ({
               <span
                 className="user-avatar"
                 onClick={() => setShowUserMenu((v) => !v)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 title="Menú de usuario"
               >
                 {currentUser?.avatar ? (
@@ -408,22 +378,30 @@ const Layout = ({
               <span
                 className="dropdown-arrow"
                 onClick={() => setShowUserMenu((v) => !v)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 aria-label="Abrir menú de usuario"
               >
                 <i className="ri-arrow-down-s-line" aria-hidden="true"></i>
               </span>
 
               {showUserMenu && (
-                <div className="user-dropdown" role="menu" aria-label="Menú de usuario">
+                <div
+                  className="user-dropdown"
+                  role="menu"
+                  aria-label="Menú de usuario"
+                >
                   {/* Futuro: <button className="user-dropdown-item" role="menuitem">Perfil</button> */}
-                  <button
+                    <button
                     className="user-dropdown-item"
                     role="menuitem"
                     onClick={() => authService.logout()}
                   >
-                    <i className="ri-logout-box-r-line" aria-hidden="true" style={{ marginRight: 8 }}></i>
-                    Cerrar sesión
+                    <i
+                      className="ri-logout-box-r-line"
+                      aria-hidden="true"
+                      style={{ marginRight: 8 }}
+                    ></i>
+                    {t('actions.logout')}
                   </button>
                 </div>
               )}

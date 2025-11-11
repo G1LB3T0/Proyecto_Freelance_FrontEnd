@@ -1,0 +1,406 @@
+{
+  "app": { "title": "FreelanceHub" },
+  "greeting": "Welcome",
+  "top": { "searchPlaceholder": "Search..." },
+  "premium": { "upgrade": "Upgrade to Premium" },
+  "settings": {
+    "title": "Settings",
+    "description": "Customize your experience on the platform",
+    "language": { "title": "Language", "interface": "Interface language", "saveError": "Unable to save language settings. Please try again." },
+    "saveChanges": "Save changes",
+    "loading": "Loading settings...",
+    "filterHint": { "prefix": "Showing tabs that match" },
+    "noTabsFound": "No tabs found for \"{{query}}\".",
+    "viewAll": "View all",
+    "tabs": {
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "privacy": "Privacy",
+      "language": "Language",
+      "billing": "Billing",
+      "data": "Data"
+    },
+    "searchPlaceholder": "Search settings...",
+    "profile": {
+      "title": "Profile Information",
+      "photoLabel": "Profile Photo",
+      "changePhoto": "Change photo",
+      "avatarHelp": "JPG, PNG or GIF. Max 2MB.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "emailHelp": "Make sure to use a valid email",
+      "username": "Username",
+      "usernameHelp": "Only letters, numbers and underscores",
+      "usernamePlaceholder": "username",
+      "phone": "Phone",
+      "location": "Location",
+      "socialTitle": "Social Links",
+      "bioLabel": "Biography",
+      "bioHelp": "Tell us a bit about yourself and your work",
+      "website": "Website",
+      "websitePlaceholder": "www.yoursite.com",
+      "linkedin": "LinkedIn",
+      "linkedinPlaceholder": "linkedin.com/in/yourname",
+      "github": "GitHub",
+      "githubPlaceholder": "github.com/yourusername",
+      "validation": {
+        "emailInvalid": "Email format is invalid",
+        "usernameInvalidChars": "Username may only contain letters, numbers and underscores",
+        "usernameTooShort": "Username must be at least 3 characters"
+      },
+      "saveError": "Error saving profile changes. Please try again.",
+      "avatarUploadError": "Error uploading image. Please try again."
+    },
+    "password": {
+      "title": "Change Password",
+      "update": "Update password",
+      "updating": "Updating...",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "confirmLabel": "Confirm new password",
+      "messages": {
+        "mismatch": "Passwords do not match",
+        "tooShort": "Password must be at least 8 characters",
+        "changeError": "Error changing password"
+      }
+    },
+    "saving": "Saving...",
+    "saved": "Saved",
+    "loadError": "Error loading user settings. Please try again."
+  },
+  "login": {
+    "title": "Sign in",
+    "welcome": "Welcome back",
+    "emailLabel": "Email",
+    "emailPlaceholder": "user@example.com",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot your password?",
+    "rememberMe": "Remember me",
+    "signingIn": "Signing in...",
+    "signIn": "Sign in",
+    "noAccount": "Don't have an account? ",
+    "registerNow": "Register now",
+    "continueWith": "Or continue with",
+    "social": { "google": "Google", "github": "GitHub", "microsoft": "Microsoft" },
+    "messages": { "successRedirect": "Login successful - Redirecting...", "errorLogin": "Error signing in", "errorConnection": "Connection error with server" }
+  },
+  "register": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "emailLabel": "Email",
+    "usernameLabel": "Username",
+    "placeholders": { "firstName": "John", "lastName": "Doe", "email": "user@example.com", "username": "johndoe" },
+    "next": "Next",
+    "back": "Back",
+    "registering": "Registering...",
+    "createAccount": "Create account",
+    "loginLink": "Sign in",
+    "messages": { "passwordsMismatch": "Passwords do not match", "passwordTooShort": "Password must be at least 8 characters", "success": "Registration successful! Account created." }
+  },
+  "home": {
+    "communityTitle": "Community Posts",
+    "createPostPlaceholder": "What do you want to share today?",
+    "imageUrlPlaceholder": "Image URL (optional)",
+    "eventsTitle": "Upcoming Events",
+    "seeAll": "See All",
+    "noPosts": "No posts available",
+    "loading": "Loading...",
+    "errorLoadingPosts": "Error loading posts",
+    "stats": { "projects": "Projects", "contacts": "Contacts", "visits": "Visits" },
+    "filters": { "recent": "Recent", "popular": "Popular", "following": "Following" },
+    "publish": "Publish",
+    "loadMore": "Load more posts",
+    "premium": { "title": "Boost your Freelance Career", "desc": "Access exclusive clients and advanced tools.", "cta": "Learn more" },
+    "suggestedContacts": "People you may know",
+    "suggestionsLoading": "Loading...",
+    "connect": "+",
+    "undefined": "To be defined",
+    "close": "Close",
+    "viewInCalendar": "View in Calendar",
+    "sampleEvents": {
+      "1": { "title": "Webinar: Digital Marketing", "description": "Learn the latest social media positioning strategies with digital marketing experts." },
+      "2": { "title": "React Workshop", "description": "Hands-on workshop on React Hooks and best practices in modern frontend development." },
+      "3": { "title": "Online Networking", "description": "Connect with other freelancers and tech professionals in an interactive virtual meetup." }
+    }
+  },
+  "calendar": {
+    "accessRestrictedTitle": "🔒 Restricted Access",
+    "accessRestrictedText": "You must be logged in to access the calendar.",
+    "goToLogin": "Go to Login",
+    "createEvent": "Create event",
+    "eventCreated": "Event saved successfully",
+    "deleteConfirm": "Are you sure you want to delete this event?",
+    "recentEventsTitle": "Recent Events",
+    "noRecentEvents": "No recent events",
+    "recentProjectsTitle": "Recent Projects",
+    "loadingProjects": "Loading projects…",
+    "noRecentProjects": "No recent projects"
+    ,
+    "searchPlaceholder": "Search events...",
+    "modal": {
+      "addTitle": "Add event",
+      "editTitle": "Edit event"
+    },
+    "form": {
+      "titlePlaceholder": "Title",
+      "dayPlaceholder": "Day (1-31)",
+      "selectMonth": "Select month",
+      "months": {
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      },
+      "cancel": "Cancel",
+      "save": "Save",
+      "update": "Update"
+    }
+  },
+  "finance": {
+    "title": "Finance",
+    "searchPlaceholder": "Search transactions, clients or categories...",
+    "addTransaction": "Add transaction",
+    "newExpense": "+ New Expense",
+    "newIncome": "+ New Income",
+    "cards": {
+      "incomeMonth": "Monthly Income",
+      "expenseMonth": "Monthly Expenses",
+      "yearlyIncome": "Yearly Income"
+    },
+    "categoriesTitle": "Categories",
+  "transactionsTitle": "Transactions",
+    "filters": {
+      "all": "All",
+      "income": "Income",
+      "expense": "Expenses"
+    },
+    "form": {
+      "typeLabel": "Type",
+      "categoryLabel": "Category",
+      "conceptLabel": "Concept",
+      "conceptPlaceholder": "Transaction description",
+      "clientOptional": "Client (optional)",
+      "amountLabel": "Amount (Q)",
+      "amountPlaceholder": "0.00",
+      "dateLabel": "Date",
+      "save": "Save",
+      "cancel": "Cancel",
+      "income": "Income",
+      "expense": "Expense"
+    },
+    "noTransactions": "No transactions"
+  },
+  "freelancer": {
+    "panelTitle": "Freelancer Dashboard",
+    "kpis": { "rating": "Rating", "completed": "Completed", "activeClients": "Active clients", "satisfaction": "Satisfaction" }
+  },
+  "actions": { "save": "Save", "saving": "Saving...", "saved": "Saved", "delete": "Delete", "confirm": "Confirm", "edit": "Edit", "saveLanguage": "Save language", "clearSearch": "Clear search", "logout": "Log out", "close": "Close" },
+
+  "menu": {
+    "home": "Home",
+    "calendar": "Calendar",
+    "projects": "Projects",
+    "proposals": "Proposals",
+    "contracts": "Contracts",
+    "finance": "Finance",
+    "stats": "Statistics",
+    "settings": "Settings"
+  },
+
+  "notifications": {
+    "title": "Notifications",
+    "sample": {
+      "messageFromPancho": "Message from Pancho: can we discuss scope?",
+      "newOpportunity": "New opportunity: client seeking UI/UX designer",
+      "projectPaused": "Project paused: review pending"
+    }
+  },
+
+  "roles": {
+    "project_manager": "Project Manager",
+    "freelancer": "Freelancer",
+    "client": "Client"
+  },
+  "posts": {
+    "searchPlaceholder": "Search projects, clients or technologies...",
+    "loading": "🔄 Loading projects...",
+    "connecting": "Connecting to: {{url}}",
+    "errorTitle": "❌ Error loading projects",
+    "error": { "routesTitle": "Available routes:" },
+    "retry": "🔄 Retry",
+    "summary": { "title": "Projects Summary", "completed": "Completed", "inProgress": "In Progress", "total": "Total" },
+    "activity": { "title": "Recent Activity", "items": { "completedProject": "Project completed", "progressUpdate": "Progress update", "newProject": "New project started", "clientApproved": "Client approved proposal", "followUpMeeting": "Follow-up meeting" } },
+    "actions": { "seeLess": "See less", "seeAll": "See All", "seeMore": "See more", "view": "View" },
+    "myProjects": "My Projects",
+    "shown": "shown",
+    "filteredByApi": "Filtered by API",
+    "filters": { "todos": "All", "en-progreso": "In Progress", "completado": "Completed", "pausado": "Paused", "abierto": "Open" },
+    "createPlaceholder": "Create new project...",
+    "newProject": "+ New Project",
+    "progress": "Progress",
+    "trending": { "title": "Top Technologies" },
+    "upcoming": { "title": "Upcoming Deadlines" },
+    "empty": { "title": "No projects found", "noMatch": "No projects match \"{{query}}\"", "tryCreate": "Try changing filters or creating a new project", "viewAll": "View all", "create": "+ Create Project" },
+    "loadMore": { "loading": "Loading...", "more": "View more projects" },
+    "viewProjectTitle": "View project",
+    "client": "Client",
+    "statusLabel": "Status",
+    "messages": {
+      "noEditPermission": "You don't have permission to edit this project. You must be the owner (client or PM) or an admin.",
+      "deleteConfirm": "Are you sure you want to delete this project?",
+      "loginRequired": "You must be logged in to create a project",
+      "fillRequired": "Please fill the required fields: title, description and budget",
+      "createdSuccess": "Project created successfully!",
+      "createError": "Error creating project. Please try again.",
+      "updatedSuccess": "Project updated successfully",
+      "updateError": "Error updating project. Please try again."
+    },
+    "modal": { "createTitle": "Create New Project", "editTitle": "Edit Project" },
+  "form": {
+      "titleLabel": "Project Title",
+      "titlePlaceholder": "E.g. Mobile App Development",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe objectives and scope of the project...",
+      "budgetLabel": "Budget",
+      "budgetPlaceholder": "5000",
+      "priorityLabel": "Priority",
+      "priority": { "low": "Low", "medium": "Medium", "high": "High" },
+      "skillsLabel": "Required skills",
+      "skillsPlaceholder": "React, Node.js, MongoDB (comma separated)",
+      "cancel": "Cancel",
+      "create": "Create Project",
+      "creating": "Creating...",
+      "saveChanges": "Save Changes"
+    }
+  }
+  ,
+  "statistics": {
+    "searchPlaceholder": "Search tasks and metrics...",
+    "title": "Productivity Dashboard",
+    "description": "Full tracking of tasks, performance and freelancer metrics",
+    "metrics": {
+      "completed": "Completed Tasks",
+      "inProgress": "In Progress",
+      "pending": "Pending",
+      "efficiency": "Efficiency",
+      "completedToday": "+{{count}} today",
+      "percentOfTotalSuffix": "of total",
+      "streak": "Streak: {{days}} days"
+    },
+    "charts": {
+      "weeklyTitle": "Weekly Performance",
+      "taskStateTitle": "Task Status",
+      "hourlyTitle": "Productivity by Hour",
+      "monthlyTitle": "Monthly Trend",
+      "weekly": {
+        "completed": "Completed",
+        "inProgress": "In Progress",
+        "pending": "Pending"
+      },
+      "hourly": {
+        "focus": "Focus (%)",
+        "tasks": "Tasks/Hour"
+      },
+      "monthly": {
+        "completed": "Completed Tasks",
+        "productivity": "Productivity (%)",
+        "efficiency": "Efficiency (%)"
+      }
+    },
+    "projects": {
+      "title": "Progress by Project",
+      "noResults": "No results found for \"{{query}}\"",
+      "viewAll": "View all",
+      "percentCompleted": "% completed",
+      "completed": "completed",
+      "inProgress": "in progress",
+      "pending": "pending"
+    },
+    "activityTitle": "Today's Activity"
+  ,
+    "kpis": {
+      "finishRateTitle": "Completed / Total",
+      "finishRate": "Completion Rate",
+      "completedSub": "Completed: {{completed}} / {{total}}",
+      "onTimeTitle": "On-time Delivery",
+      "onTime": "On Time",
+      "byMilestones": "By milestones",
+      "avgDurationTitle": "Average duration",
+      "avgDuration": "Average duration",
+      "days": "days",
+      "startToClose": "Start → Close",
+      "revenuePerProject": "Revenue per project",
+      "average": "Average"
+    }
+  }
+  ,
+  "freelancerHome": {
+    "progressTitle": "Your Progress",
+    "profileCompleted": "Profile completed",
+    "projectsTitle": "Projects",
+    "projectsSubtitle": "In your area of interest",
+    "connectionsTitle": "Connections",
+    "connectionsSubtitle": "In your professional network",
+    "connect": "Connect"
+  }
+  ,
+  "freelancerFinance": {
+    "cards": {
+      "incomeProjects": "Project Income",
+      "operationalExpenses": "Operational Expenses",
+      "monthlyBalance": "Monthly Balance",
+      "yearlyIncome": "Yearly Income"
+    },
+    "summaryTitle": "Project Summary"
+  }
+  ,
+  "freelancerSettings": {
+    "tabs": {
+      "freelancer": "Freelancer Settings"
+    },
+    "profileTitle": "Freelancer Profile",
+    "hourlyRateLabel": "Hourly rate (USD)",
+    "availabilityLabel": "Availability",
+    "experienceLabel": "Years of experience",
+    "preferencesTitle": "Project Preferences",
+    "autoAcceptLabel": "Auto-accept matching projects",
+    "showPortfolioLabel": "Show portfolio on public profile",
+    "acceptTestProjectsLabel": "Accept test projects",
+    "minimumProjectValueLabel": "Minimum project value (USD)",
+    "minimumProjectHelp": "You will only receive project invites above this amount",
+    "notificationsTitle": "Project Notifications",
+    "notifications": {
+      "projectInvitations": "Project invitations",
+      "projectDeadlines": "Deadline reminders",
+      "clientFeedback": "Client feedback"
+    },
+    "visibilityTitle": "Profile visibility",
+    "visibilityLabel": "Profile visibility",
+    "visibility": {
+      "public": "Public - Visible to everyone",
+      "clients": "Clients only - Visible to registered clients",
+      "private": "Private - By invitation only"
+    }
+  }
+  ,
+  "privacy": {
+    "title": "Privacy",
+    "intro": "Control your privacy settings and review policies.",
+    "permissions": "App permissions",
+    "permissionsText": "Manage which permissions the app can use (camera, storage, notifications).",
+    "permissionsManage": "Manage permissions",
+    "policy": "Privacy Policy",
+    "policyText": "Read our privacy policy to learn how we handle your data.",
+    "policyLink": "Open Privacy Policy"
+  }
+}

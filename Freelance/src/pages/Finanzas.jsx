@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useTranslation } from 'react-i18next';
 import Layout from "../Components/Layout.jsx";
 import "../styles/Finanzas.css";
 
@@ -6,6 +7,7 @@ import { useAuth } from "../hooks/useAuth.js";
 
 const Finanzas = () => {
   const { authenticatedFetch, user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const API = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:3000";
   const GTQ = new Intl.NumberFormat("es-GT", { style: "currency", currency: "GTQ" });
 
@@ -386,14 +388,14 @@ const Finanzas = () => {
   return (
     <Layout
       currentPage="finance"
-      searchPlaceholder="Buscar transacciones, clientes o categorías..."
+      searchPlaceholder={t('finance.searchPlaceholder')}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
     >
       {/* Header específico de Finanzas */}
       <div className="finanzas-header" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
         <h1 className="page-title" style={{ marginBottom: "10px" }}>
-          <i className="ri-money-dollar-circle-line"></i> Finanzas
+          <i className="ri-money-dollar-circle-line"></i> {t('finance.title')}
         </h1>
         <div
           className="header-actions"
@@ -409,14 +411,14 @@ const Finanzas = () => {
             onClick={abrirFormularioGasto}
             style={{ minWidth: "170px", whiteSpace: "nowrap" }}
           >
-            + Nuevo Gasto
+            {t('finance.newExpense')}
           </button>
           <button
             className="btn-nueva-transaccion"
             onClick={abrirFormularioIngreso}
             style={{ minWidth: "170px", whiteSpace: "nowrap" }}
           >
-            + Nuevo Ingreso
+            {t('finance.newIncome')}
           </button>
         </div>
       </div>
@@ -426,7 +428,7 @@ const Finanzas = () => {
         <div className="card-resumen ingresos">
           <div className="card-header">
             <span className="card-icon"><i className="ri-wallet-3-line"></i></span>
-            <h3>Ingresos del Mes</h3>
+            <h3>{t('finance.cards.incomeMonth')}</h3>
           </div>
           <p className="card-monto">
             {GTQ.format(uiResumen.ingresosMes)}
@@ -443,7 +445,7 @@ const Finanzas = () => {
         <div className="card-resumen gastos">
           <div className="card-header">
             <span className="card-icon"><i className="ri-exchange-dollar-line"></i></span>
-            <h3>Gastos del Mes</h3>
+            <h3>{t('finance.cards.expenseMonth')}</h3>
           </div>
           <p className="card-monto">
             {GTQ.format(uiResumen.gastosMes)}
@@ -477,7 +479,7 @@ const Finanzas = () => {
         <div className="card-resumen anual">
           <div className="card-header">
             <span className="card-icon"><i className="ri-line-chart-line"></i></span>
-            <h3>Ingresos Anuales</h3>
+            <h3>{t('finance.cards.yearlyIncome')}</h3>
           </div>
           <p className="card-monto">
             {GTQ.format(uiResumen.ingresosAnio)}
@@ -515,7 +517,7 @@ const Finanzas = () => {
           </div>
 
           <div className="widget categories-widget">
-            <h3>Categorías</h3>
+            <h3>{t('finance.categoriesTitle')}</h3>
             <ul className="categories-list">
               {categorias.map((cat) => (
                 <li key={cat} className="category-item">
@@ -535,25 +537,25 @@ const Finanzas = () => {
         {/* Main Section - Transacciones */}
         <section className="posts-section">
           <div className="section-header">
-            <h2>Transacciones</h2>
+            <h2>{t('finance.transactionsTitle')}</h2>
             <div className="filters">
               <span
                 className={filtroTipo === "todos" ? "active-filter" : ""}
                 onClick={() => handleFiltroChange("todos")}
               >
-                Todos
+                {t('finance.filters.all')}
               </span>
               <span
                 className={filtroTipo === "ingreso" ? "active-filter" : ""}
                 onClick={() => handleFiltroChange("ingreso")}
               >
-                Ingresos
+                {t('finance.filters.income')}
               </span>
               <span
                 className={filtroTipo === "gasto" ? "active-filter" : ""}
                 onClick={() => handleFiltroChange("gasto")}
               >
-                Gastos
+                {t('finance.filters.expense')}
               </span>
             </div>
           </div>
@@ -564,8 +566,8 @@ const Finanzas = () => {
               <form onSubmit={handleSubmit}>
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Tipo</label>
-                    <div className="tipo-fijo">{nuevaTransaccion.tipo === "ingreso" ? "Ingreso" : "Gasto"}</div>
+                    <label>{t('finance.form.typeLabel')}</label>
+                    <div className="tipo-fijo">{nuevaTransaccion.tipo === "ingreso" ? t('finance.form.income') : t('finance.form.expense')}</div>
                     <input type="hidden" name="tipo" value={nuevaTransaccion.tipo} />
                   </div>
 
@@ -586,33 +588,33 @@ const Finanzas = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Concepto</label>
+                  <label>{t('finance.form.conceptLabel')}</label>
                   <input
                     type="text"
                     name="concepto"
                     value={nuevaTransaccion.concepto}
                     onChange={handleInputChange}
-                    placeholder="Descripción de la transacción"
+                    placeholder={t('finance.form.conceptPlaceholder')}
                     required
                   />
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Monto (Q)</label>
+                    <label>{t('finance.form.amountLabel')}</label>
                     <input
                       type="number"
                       name="monto"
                       value={nuevaTransaccion.monto}
                       onChange={handleInputChange}
-                      placeholder="0.00"
+                      placeholder={t('finance.form.amountPlaceholder')}
                       step="0.01"
                       required
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Fecha</label>
+                    <label>{t('finance.form.dateLabel')}</label>
                     <input
                       type="date"
                       name="fecha"
@@ -625,14 +627,14 @@ const Finanzas = () => {
 
                 <div className="form-actions">
                   <button type="submit" className="btn-guardar">
-                    Guardar
+                    {t('finance.form.save')}
                   </button>
                   <button
                     type="button"
                     className="btn-cancelar"
                     onClick={() => setMostrarFormulario(false)}
                   >
-                    Cancelar
+                    {t('finance.form.cancel')}
                   </button>
                 </div>
               </form>

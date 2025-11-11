@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";
 import Layout from "../Components/Layout.jsx";
 import useAuth from "../hooks/useAuth.js";
@@ -6,6 +7,7 @@ import "../styles/Home.css";
 
 const Home = () => {
   const { user, authenticatedFetch } = useAuth();
+  const { t } = useTranslation();
   const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [newPostImageUrl, setNewPostImageUrl] = useState("");
@@ -13,24 +15,21 @@ const Home = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([
     {
       id: 1,
-      title: "Webinar: Marketing Digital",
+      title: t('home.sampleEvents.1.title'),
       date: "15 Mayo, 18:00",
-      description:
-        "Aprende las últimas estrategias de posicionamiento en redes sociales con expertos en marketing digital.",
+      description: t('home.sampleEvents.1.description'),
     },
     {
       id: 2,
-      title: "Workshop de React",
+      title: t('home.sampleEvents.2.title'),
       date: "21 Mayo, 16:30",
-      description:
-        "Taller práctico sobre React Hooks y buenas prácticas en el desarrollo frontend moderno.",
+      description: t('home.sampleEvents.2.description'),
     },
     {
       id: 3,
-      title: "Networking Online",
+      title: t('home.sampleEvents.3.title'),
       date: "29 Mayo, 19:00",
-      description:
-        "Conecta con otros freelancers y profesionales de tecnología en un encuentro virtual interactivo.",
+      description: t('home.sampleEvents.3.description'),
     },
   ]);
   const [userStats] = useState({ projects: 12, contacts: 37, visits: "5.2k" });
@@ -225,9 +224,10 @@ const Home = () => {
       <Layout
         currentPage="home"
         searchQuery={searchQuery}
+        searchPlaceholder={t('top.searchPlaceholder')}
         onSearchChange={setSearchQuery}
       >
-        <div className="loading">Cargando...</div>
+          <div className="loading">{t('home.loading')}</div>
       </Layout>
     );
 
@@ -236,16 +236,17 @@ const Home = () => {
       <Layout
         currentPage="home"
         searchQuery={searchQuery}
+        searchPlaceholder={t('top.searchPlaceholder')}
         onSearchChange={setSearchQuery}
       >
-        <div className="error">Error al cargar los posts</div>
+  <div className="error">{t('home.errorLoadingPosts')}</div>
       </Layout>
     );
 
   return (
     <Layout
       currentPage="home"
-      searchPlaceholder="Buscar publicaciones, proyectos o personas..."
+      searchPlaceholder={t('top.searchPlaceholder')}
       searchQuery={searchQuery}
       onSearchChange={setSearchQuery}
     >
@@ -253,24 +254,24 @@ const Home = () => {
         {/* ==== Sidebar izquierda ==== */}
         <section className="sidebar-left">
           <div className="widget profile-stats">
-            <h3>Tu Actividad</h3>
+            <h3>{t('home.tuActividad')}</h3>
             <div className="stats-container">
               <div className="stat-item">
                 <span className="stat-value">{String(userStats.projects)}</span>
-                <span className="stat-label">Proyectos</span>
+                <span className="stat-label">{t('home.stats.projects')}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-value">{String(userStats.contacts)}</span>
-                <span className="stat-label">Contactos</span>
+                <span className="stat-label">{t('home.stats.contacts')}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-value">{String(userStats.visits)}</span>
-                <span className="stat-label">Visitas</span>
+                <span className="stat-label">{t('home.stats.visits')}</span>
               </div>
             </div>
           </div>
           <div className="widget trending-topics">
-            <h3>Tendencias</h3>
+            <h3>{t('home.tendencias')}</h3>
             <ul className="topics-list">
               <li>#DiseñoUX</li>
               <li>#ReactJS</li>
@@ -284,11 +285,11 @@ const Home = () => {
         {/* ==== Feed principal ==== */}
         <section className="feed">
           <div className="section-header">
-            <h2>Publicaciones de la Comunidad</h2>
+            <h2>{t('home.communityTitle')}</h2>
             <div className="filters">
-              <span className="active-filter">Recientes</span>
-              <span>Populares</span>
-              <span>Siguiendo</span>
+              <span className="active-filter">{t('home.filters.recent')}</span>
+              <span>{t('home.filters.popular')}</span>
+              <span>{t('home.filters.following')}</span>
             </div>
           </div>
 
@@ -305,13 +306,13 @@ const Home = () => {
                 <i className="ri-user-line" />
               )}
             </div>
-            <div className="post-input-container">
+              <div className="post-input-container">
               <input
                 type="text"
                 placeholder={
                   user?.first_name
-                    ? `¿Qué quieres compartir hoy, ${user.first_name}?`
-                    : "¿Qué quieres compartir hoy?"
+                        ? `${t('home.createPostPlaceholder').replace('¿Qué quieres compartir hoy?', `¿Qué quieres compartir hoy, ${user.first_name}?`)}`
+                        : t('home.createPostPlaceholder')
                 }
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
@@ -319,7 +320,7 @@ const Home = () => {
               />
               <input
                 type="url"
-                placeholder="URL de imagen (opcional)"
+                placeholder={t('home.imageUrlPlaceholder')}
                 value={newPostImageUrl}
                 onChange={(e) => setNewPostImageUrl(e.target.value)}
                 className="image-url-input"
@@ -330,7 +331,7 @@ const Home = () => {
               onClick={handleCreatePost}
               disabled={!newPostContent.trim()}
             >
-              Publicar
+              {t('home.publish')}
             </button>
           </div>
 
@@ -339,7 +340,7 @@ const Home = () => {
             className="widget events-widget"
             style={{ margin: "32px auto", maxWidth: "500px" }}
           >
-            <h3>Próximos Eventos</h3>
+            <h3>{t('home.eventsTitle')}</h3>
             <ul className="events-list">
               {(upcomingEvents || []).map((event) => (
                 <li
@@ -354,14 +355,14 @@ const Home = () => {
               ))}
             </ul>
             <Link to="/calendario">
-              <button className="see-all-btn">Ver Todos</button>
+              <button className="see-all-btn">{t('home.seeAll')}</button>
             </Link>
           </div>
 
           {/* ==== Lista de publicaciones ==== */}
           <div className="posts-list">
             {filteredPosts.length === 0 ? (
-              <p>No hay publicaciones disponibles</p>
+              <p>{t('home.noPosts')}</p>
             ) : (
               filteredPosts.map((post) => (
                 <div key={post.id} className="post-card">
@@ -408,23 +409,23 @@ const Home = () => {
             )}
           </div>
 
-          <button className="load-more-btn">Cargar más publicaciones</button>
+          <button className="load-more-btn">{t('home.loadMore')}</button>
         </section>
 
         {/* ==== Sidebar derecha ==== */}
         <section className="sidebar-right">
           <div className="widget premium-ad">
             <div className="ad-badge">Premium</div>
-            <h3>Potencia tu Carrera Freelance</h3>
-            <p>Accede a clientes exclusivos y herramientas avanzadas.</p>
-            <button className="upgrade-btn">Conocer más</button>
+            <h3>{t('home.premium.title')}</h3>
+            <p>{t('home.premium.desc')}</p>
+            <button className="upgrade-btn">{t('home.premium.cta')}</button>
           </div>
 
           {/* ==== Personas que quizás conozcas ==== */}
           <div className="widget suggested-contacts">
-            <h3>Personas que quizás conozcas</h3>
+            <h3>{t('home.suggestedContacts')}</h3>
             {suggestionsLoading ? (
-              <p>Cargando...</p>
+              <p>{t('home.suggestionsLoading')}</p>
             ) : (
               <div className="contact-suggestions">
                 {filteredSuggestions.map((p) => (
@@ -436,7 +437,7 @@ const Home = () => {
                       <div className="contact-name">{p.name}</div>
                       <div className="contact-role">{p.role}</div>
                     </div>
-                    <button className="connect-btn">+</button>
+                    <button className="connect-btn">{t('home.connect')}</button>
                   </div>
                 ))}
               </div>
@@ -478,7 +479,7 @@ const Home = () => {
               <div style={{ marginTop: 12, color: "#475569" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <i className="ri-time-line"></i>
-                  <span>{selectedEvent.date || "Por definir"}</span>
+                  <span>{selectedEvent.date || t('home.undefined')}</span>
                 </div>
 
                 {selectedEvent.location && (
@@ -514,7 +515,7 @@ const Home = () => {
                   onClick={closeEventDetail}
                   style={{ padding: "8px 12px" }}
                 >
-                  Cerrar
+                  {t('home.close')}
                 </button>
                 <Link
                   to={
@@ -524,7 +525,7 @@ const Home = () => {
                   }
                   onClick={closeEventDetail}
                 >
-                  <button className="see-all-btn">Ver en Calendario</button>
+                  <button className="see-all-btn">{t('home.viewInCalendar')}</button>
                 </Link>
               </div>
             </div>

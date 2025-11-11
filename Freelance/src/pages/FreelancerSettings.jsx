@@ -65,14 +65,6 @@ const FreelancerSettings = () => {
     twoFactorAuth: false,
     showAvailability: true
   });
-
-  const [themeSettings, setThemeSettings] = useState({
-    theme: 'light',
-    accentColor: '#3b82f6',
-    fontSize: 'medium',
-    compactMode: false
-  });
-
   const [languageSettings, setLanguageSettings] = useState({
     language: 'es',
     timezone: 'America/Guatemala',
@@ -99,13 +91,13 @@ const FreelancerSettings = () => {
 
   // Tabs específicos para freelancers
   const tabs = [
-    { id: 'profile', label: 'Perfil Freelancer', icon: 'ri-user-3-line' },
-    { id: 'freelancer', label: 'Configuración Freelancer', icon: 'ri-briefcase-line' },
-    { id: 'notifications', label: 'Notificaciones', icon: 'ri-notification-3-line' },
-    { id: 'privacy', label: 'Privacidad', icon: 'ri-shield-keyhole-line' },
-    { id: 'appearance', label: 'Apariencia', icon: 'ri-palette-line' },
-    { id: 'language', label: 'Idioma', icon: 'ri-earth-line' },
-    { id: 'billing', label: 'Facturación', icon: 'ri-bank-card-line' }
+    { id: 'profile', label: 'Perfil Freelancer', labelKey: 'settings.tabs.profile', icon: 'ri-user-3-line' },
+    { id: 'freelancer', label: 'Configuración Freelancer', labelKey: 'freelancerSettings.tabs.freelancer', icon: 'ri-briefcase-line' },
+    { id: 'notifications', label: 'Notificaciones', labelKey: 'settings.tabs.notifications', icon: 'ri-notification-3-line' },
+    { id: 'privacy', label: 'Privacidad', labelKey: 'settings.tabs.privacy', icon: 'ri-shield-keyhole-line' },
+    
+    { id: 'language', label: 'Idioma', labelKey: 'settings.tabs.language', icon: 'ri-earth-line' },
+    { id: 'billing', label: 'Facturación', labelKey: 'settings.tabs.billing', icon: 'ri-bank-card-line' }
   ];
 
   // Cargar datos del usuario al inicializar
@@ -230,7 +222,7 @@ const FreelancerSettings = () => {
 
     } catch (error) {
       console.error('Error cargando datos del usuario:', error);
-      setError('Error al cargar la configuración. Por favor, recarga la página.');
+      setError(t('settings.loadError'));
     } finally {
       setLoading(false);
     }
@@ -243,17 +235,17 @@ const FreelancerSettings = () => {
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (profileData.email && !emailRegex.test(profileData.email)) {
-      errors.push('El email no tiene un formato válido');
+      errors.push(t('settings.profile.validation.emailInvalid'));
     }
     
     // Validar username
     const usernameRegex = /^[a-zA-Z0-9_]+$/;
     if (profileData.username && !usernameRegex.test(profileData.username)) {
-      errors.push('El usuario solo puede contener letras, números y guiones bajos');
+      errors.push(t('settings.profile.validation.usernameInvalidChars'));
     }
     
     if (profileData.username && profileData.username.length < 3) {
-      errors.push('El usuario debe tener al menos 3 caracteres');
+      errors.push(t('settings.profile.validation.usernameTooShort'));
     }
     
     return errors;
@@ -406,11 +398,11 @@ const FreelancerSettings = () => {
   const handlePasswordChange = async () => {
     try {
       if (passwordData.newPassword !== passwordData.confirmPassword) {
-        setError('Las contraseñas no coinciden');
+        setError(t('settings.password.messages.mismatch'));
         return;
       }
       if (passwordData.newPassword.length < 8) {
-        setError('La contraseña debe tener al menos 8 caracteres');
+        setError(t('settings.password.messages.tooShort'));
         return;
       }
 
@@ -427,11 +419,11 @@ const FreelancerSettings = () => {
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setTimeout(() => setSaveStatus(''), 2000);
       } else {
-        throw new Error(response.error || 'Error al cambiar contraseña');
+        throw new Error(response.error || t('settings.password.messages.changeError'));
       }
     } catch (error) {
       console.error('Error cambiando contraseña:', error);
-      setError(error.message || 'Error al cambiar la contraseña');
+      setError(error.message || t('settings.password.messages.changeError'));
       setSaveStatus('');
     }
   };
@@ -457,11 +449,11 @@ const FreelancerSettings = () => {
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus(''), 2000);
       } else {
-        throw new Error(response.error || 'Error al guardar idioma');
+        throw new Error(response.error || t('settings.language.saveError'));
       }
     } catch (err) {
       console.error('Error guardando idioma (freelancer):', err);
-      setError('No fue posible guardar la configuración de idioma. Intenta de nuevo.');
+      setError(t('settings.language.saveError'));
       setSaveStatus('');
     }
   };
@@ -486,7 +478,7 @@ const FreelancerSettings = () => {
         <div className="settings-page">
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p>Cargando configuración...</p>
+            <p>{t('settings.loading')}</p>
           </div>
         </div>
       </Layout>
@@ -506,7 +498,7 @@ const FreelancerSettings = () => {
                 <i className="ri-time-line" aria-hidden="true"></i>
               )}
             </span>
-            {saveStatus === 'saved' ? 'Guardado' : 'Guardando...'}
+            {saveStatus === 'saved' ? t('settings.saved') : t('settings.saving')}
           </div>
         )}
 
@@ -523,7 +515,7 @@ const FreelancerSettings = () => {
 
         {/* Header */}
         <div className="settings-header">
-          <h1>{t('settings.title') + ' Freelancer'}</h1>
+          <h1>{t('freelancerSettings.profileTitle')}</h1>
           <p>{t('settings.description')}</p>
         </div>
 
@@ -538,7 +530,7 @@ const FreelancerSettings = () => {
                   className={`nav-button ${activeTab === tab.id ? 'active' : ''}`}
                 >
                   <span className="nav-icon"><i className={tab.icon} aria-hidden="true"></i></span>
-                  <span className="nav-label">{tab.label}</span>
+                  <span className="nav-label">{t(tab.labelKey || tab.label)}</span>
                 </button>
               ))}
             </nav>
@@ -549,11 +541,11 @@ const FreelancerSettings = () => {
             {/* Contenido de Perfil Freelancer */}
             {activeTab === 'profile' && (
               <div className="tab-content">
-                <h2>Perfil de Freelancer</h2>
+                  <h2>{t('freelancerSettings.profileTitle') || 'Perfil de Freelancer'}</h2>
                 
                 {/* Avatar */}
                 <div className="form-section">
-                  <label className="section-label">Foto de Perfil</label>
+                  <label className="section-label">{t('settings.profile.photoLabel')}</label>
                   <div className="avatar-upload">
                     <div className="avatar-preview">
                       {profileData.avatar ? (
@@ -571,9 +563,9 @@ const FreelancerSettings = () => {
                         className="file-input"
                       />
                       <label htmlFor="avatar-upload" className="btn btn-primary">
-                        <i className="ri-camera-line" aria-hidden="true"></i> Cambiar foto
+                        <i className="ri-camera-line" aria-hidden="true"></i> {t('settings.profile.changePhoto')}
                       </label>
-                      <p className="help-text">JPG, PNG o GIF. Máximo 2MB.</p>
+                      <p className="help-text">{t('settings.profile.avatarHelp')}</p>
                     </div>
                   </div>
                 </div>
@@ -581,7 +573,7 @@ const FreelancerSettings = () => {
                 {/* Formulario de perfil freelancer */}
                 <div className="form-grid">
                   <div className="form-group">
-                    <label>Nombre</label>
+                    <label>{t('settings.profile.firstName')}</label>
                     <input
                       type="text"
                       value={profileData.first_name}
@@ -593,12 +585,12 @@ const FreelancerSettings = () => {
                         }))
                       }
                       className="form-input"
-                      placeholder="Tu nombre"
+                      placeholder={t('settings.profile.firstName')}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Apellido</label>
+                    <label>{t('settings.profile.lastName')}</label>
                     <input
                       type="text"
                       value={profileData.last_name}
@@ -610,12 +602,12 @@ const FreelancerSettings = () => {
                         }))
                       }
                       className="form-input"
-                      placeholder="Tu apellido"
+                      placeholder={t('settings.profile.lastName')}
                     />
                   </div>
                   
                   <div className="form-group">
-                    <label>Email</label>
+                    <label>{t('settings.profile.email')}</label>
                     <div className="input-with-icon">
                       <span className="input-icon"><i className="ri-mail-line" aria-hidden="true"></i></span>
                       <input
@@ -623,13 +615,13 @@ const FreelancerSettings = () => {
                         value={profileData.email}
                         onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
                         className="form-input with-icon"
-                        placeholder="tu@email.com"
+                        placeholder={t('settings.profile.emailPlaceholder')}
                       />
                     </div>
                   </div>
 
                   <div className="form-group">
-                    <label>Usuario</label>
+                    <label>{t('settings.profile.username')}</label>
                     <div className="input-with-icon">
                       <span className="input-icon"><i className="ri-user-line" aria-hidden="true"></i></span>
                       <input
@@ -640,11 +632,11 @@ const FreelancerSettings = () => {
                         placeholder="nombre_usuario"
                       />
                     </div>
-                    <p className="help-text">Solo letras, números y guiones bajos</p>
+                    <p className="help-text">{t('settings.profile.usernameHelp')}</p>
                   </div>
 
                   <div className="form-group">
-                    <label>Teléfono</label>
+                    <label>{t('settings.profile.phone')}</label>
                     <div className="input-with-icon">
                       <span className="input-icon"><i className="ri-smartphone-line" aria-hidden="true"></i></span>
                       <input
@@ -657,7 +649,7 @@ const FreelancerSettings = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Ubicación</label>
+                    <label>{t('settings.profile.location')}</label>
                     <input
                       type="text"
                       value={profileData.location}
@@ -667,7 +659,7 @@ const FreelancerSettings = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Tarifa por hora (USD)</label>
+                    <label>{t('freelancerSettings.hourlyRateLabel')}</label>
                     <div className="input-with-icon">
                       <span className="input-icon">$</span>
                       <input
@@ -681,7 +673,7 @@ const FreelancerSettings = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Disponibilidad</label>
+                    <label>{t('freelancerSettings.availabilityLabel')}</label>
                     <select
                       value={profileData.availability}
                       onChange={(e) => setProfileData(prev => ({ ...prev, availability: e.target.value }))}
@@ -695,7 +687,7 @@ const FreelancerSettings = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Años de experiencia</label>
+                    <label>{t('freelancerSettings.experienceLabel')}</label>
                     <select
                       value={profileData.experience}
                       onChange={(e) => setProfileData(prev => ({ ...prev, experience: e.target.value }))}
@@ -747,7 +739,7 @@ const FreelancerSettings = () => {
 
                 <div className="form-actions">
                   <button onClick={() => handleSave('profile')} className="btn btn-primary">
-                    Guardar cambios
+                    {t('settings.saveChanges')}
                   </button>
                 </div>
               </div>
@@ -756,33 +748,33 @@ const FreelancerSettings = () => {
             {/* Configuración específica de Freelancer */}
             {activeTab === 'freelancer' && (
               <div className="tab-content">
-                <h2>Configuración de Trabajo</h2>
+                <h2>{t('freelancerSettings.tabs.freelancer')}</h2>
                 
                 <div className="form-section">
-                  <h3>Preferencias de Proyectos</h3>
+                  <h3>{t('freelancerSettings.preferencesTitle')}</h3>
                   <div className="toggle-list">
                     <ToggleSwitch
                       checked={freelancerSettings.autoAcceptProjects}
                       onChange={(value) => setFreelancerSettings(prev => ({ ...prev, autoAcceptProjects: value }))}
-                      label="Aceptar proyectos automáticamente (proyectos que coincidan con tu perfil)"
+                      label={t('freelancerSettings.autoAcceptLabel')}
                     />
                     <ToggleSwitch
                       checked={freelancerSettings.showPortfolio}
                       onChange={(value) => setFreelancerSettings(prev => ({ ...prev, showPortfolio: value }))}
-                      label="Mostrar portafolio en el perfil público"
+                      label={t('freelancerSettings.showPortfolioLabel')}
                     />
                     <ToggleSwitch
                       checked={freelancerSettings.acceptTestProjects}
                       onChange={(value) => setFreelancerSettings(prev => ({ ...prev, acceptTestProjects: value }))}
-                      label="Aceptar proyectos de prueba"
+                      label={t('freelancerSettings.acceptTestProjectsLabel')}
                     />
                   </div>
                 </div>
 
                 <div className="form-section">
                   <h3>Configuración Financiera</h3>
-                  <div className="form-group">
-                    <label>Valor mínimo de proyecto (USD)</label>
+          <div className="form-group">
+            <label>{t('freelancerSettings.minimumProjectValueLabel')}</label>
                     <div className="input-with-icon">
                       <span className="input-icon">$</span>
                       <input
@@ -793,7 +785,7 @@ const FreelancerSettings = () => {
                         min="1"
                       />
                     </div>
-                    <p className="help-text">Solo recibirás invitaciones de proyectos que superen este valor</p>
+                    <p className="help-text">{t('freelancerSettings.minimumProjectHelp')}</p>
                   </div>
                 </div>
 
@@ -851,7 +843,7 @@ const FreelancerSettings = () => {
 
                 <div className="form-actions">
                   <button onClick={() => handleSave('freelancer')} className="btn btn-primary">
-                    Guardar configuración
+                    {t('settings.saveChanges')}
                   </button>
                 </div>
               </div>
@@ -860,25 +852,25 @@ const FreelancerSettings = () => {
             {/* Notificaciones específicas para freelancers */}
             {activeTab === 'notifications' && (
               <div className="tab-content">
-                <h2>Notificaciones</h2>
+                <h2>{t('settings.tabs.notifications')}</h2>
                 
                 <div className="form-section">
-                  <h3>Notificaciones de Proyectos</h3>
+                  <h3>{t('freelancerSettings.notificationsTitle')}</h3>
                   <div className="toggle-list">
                     <ToggleSwitch
                       checked={notificationSettings.projectInvitations}
                       onChange={(value) => setNotificationSettings(prev => ({ ...prev, projectInvitations: value }))}
-                      label="Invitaciones a proyectos"
+                      label={t('freelancerSettings.notifications.projectInvitations')}
                     />
                     <ToggleSwitch
                       checked={notificationSettings.projectDeadlines}
                       onChange={(value) => setNotificationSettings(prev => ({ ...prev, projectDeadlines: value }))}
-                      label="Recordatorios de fechas límite"
+                      label={t('freelancerSettings.notifications.projectDeadlines')}
                     />
                     <ToggleSwitch
                       checked={notificationSettings.clientFeedback}
                       onChange={(value) => setNotificationSettings(prev => ({ ...prev, clientFeedback: value }))}
-                      label="Comentarios de clientes"
+                      label={t('freelancerSettings.notifications.clientFeedback')}
                     />
                   </div>
                 </div>
@@ -917,7 +909,7 @@ const FreelancerSettings = () => {
 
                 <div className="form-actions">
                   <button onClick={() => handleSave('notifications')} className="btn btn-primary">
-                    Guardar notificaciones
+                    {t('settings.saveChanges')}
                   </button>
                 </div>
               </div>
@@ -926,20 +918,21 @@ const FreelancerSettings = () => {
             {/* Privacidad específica para freelancers */}
             {activeTab === 'privacy' && (
               <div className="tab-content">
-                <h2>Privacidad y Seguridad</h2>
+                <h2>{t('settings.tabs.privacy')}</h2>
                 
                 <div className="form-section">
-                  <h3>Visibilidad del Perfil</h3>
+                  <h3>{t('freelancerSettings.visibilityTitle')}
+                  </h3>
                   <div className="form-group">
-                    <label>Visibilidad del perfil</label>
+                    <label>{t('freelancerSettings.visibilityLabel')}</label>
                     <select
                       value={privacySettings.profileVisibility}
                       onChange={(e) => setPrivacySettings(prev => ({ ...prev, profileVisibility: e.target.value }))}
                       className="form-input"
                     >
-                      <option value="public">Público - Visible para todos</option>
-                      <option value="clients">Solo clientes - Visible para clientes registrados</option>
-                      <option value="private">Privado - Solo por invitación</option>
+                      <option value="public">{t('freelancerSettings.visibility.public')}</option>
+                      <option value="clients">{t('freelancerSettings.visibility.clients')}</option>
+                      <option value="private">{t('freelancerSettings.visibility.private')}</option>
                     </select>
                   </div>
                   
@@ -985,7 +978,7 @@ const FreelancerSettings = () => {
 
                 <div className="form-actions">
                   <button onClick={() => handleSave('privacy')} className="btn btn-primary">
-                    Guardar configuración
+                    {t('settings.saveChanges')}
                   </button>
                 </div>
               </div>
@@ -1029,42 +1022,7 @@ const FreelancerSettings = () => {
               </div>
             )}
 
-            {activeTab === 'appearance' && (
-              <div className="tab-content">
-                <h2>Apariencia</h2>
-                <div className="form-section">
-                  <h3>Tema</h3>
-                  <div className="theme-options">
-                    <div className="theme-grid">
-                      {['light', 'dark', 'auto'].map((theme) => (
-                        <div
-                          key={theme}
-                          className={`theme-option ${themeSettings.theme === theme ? 'active' : ''}`}
-                          onClick={() => setThemeSettings(prev => ({ ...prev, theme }))}
-                        >
-                          <div className={`theme-preview theme-${theme}`}>
-                            <div className="preview-header"></div>
-                            <div className="preview-content">
-                              <div className="preview-sidebar"></div>
-                              <div className="preview-main"></div>
-                            </div>
-                          </div>
-                          <span className="theme-name">
-                            {theme === 'light' ? 'Claro' : theme === 'dark' ? 'Oscuro' : 'Automático'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-actions">
-                  <button onClick={() => handleSave('appearance')} className="btn btn-primary">
-                    Guardar apariencia
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* Appearance section removed per request */}
           </div>
         </div>
       </div>

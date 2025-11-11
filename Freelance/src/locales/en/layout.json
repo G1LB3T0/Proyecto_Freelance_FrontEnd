@@ -1,0 +1,12 @@
+{
+  "app": { "title": "FreelanceHub" },
+  "greeting": "Welcome",
+  "top": { "searchPlaceholder": "Search..." },
+  "premium": { "upgrade": "Upgrade to Premium" },
+  "settings": {
+    "title": "Settings",
+    "description": "Customize your experience on the platform",
+    "language": { "title": "Language", "interface": "Interface language" },
+    "saveChanges": "Save changes"
+  }
+}

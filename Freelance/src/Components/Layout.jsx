@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import "../styles/Layout.css";
 import authService from "../services/authService";
@@ -27,16 +27,16 @@ const Layout = ({
       if (userData) {
         const user = JSON.parse(userData);
         console.log("Layout - User data from localStorage:", user);
-        
+
         // Validar que user sea un objeto válido
-        if (user && typeof user === 'object') {
+        if (user && typeof user === "object") {
           setCurrentUser(user);
         } else {
           console.warn("Layout - Invalid user data structure:", user);
           setCurrentUser({
             name: "Usuario",
             username: "usuario",
-            user_type: "unknown"
+            user_type: "unknown",
           });
         }
       }
@@ -45,8 +45,8 @@ const Layout = ({
       // Establecer un usuario por defecto en caso de error
       setCurrentUser({
         name: "Usuario",
-        username: "usuario", 
-        user_type: "unknown"
+        username: "usuario",
+        user_type: "unknown",
       });
     }
   }, []);
@@ -56,17 +56,17 @@ const Layout = ({
     const handler = (e) => {
       try {
         const updated = e?.detail;
-        if (updated && typeof updated === 'object') {
+        if (updated && typeof updated === "object") {
           setCurrentUser(updated);
-          console.log('Layout - user-updated event received:', updated);
+          console.log("Layout - user-updated event received:", updated);
         }
       } catch (err) {
-        console.warn('Error handling user-updated event', err);
+        console.warn("Error handling user-updated event", err);
       }
     };
 
-    window.addEventListener('user-updated', handler);
-    return () => window.removeEventListener('user-updated', handler);
+    window.addEventListener("user-updated", handler);
+    return () => window.removeEventListener("user-updated", handler);
   }, []);
 
   // Escuchar cambios de idioma emitidos desde Settings
@@ -78,7 +78,9 @@ const Layout = ({
           setAppLanguage(lang);
           localStorage.setItem("appLanguage", lang);
           console.log("Layout - language-changed event received:", lang);
-          try { i18n.changeLanguage(lang); } catch (err) {}
+          try {
+            i18n.changeLanguage(lang);
+          } catch (err) {}
         }
       } catch (err) {
         console.warn("Error handling language-changed event", err);
@@ -113,6 +115,21 @@ const Layout = ({
       key: "projects",
       icon: "ri-briefcase-line",
     },
+
+    {
+      path: "/gestionar-propuestas",
+      label: " Gestionar Propuestas",
+      key: "proposals",
+      icon: "ri-file-list-3-line",
+    },
+
+    {
+      path: "/mis-contratos",
+      label: " Mis Contratos",
+      key: "contracts",
+      icon: "ri-file-text-line",
+    },
+
     {
       path: "/finanzas",
       label: " Finanzas",
@@ -141,6 +158,21 @@ const Layout = ({
       key: "home",
       icon: "ri-home-2-line",
     },
+
+    {
+      path: "/ver-proyectos-freelancer",
+      label: " Proyectos",
+      key: "freelancer-projects",
+      icon: "ri-briefcase-line",
+    },
+
+    {
+      path: "/mis-contratos",
+      label: " Mis Contratos",
+      key: "contracts",
+      icon: "ri-file-text-line",
+    },
+
     {
       path: "/freelancer-finanzas",
       label: " Finanzas",
@@ -198,13 +230,13 @@ const Layout = ({
   // Cerrar menú de usuario al hacer clic fuera
   useEffect(() => {
     const onClickOutside = (e) => {
-      const container = document.querySelector('.user-menu');
+      const container = document.querySelector(".user-menu");
       if (container && !container.contains(e.target)) {
         setShowUserMenu(false);
       }
     };
-    document.addEventListener('click', onClickOutside);
-    return () => document.removeEventListener('click', onClickOutside);
+    document.addEventListener("click", onClickOutside);
+    return () => document.removeEventListener("click", onClickOutside);
   }, []);
 
   // ✅ NUEVO - Handler para búsqueda
@@ -220,7 +252,7 @@ const Layout = ({
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h2 className="sidebar-title">{t('app.title')}</h2>
+          <h2 className="sidebar-title">{t("app.title")}</h2>
         </div>
 
         <div className="user-profile">
@@ -240,12 +272,13 @@ const Layout = ({
               <i className="ri-user-line" aria-hidden="true"></i>
             )}
           </div>
-          <p>{t('greeting')}</p>
+          <p>{t("greeting")}</p>
           <h3>
             {(currentUser && currentUser.full_name) ||
               (currentUser && currentUser.first_name && currentUser.last_name
                 ? `${currentUser.first_name} ${currentUser.last_name}`
-                : (currentUser && (currentUser.name || currentUser.username)) || t('greeting'))}
+                : (currentUser && (currentUser.name || currentUser.username)) ||
+                  t("greeting"))}
           </h3>
           {currentUser && currentUser.user_type && (
             <p style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
@@ -367,17 +400,28 @@ const Layout = ({
             </div>
 
             {/* Language quick switch */}
-            <div style={{ marginLeft: 12, display: 'flex', alignItems: 'center' }}>
+            <div
+              style={{ marginLeft: 12, display: "flex", alignItems: "center" }}
+            >
               <select
                 value={appLanguage}
                 onChange={(e) => {
                   const lang = e.target.value;
                   setAppLanguage(lang);
-                  try { localStorage.setItem('appLanguage', lang); } catch (err) {}
-                  window.dispatchEvent(new CustomEvent('language-changed', { detail: lang }));
+                  try {
+                    localStorage.setItem("appLanguage", lang);
+                  } catch (err) {}
+                  window.dispatchEvent(
+                    new CustomEvent("language-changed", { detail: lang })
+                  );
                 }}
                 aria-label="Seleccionar idioma"
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff' }}
+                style={{
+                  padding: "6px 8px",
+                  borderRadius: 6,
+                  border: "1px solid #e2e8f0",
+                  background: "#fff",
+                }}
               >
                 <option value="es">ES</option>
                 <option value="en">EN</option>
@@ -387,7 +431,7 @@ const Layout = ({
               <span
                 className="user-avatar"
                 onClick={() => setShowUserMenu((v) => !v)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 title="Menú de usuario"
               >
                 {currentUser?.avatar ? (
@@ -408,21 +452,29 @@ const Layout = ({
               <span
                 className="dropdown-arrow"
                 onClick={() => setShowUserMenu((v) => !v)}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 aria-label="Abrir menú de usuario"
               >
                 <i className="ri-arrow-down-s-line" aria-hidden="true"></i>
               </span>
 
               {showUserMenu && (
-                <div className="user-dropdown" role="menu" aria-label="Menú de usuario">
+                <div
+                  className="user-dropdown"
+                  role="menu"
+                  aria-label="Menú de usuario"
+                >
                   {/* Futuro: <button className="user-dropdown-item" role="menuitem">Perfil</button> */}
                   <button
                     className="user-dropdown-item"
                     role="menuitem"
                     onClick={() => authService.logout()}
                   >
-                    <i className="ri-logout-box-r-line" aria-hidden="true" style={{ marginRight: 8 }}></i>
+                    <i
+                      className="ri-logout-box-r-line"
+                      aria-hidden="true"
+                      style={{ marginRight: 8 }}
+                    ></i>
                     Cerrar sesión
                   </button>
                 </div>

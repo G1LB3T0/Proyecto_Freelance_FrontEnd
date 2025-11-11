@@ -8,13 +8,13 @@
   --color-primary: #1e3a8a;
   --color-secondary: #1e40af;
   --color-accent: #3b82f6;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-light: #ffffff;
   --color-bg: #f5f7fa;
   --color-dark: #333;
-  --font-main: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-main: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* ==========================
@@ -652,6 +652,40 @@
   color: #475569;
 }
 
+/* Estilos para filtros de categoría mejorados */
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.category-btn {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.category-btn:hover {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.category-btn.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border-color: #1d4ed8;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
 /* ==========================
    RESPONSIVO - MANTENIENDO 3 COLUMNAS
 ========================== */
@@ -1036,7 +1070,6 @@
 
 /* Alto contraste */
 @media (prefers-contrast: high) {
-
   .project-card-content,
   .widget,
   .create-post {

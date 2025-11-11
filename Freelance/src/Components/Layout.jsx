@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import "../styles/Layout.css";
 import authService from "../services/authService";
@@ -28,7 +29,9 @@ const Layout = ({
         const user = JSON.parse(userData);
         console.log("Layout - User data from localStorage:", user);
 
+
         // Validar que user sea un objeto válido
+        if (user && typeof user === "object") {
         if (user && typeof user === "object") {
           setCurrentUser(user);
         } else {
@@ -36,6 +39,7 @@ const Layout = ({
           setCurrentUser({
             name: "Usuario",
             username: "usuario",
+            user_type: "unknown",
             user_type: "unknown",
           });
         }
@@ -45,6 +49,8 @@ const Layout = ({
       // Establecer un usuario por defecto en caso de error
       setCurrentUser({
         name: "Usuario",
+        username: "usuario",
+        user_type: "unknown",
         username: "usuario",
         user_type: "unknown",
       });
@@ -57,14 +63,19 @@ const Layout = ({
       try {
         const updated = e?.detail;
         if (updated && typeof updated === "object") {
+        if (updated && typeof updated === "object") {
           setCurrentUser(updated);
+          console.log("Layout - user-updated event received:", updated);
           console.log("Layout - user-updated event received:", updated);
         }
       } catch (err) {
         console.warn("Error handling user-updated event", err);
+        console.warn("Error handling user-updated event", err);
       }
     };
 
+    window.addEventListener("user-updated", handler);
+    return () => window.removeEventListener("user-updated", handler);
     window.addEventListener("user-updated", handler);
     return () => window.removeEventListener("user-updated", handler);
   }, []);
@@ -78,6 +89,9 @@ const Layout = ({
           setAppLanguage(lang);
           localStorage.setItem("appLanguage", lang);
           console.log("Layout - language-changed event received:", lang);
+          try {
+            i18n.changeLanguage(lang);
+          } catch (err) {}
           try {
             i18n.changeLanguage(lang);
           } catch (err) {}
@@ -157,10 +171,13 @@ const Layout = ({
   useEffect(() => {
     const onClickOutside = (e) => {
       const container = document.querySelector(".user-menu");
+      const container = document.querySelector(".user-menu");
       if (container && !container.contains(e.target)) {
         setShowUserMenu(false);
       }
     };
+    document.addEventListener("click", onClickOutside);
+    return () => document.removeEventListener("click", onClickOutside);
     document.addEventListener("click", onClickOutside);
     return () => document.removeEventListener("click", onClickOutside);
   }, []);
@@ -178,6 +195,7 @@ const Layout = ({
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
+          <h2 className="sidebar-title">{t("app.title")}</h2>
           <h2 className="sidebar-title">{t("app.title")}</h2>
         </div>
 
@@ -199,10 +217,13 @@ const Layout = ({
             )}
           </div>
           <p>{t("greeting")}</p>
+          <p>{t("greeting")}</p>
           <h3>
             {(currentUser && currentUser.full_name) ||
               (currentUser && currentUser.first_name && currentUser.last_name
                 ? `${currentUser.first_name} ${currentUser.last_name}`
+                : (currentUser && (currentUser.name || currentUser.username)) ||
+                  t("greeting"))}
                 : (currentUser && (currentUser.name || currentUser.username)) ||
                   t("greeting"))}
           </h3>
@@ -329,11 +350,20 @@ const Layout = ({
             <div
               style={{ marginLeft: 12, display: "flex", alignItems: "center" }}
             >
+            <div
+              style={{ marginLeft: 12, display: "flex", alignItems: "center" }}
+            >
               <select
                 value={appLanguage}
                 onChange={(e) => {
                   const lang = e.target.value;
                   setAppLanguage(lang);
+                  try {
+                    localStorage.setItem("appLanguage", lang);
+                  } catch (err) {}
+                  window.dispatchEvent(
+                    new CustomEvent("language-changed", { detail: lang })
+                  );
                   try {
                     localStorage.setItem("appLanguage", lang);
                   } catch (err) {}
@@ -358,6 +388,7 @@ const Layout = ({
                 className="user-avatar"
                 onClick={() => setShowUserMenu((v) => !v)}
                 style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer" }}
                 title="Menú de usuario"
               >
                 {currentUser?.avatar ? (
@@ -379,12 +410,18 @@ const Layout = ({
                 className="dropdown-arrow"
                 onClick={() => setShowUserMenu((v) => !v)}
                 style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer" }}
                 aria-label="Abrir menú de usuario"
               >
                 <i className="ri-arrow-down-s-line" aria-hidden="true"></i>
               </span>
 
               {showUserMenu && (
+                <div
+                  className="user-dropdown"
+                  role="menu"
+                  aria-label="Menú de usuario"
+                >
                 <div
                   className="user-dropdown"
                   role="menu"

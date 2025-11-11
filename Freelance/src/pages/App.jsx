@@ -18,6 +18,9 @@ import FreelancerHome from "./FreelancerHome.jsx";
 import FreelancerSettings from "./FreelancerSettings.jsx";
 import FreelancerFinanzas from "./FreelancerFinanzas.jsx";
 import FreelancerStatistics from "./FreelancerStatistics.jsx";
+import VerProyectosFreelancer from "./VerProyectosFreelancer.jsx";
+import GestionarPropuestas from "./GestionarPropuestasSimple.jsx";
+import MisContratos from "./MisContratosSimple.jsx";
 
 const App = () => {
   return (
@@ -45,6 +48,16 @@ const App = () => {
               allowedUserTypes={["project_manager", "emprendedor"]}
             >
               <PostsDeProyectos />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/gestionar-propuestas"
+          element={
+            <RoleBasedRoute
+              allowedUserTypes={["project_manager", "emprendedor"]}
+            >
+              <GestionarPropuestas />
             </RoleBasedRoute>
           }
         />
@@ -89,6 +102,14 @@ const App = () => {
           }
         />
         <Route
+          path="/ver-proyectos-freelancer"
+          element={
+            <RoleBasedRoute allowedUserTypes={["freelancer"]}>
+              <VerProyectosFreelancer />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
           path="/freelancer-settings"
           element={
             <RoleBasedRoute allowedUserTypes={["freelancer"]}>
@@ -127,6 +148,14 @@ const App = () => {
           element={
             <RoleBasedRoute>
               <Premium />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/mis-contratos"
+          element={
+            <RoleBasedRoute>
+              <MisContratos />
             </RoleBasedRoute>
           }
         />

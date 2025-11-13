@@ -21,6 +21,7 @@ import FreelancerStatistics from "./FreelancerStatistics.jsx";
 import VerProyectosFreelancer from "./VerProyectosFreelancer.jsx";
 import GestionarPropuestas from "./GestionarPropuestasSimple.jsx";
 import MisContratos from "./MisContratosSimple.jsx";
+import Chat from "./Chat.jsx";
 
 const App = () => {
   return (
@@ -135,6 +136,14 @@ const App = () => {
         />
 
         {/* Rutas compartidas (ambos roles) */}
+        <Route
+          path="/chat"
+          element={
+            <RoleBasedRoute>
+              <Chat />
+            </RoleBasedRoute>
+          }
+        />
         <Route
           path="/Settings"
           element={

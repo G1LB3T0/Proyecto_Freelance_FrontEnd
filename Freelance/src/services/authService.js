@@ -268,4 +268,7 @@ if (typeof window !== 'undefined') {
     authService.setupTokenRefresh();
 }
 
+// Exportar la función authenticatedFetch para usar directamente
+export const authenticatedFetch = (url, options) => authService.authenticatedFetch(url, options);
+
 export default authService;

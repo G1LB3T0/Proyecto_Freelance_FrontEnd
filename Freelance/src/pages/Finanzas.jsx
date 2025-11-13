@@ -783,6 +783,7 @@ const Finanzas = () => {
     };
 
     return months.map((m) => ({
+      key: m.key,
       label: m.label.charAt(0).toUpperCase() + m.label.slice(1, 3),
       ingreso: m.ingreso,
       gasto: m.gasto,
@@ -790,6 +791,16 @@ const Finanzas = () => {
       hGasto: toHeight(m.gasto),
     }));
   }, [transacciones]);
+
+  // Serie solo del mes actual para el gráfico
+  const seriesMesActual = useMemo(() => {
+    if (!seriesMensual.length) return [];
+
+    const now = new Date();
+    const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+    return seriesMensual.filter((m) => m.key === currentKey);
+  }, [seriesMensual]);
 
   // Agrupar gastos por categoría para gráfica de "Gastos por categoría"
   const gastosPorCategoriaChart = useMemo(() => {
@@ -1523,7 +1534,7 @@ const Finanzas = () => {
             </h3>
             <div className="mini-chart">
               <div className="chart-bars" style={{ minHeight: '120px', display: 'flex', alignItems: 'flex-end', gap: '8px', paddingBottom: '10px' }}>
-                {seriesMensual.map((m) => (
+                {seriesMesActual.map((m) => (
                   <div className="chart-month" key={m.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                     <div className="bars-container" style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', minHeight: '80px' }}>
                       <div

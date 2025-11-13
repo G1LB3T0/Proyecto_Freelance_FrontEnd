@@ -774,7 +774,13 @@ const Finanzas = () => {
       1,
       ...months.map((m) => Math.max(m.ingreso, m.gasto))
     );
-    const toHeight = (v) => `${Math.round((v / maxVal) * 80)}px`;
+
+    // Función para calcular altura con un mínimo visible
+    const toHeight = (v) => {
+      if (v === 0) return '2px'; // Altura mínima para valores 0
+      const height = Math.max(2, Math.round((v / maxVal) * 80));
+      return `${height}px`;
+    };
 
     return months.map((m) => ({
       label: m.label.charAt(0).toUpperCase() + m.label.slice(1, 3),

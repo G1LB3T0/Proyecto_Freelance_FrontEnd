@@ -60,7 +60,8 @@
    CARDS DE RESUMEN (INTEGRADAS AL GRID)
 ========================== */
 .resumen-cards {
-  grid-column: 1 / -1; /* Ocupar todo el ancho del grid */
+  grid-column: 1 / -1;
+  /* Ocupar todo el ancho del grid */
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
@@ -298,6 +299,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -569,12 +571,16 @@
   gap: 3px;
   align-items: flex-end;
   height: 80px;
+  min-height: 80px;
 }
 
 .bar {
   width: 20px;
+  min-width: 20px;
   border-radius: 4px 4px 0 0;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  min-height: 2px;
+  /* Altura mínima para barras con valor 0 o muy pequeño */
 }
 
 .bar.ingreso {
@@ -700,7 +706,7 @@
     grid-template-columns: 300px 1fr 300px;
     max-width: 1600px;
   }
-  
+
   .resumen-cards {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -712,20 +718,20 @@
     grid-template-columns: 260px 1fr 260px;
     gap: 16px;
   }
-  
+
   .finanzas-header {
     margin-bottom: 20px;
   }
-  
+
   .resumen-cards {
     gap: 12px;
     margin-bottom: 16px;
   }
-  
+
   .card-resumen {
     padding: 16px;
   }
-  
+
   .card-monto {
     font-size: 1.6rem;
   }
@@ -737,41 +743,41 @@
     grid-template-columns: 220px 1fr 220px;
     gap: 12px;
   }
-  
+
   .left-sidebar,
   .right-sidebar {
     min-width: 200px;
   }
-  
+
   .finanzas-header {
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
   }
-  
+
   .btn-nueva-transaccion {
     width: 100%;
   }
-  
+
   .resumen-cards {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .filters {
     gap: 8px;
   }
-  
+
   .form-row {
     gap: 12px;
   }
-  
+
   .transaccion-card {
     padding: 16px;
   }
@@ -783,12 +789,12 @@
     grid-template-columns: 180px 1fr 180px;
     gap: 10px;
   }
-  
+
   .left-sidebar,
   .right-sidebar {
     min-width: 160px;
   }
-  
+
   .financial-summary,
   .categories-widget,
   .chart-widget,
@@ -796,40 +802,40 @@
   .export-widget {
     padding: 12px;
   }
-  
+
   .resumen-cards {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .card-resumen {
     padding: 12px;
   }
-  
+
   .card-monto {
     font-size: 1.4rem;
   }
-  
+
   .transaccion-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .transaccion-monto-estado {
     width: 100%;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .chart-bars {
     height: 80px;
   }
-  
+
   .bars-container {
     height: 60px;
   }
-  
+
   .bar {
     width: 15px;
   }
@@ -841,12 +847,12 @@
     grid-template-columns: 140px 1fr 140px;
     gap: 8px;
   }
-  
+
   .left-sidebar,
   .right-sidebar {
     min-width: 120px;
   }
-  
+
   .financial-summary,
   .categories-widget,
   .chart-widget,
@@ -854,7 +860,7 @@
   .export-widget {
     padding: 10px;
   }
-  
+
   .financial-summary h3,
   .categories-widget h3,
   .chart-widget h3,
@@ -863,37 +869,37 @@
     font-size: 0.9rem;
     margin-bottom: 10px;
   }
-  
+
   .resumen-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .transaccion-info {
     gap: 12px;
   }
-  
+
   .transaccion-icono {
     font-size: 1.5rem;
     width: 32px;
     height: 32px;
   }
-  
+
   .transaccion-detalles h4 {
     font-size: 0.9rem;
   }
-  
+
   .transaccion-meta {
     font-size: 0.8rem;
   }
-  
+
   .transaccion-monto {
     font-size: 1.1rem;
   }
-  
+
   .tips-list li {
     font-size: 0.8rem;
     padding: 8px 0 8px 16px;
@@ -906,12 +912,12 @@
     grid-template-columns: 100px 1fr 100px;
     gap: 6px;
   }
-  
+
   .left-sidebar,
   .right-sidebar {
     min-width: 90px;
   }
-  
+
   .financial-summary,
   .categories-widget,
   .chart-widget,
@@ -919,7 +925,7 @@
   .export-widget {
     padding: 8px;
   }
-  
+
   .financial-summary h3,
   .categories-widget h3,
   .chart-widget h3,
@@ -929,74 +935,74 @@
     margin-bottom: 8px;
     text-align: center;
   }
-  
+
   .summary-items {
     gap: 8px;
   }
-  
+
   .summary-item {
     flex-direction: column;
     align-items: center;
     text-align: center;
     padding: 6px 0;
   }
-  
+
   .summary-label {
     font-size: 0.75rem;
   }
-  
+
   .summary-value {
     font-size: 0.9rem;
   }
-  
+
   .category-item {
     flex-direction: column;
     text-align: center;
     padding: 6px 0;
   }
-  
+
   .category-name {
     font-size: 0.8rem;
   }
-  
+
   .category-count {
     margin-top: 4px;
     font-size: 0.7rem;
   }
-  
+
   .page-title {
     font-size: 1.2rem;
   }
-  
+
   .transaccion-acciones {
     justify-content: space-between;
     gap: 8px;
   }
-  
+
   .accion-transaccion {
     padding: 4px 6px;
     font-size: 0.75rem;
   }
-  
+
   .chart-bars {
     height: 60px;
     padding: 0 5px;
   }
-  
+
   .bars-container {
     height: 40px;
     gap: 2px;
   }
-  
+
   .bar {
     width: 12px;
   }
-  
+
   .tips-list li {
     font-size: 0.75rem;
     padding: 6px 0 6px 14px;
   }
-  
+
   .export-btn {
     padding: 8px 12px;
     font-size: 0.8rem;
@@ -1012,7 +1018,7 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .formulario-transaccion {
     animation: none;
   }
@@ -1026,6 +1032,7 @@
 
 /* Alto contraste */
 @media (prefers-contrast: high) {
+
   .transaccion-card,
   .card-resumen,
   .financial-summary,

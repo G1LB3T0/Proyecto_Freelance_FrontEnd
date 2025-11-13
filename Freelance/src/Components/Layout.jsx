@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import "../styles/Layout.css";
 import authService from "../services/authService";
+import ChatWidget from "./ChatWidget.jsx";
 
 const Layout = ({
   children,
@@ -106,13 +107,12 @@ const Layout = ({
     }
   }, [appLanguage]);
 
-  // Menú para Project Manager y Emprendedor
+  // Menú para Project Manager o Emprendedor
   const projectManagerMenu = [
     { path: "/home", labelKey: "menu.home", key: "home", icon: "ri-home-2-line" },
-    { path: "/calendario", labelKey: "menu.calendar", key: "calendar", icon: "ri-calendar-line" },
     { path: "/proyectos", labelKey: "menu.projects", key: "projects", icon: "ri-briefcase-line" },
     { path: "/gestionar-propuestas", labelKey: "menu.proposals", key: "proposals", icon: "ri-file-list-3-line" },
-    { path: "/mis-contratos", labelKey: "menu.contracts", key: "contracts", icon: "ri-file-text-line" },
+    { path: "/calendario", labelKey: "menu.calendar", key: "calendar", icon: "ri-calendar-line" },
     { path: "/finanzas", labelKey: "menu.finance", key: "finance", icon: "ri-money-dollar-circle-line" },
     { path: "/estadisticas", labelKey: "menu.stats", key: "stats", icon: "ri-bar-chart-2-line" },
     { path: "/Settings", labelKey: "menu.settings", key: "Settings", icon: "ri-settings-3-line" },
@@ -210,17 +210,17 @@ const Layout = ({
               (currentUser && currentUser.first_name && currentUser.last_name
                 ? `${currentUser.first_name} ${currentUser.last_name}`
                 : (currentUser && (currentUser.name || currentUser.username)) ||
-                  t("greeting"))}
+                t("greeting"))}
           </h3>
           {currentUser && currentUser.user_type && (
             <p style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
               {currentUser.user_type === "project_manager"
                 ? t('roles.project_manager')
                 : currentUser.user_type === "freelancer"
-                ? t('roles.freelancer')
-                : currentUser.user_type === "client"
-                ? t('roles.client')
-                : currentUser.user_type}
+                  ? t('roles.freelancer')
+                  : currentUser.user_type === "client"
+                    ? t('roles.client')
+                    : currentUser.user_type}
             </p>
           )}
         </div>
@@ -343,7 +343,7 @@ const Layout = ({
                   if (typeof localStorage !== "undefined") {
                     try {
                       localStorage.setItem("appLanguage", lang);
-                    } catch (err) {}
+                    } catch (err) { }
                   }
                   window.dispatchEvent(
                     new CustomEvent("language-changed", { detail: lang })
@@ -420,6 +420,9 @@ const Layout = ({
         {/* Contenido de la página */}
         <div className="content-wrapper">{children}</div>
       </main>
+
+      {/* Chat Widget Flotante */}
+      <ChatWidget />
     </div>
   );
 };

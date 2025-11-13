@@ -785,6 +785,179 @@ const Finanzas = () => {
     }));
   }, [transacciones]);
 
+  // Función para exportar transacciones a CSV
+  const exportarCSV = () => {
+    if (!transacciones.length) {
+      alert("No hay transacciones para exportar");
+      return;
+    }
+
+    // Encabezados del CSV
+    const headers = ["Fecha", "Tipo", "Concepto", "Categoría", "Monto", "Estado"];
+
+    // Convertir transacciones a filas CSV
+    const rows = transacciones.map(t => [
+      t.fecha,
+      t.tipo === "ingreso" ? "Ingreso" : "Gasto",
+      t.concepto,
+      t.categoria,
+      t.monto.toFixed(2),
+      t.estado
+    ]);
+
+    // Combinar encabezados y filas
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n");
+
+    // Crear blob y descargar
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", `transacciones_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Función para generar reporte PDF simple (HTML to Print)
+  const descargarReportePDF = () => {
+    // Crear ventana de impresión con el resumen
+    const printWindow = window.open("", "_blank");
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Reporte Financiero - ${new Date().toLocaleDateString()}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          h1 {
+            color: #1e3a8a;
+            border-bottom: 3px solid #1e3a8a;
+            padding-bottom: 10px;
+          }
+          .summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+          }
+          .summary-card {
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+          }
+          .summary-card h3 {
+            margin: 0 0 10px 0;
+            color: #6b7280;
+            font-size: 14px;
+          }
+          .summary-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+          }
+          th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          th {
+            background-color: #f3f4f6;
+            font-weight: bold;
+            color: #374151;
+          }
+          .ingreso {
+            color: #10b981;
+            font-weight: bold;
+          }
+          .gasto {
+            color: #ef4444;
+            font-weight: bold;
+          }
+          @media print {
+            body {
+              padding: 20px;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>📊 Reporte Financiero</h1>
+        <p><strong>Fecha de generación:</strong> ${new Date().toLocaleString('es-ES')}</p>
+        
+        <div class="summary">
+          <div class="summary-card">
+            <h3>Ingresos del Mes</h3>
+            <div class="value">${GTQ.format(uiResumen.ingresosMes)}</div>
+          </div>
+          <div class="summary-card">
+            <h3>Gastos del Mes</h3>
+            <div class="value">${GTQ.format(uiResumen.gastosMes)}</div>
+          </div>
+          <div class="summary-card">
+            <h3>Balance del Mes</h3>
+            <div class="value">${GTQ.format(uiResumen.balanceMes)}</div>
+          </div>
+          <div class="summary-card">
+            <h3>Ingresos Anuales</h3>
+            <div class="value">${GTQ.format(uiResumen.ingresosAnio)}</div>
+          </div>
+        </div>
+
+        <h2>Últimas Transacciones</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Concepto</th>
+              <th>Categoría</th>
+              <th>Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${transacciones.slice(0, 20).map(t => `
+              <tr>
+                <td>${t.fecha}</td>
+                <td>${t.tipo === "ingreso" ? "Ingreso" : "Gasto"}</td>
+                <td>${t.concepto}</td>
+                <td>${t.categoria}</td>
+                <td class="${t.tipo}">${t.tipo === "ingreso" ? "+" : "-"} ${GTQ.format(t.monto)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
   return (
     <Layout
       currentPage="finance"
@@ -1352,8 +1525,20 @@ const Finanzas = () => {
             <h3>
               <i className="ri-download-2-line"></i> Exportar Datos
             </h3>
-            <button className="export-btn">Descargar Reporte PDF</button>
-            <button className="export-btn">Exportar a Excel</button>
+            <button
+              className="export-btn"
+              onClick={descargarReportePDF}
+              title="Genera un PDF imprimible con el resumen y transacciones"
+            >
+              Descargar Reporte PDF
+            </button>
+            <button
+              className="export-btn"
+              onClick={exportarCSV}
+              title="Exporta todas las transacciones en formato CSV para Excel"
+            >
+              Exportar a Excel (CSV)
+            </button>
           </div>
         </section>
       </div>

@@ -250,7 +250,7 @@ const Finanzas = () => {
       monto: Number(t.amount) || 0,
       fecha: (t.transaction_date || t.created_at || "").slice(0, 10),
       estado: t.status || "pendiente",
-      categoria: t.category?.name || t.category_name || "Otros",
+      categoria: t.category?.name || t.category_name || t.category || "Otros",
     });
 
     (async () => {
@@ -655,6 +655,7 @@ const Finanzas = () => {
       amount: Number(nuevaTransaccion.monto),
       transaction_date: new Date(nuevaTransaccion.fecha).toISOString(),
       description: nuevaTransaccion.concepto,
+      category_name: nuevaTransaccion.categoria,
       // category_id:  (opcional: mapear por nombre si ya tienes el id)
     };
 

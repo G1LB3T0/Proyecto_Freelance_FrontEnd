@@ -50,6 +50,11 @@ const Finanzas = () => {
     "Otros",
   ]);
   const [searchQuery, setSearchQuery] = useState("");
+  // Estado para el mes seleccionado en el gráfico (por defecto el mes actual)
+  const [selectedMonthKey, setSelectedMonthKey] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
 
   // NUEVO: Función para obtener pagos realizados a freelancers
   const fetchPagosFreelancers = async () => {
@@ -792,15 +797,19 @@ const Finanzas = () => {
     }));
   }, [transacciones]);
 
-  // Serie solo del mes actual para el gráfico
-  const seriesMesActual = useMemo(() => {
+  // Serie para el mes seleccionado (por defecto, el mes actual)
+  const seriesMesSeleccionado = useMemo(() => {
     if (!seriesMensual.length) return [];
 
     const now = new Date();
-    const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const defaultKey = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}`;
 
-    return seriesMensual.filter((m) => m.key === currentKey);
-  }, [seriesMensual]);
+    const key = selectedMonthKey || defaultKey;
+
+    return seriesMensual.filter((m) => m.key === key);
+  }, [seriesMensual, selectedMonthKey]);
 
   // Agrupar gastos por categoría para gráfica de "Gastos por categoría"
   const gastosPorCategoriaChart = useMemo(() => {
@@ -1532,9 +1541,37 @@ const Finanzas = () => {
               <i className="ri-bar-chart-2-line"></i> Gráfico de Ingresos vs
               Gastos
             </h3>
+            <div
+              className="chart-month-selector"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "4px",
+                marginBottom: "8px",
+              }}
+            >
+              <select
+                value={selectedMonthKey}
+                onChange={(e) => setSelectedMonthKey(e.target.value)}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: "999px",
+                  border: "1px solid #e5e7eb",
+                  fontSize: "12px",
+                  color: "#374151",
+                  backgroundColor: "white",
+                }}
+              >
+                {seriesMensual.map((m) => (
+                  <option key={m.key} value={m.key}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="mini-chart">
               <div className="chart-bars" style={{ minHeight: '120px', display: 'flex', alignItems: 'flex-end', gap: '8px', paddingBottom: '10px' }}>
-                {seriesMesActual.map((m) => (
+                {seriesMesSeleccionado.map((m) => (
                   <div className="chart-month" key={m.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                     <div className="bars-container" style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', minHeight: '80px' }}>
                       <div

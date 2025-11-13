@@ -791,6 +791,43 @@ const Finanzas = () => {
     }));
   }, [transacciones]);
 
+  // Agrupar gastos por categoría para gráfica de "Gastos por categoría"
+  const gastosPorCategoriaChart = useMemo(() => {
+    if (!Array.isArray(transacciones) || !transacciones.length) return [];
+
+    const acumulado = new Map();
+
+    for (const t of transacciones) {
+      if (t.tipo !== "gasto") continue;
+      const categoria = t.categoria || "Otros";
+      const monto = Number(t.monto) || 0;
+      acumulado.set(categoria, (acumulado.get(categoria) || 0) + monto);
+    }
+
+    const items = Array.from(acumulado.entries()).map(([categoria, total]) => ({
+      categoria,
+      total,
+    }));
+
+    // Ordenar de mayor a menor gasto
+    items.sort((a, b) => b.total - a.total);
+
+    if (!items.length) return [];
+
+    const maxVal = Math.max(1, ...items.map((i) => i.total));
+
+    const toWidth = (v) => {
+      if (v === 0) return "2px";
+      const width = Math.max(4, Math.round((v / maxVal) * 100)); // porcentual
+      return `${width}%`;
+    };
+
+    return items.map((i) => ({
+      ...i,
+      width: toWidth(i.total),
+    }));
+  }, [transacciones]);
+
   // Función para exportar transacciones a CSV
   const exportarCSV = () => {
     if (!transacciones.length) {
@@ -1513,6 +1550,83 @@ const Finanzas = () => {
                 </span>
               </div>
             </div>
+          </div>
+
+          <div className="widget chart-widget">
+            <h3>
+              <i className="ri-pie-chart-2-line"></i> Gastos por categoría
+            </h3>
+            {gastosPorCategoriaChart.length === 0 ? (
+              <p style={{ fontSize: "14px", color: "#6b7280" }}>
+                Aún no hay gastos registrados para mostrar por categoría.
+              </p>
+            ) : (
+              <div className="categories-chart">
+                <ul
+                  className="categories-chart-list"
+                  style={{ listStyle: "none", padding: 0, margin: 0 }}
+                >
+                  {gastosPorCategoriaChart.map((item) => (
+                    <li
+                      key={item.categoria}
+                      className="categories-chart-item"
+                      style={{
+                        marginBottom: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "4px",
+                      }}
+                    >
+                      <div
+                        className="categories-chart-row"
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          className="category-label"
+                          style={{ fontSize: "13px", color: "#4b5563" }}
+                        >
+                          {item.categoria}
+                        </span>
+                        <span
+                          className="category-amount"
+                          style={{
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            color: "#111827",
+                          }}
+                        >
+                          {GTQ.format(item.total)}
+                        </span>
+                      </div>
+                      <div
+                        className="category-bar-container"
+                        style={{
+                          backgroundColor: "#e5e7eb",
+                          borderRadius: "999px",
+                          overflow: "hidden",
+                          height: "8px",
+                        }}
+                      >
+                        <div
+                          className="category-bar"
+                          style={{
+                            width: item.width,
+                            height: "100%",
+                            background:
+                              "linear-gradient(90deg, #f97316, #ea580c)",
+                          }}
+                          title={`Gasto: ${GTQ.format(item.total)}`}
+                        ></div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="widget tips-widget">

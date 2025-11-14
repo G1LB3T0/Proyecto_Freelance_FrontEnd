@@ -189,21 +189,27 @@
 }
 
 .input-with-icon i {
-    position: absolute;
-    left: 1rem;
-    font-size: 1.2rem;
-    color: #a0aec0;
-    pointer-events: none;
+    display: none;
 }
 
 .input-with-icon input {
     width: 100%;
-    padding: 0.875rem 1rem 0.875rem 3rem;
+    padding: 0.875rem 1rem;
     border: 2px solid #e2e8f0;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.2s;
     box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    line-height: 1.5;
+    height: 3rem;
+}
+
+.input-with-icon input::placeholder {
+    color: #a0aec0;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
 }
 
 .input-with-icon input:focus {

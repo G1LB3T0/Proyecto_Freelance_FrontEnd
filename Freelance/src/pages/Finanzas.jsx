@@ -490,10 +490,28 @@ const Finanzas = () => {
         // Categorías
         if (catRes.ok) {
           const catJson = await catRes.json();
-          const names = (catJson?.data || catJson || [])
+
+          // Asegurarnos de trabajar siempre con un arreglo
+          const raw = Array.isArray(catJson?.data)
+            ? catJson.data
+            : Array.isArray(catJson)
+            ? catJson
+            : [];
+
+          const names = raw
             .map((c) => c?.name)
             .filter(Boolean);
-          if (names.length) setCategorias(names);
+
+          if (names.length) {
+            // Mezclar categorías del backend con las que ya teníamos
+            setCategorias((prev) => {
+              const set = new Set([
+                ...prev,
+                ...names,
+              ]);
+              return Array.from(set);
+            });
+          }
         } else if (catRes.status === 500) {
           console.warn("⚠️ Ruta /api/finance/categories devolvió 500");
           // Mantener categorías por defecto que ya están en el estado inicial

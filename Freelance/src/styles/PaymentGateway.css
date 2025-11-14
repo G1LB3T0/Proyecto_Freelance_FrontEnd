@@ -78,6 +78,8 @@
 
 .gateway-body {
     padding: 2rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Resumen del pago */
@@ -97,6 +99,7 @@
 .summary-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 0.5rem 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -109,6 +112,7 @@
     margin-top: 0.5rem;
     padding-top: 1rem;
     border-top: 2px solid rgba(0, 0, 0, 0.2);
+    border-bottom: none;
 }
 
 .summary-item span {
@@ -168,6 +172,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
 }
 
 .form-group label {
@@ -180,6 +185,7 @@
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .input-with-icon i {
@@ -187,6 +193,7 @@
     left: 1rem;
     font-size: 1.2rem;
     color: #a0aec0;
+    pointer-events: none;
 }
 
 .input-with-icon input {
@@ -196,6 +203,7 @@
     border-radius: 8px;
     font-size: 1rem;
     transition: all 0.2s;
+    box-sizing: border-box;
 }
 
 .input-with-icon input:focus {

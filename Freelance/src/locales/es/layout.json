@@ -3,6 +3,17 @@
   "greeting": "Bienvenido/a",
   "top": { "searchPlaceholder": "Buscar..." },
   "premium": { "upgrade": "Actualizar a Premium" },
+  "menu": {
+    "home": "Inicio",
+    "projects": "Proyectos",
+    "proposals": "Propuestas",
+    "calendar": "Calendario",
+    "finance": "Finanzas",
+    "payments": "Pagos",
+    "stats": "Estadísticas",
+    "settings": "Configuración",
+    "contracts": "Contratos"
+  },
   "settings": {
     "title": "Configuración",
     "description": "Personaliza tu experiencia en la plataforma",

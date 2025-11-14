@@ -408,7 +408,6 @@ html {
   border-radius: 8px;
   transition: all 0.2s ease;
   gap: 8px;
-  position: relative; /* Para dropdown */
 }
 
 .user-menu:hover {
@@ -428,37 +427,6 @@ html {
 
 .user-menu:hover .dropdown-arrow {
   transform: rotate(180deg);
-}
-
-/* ============== USER DROPDOWN ============== */
-.user-dropdown {
-  position: absolute;
-  top: 44px;
-  right: 0;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  min-width: 180px;
-  padding: 8px;
-  z-index: 1000;
-}
-
-.user-dropdown-item {
-  width: 100%;
-  background: transparent;
-  border: none;
-  text-align: left;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: #334155;
-  display: flex;
-  align-items: center;
-}
-
-.user-dropdown-item:hover {
-  background: #f8fafc;
 }
 
 /* ==========================

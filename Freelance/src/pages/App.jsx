@@ -22,6 +22,8 @@ import VerProyectosFreelancer from "./VerProyectosFreelancer.jsx";
 import GestionarPropuestas from "./GestionarPropuestasSimple.jsx";
 import MisContratos from "./MisContratosSimple.jsx";
 import Chat from "./Chat.jsx";
+import Pagos from "./Pagos.jsx";
+import FreelancerPagos from "./FreelancerPagos.jsx";
 
 const App = () => {
   return (
@@ -92,6 +94,16 @@ const App = () => {
             </RoleBasedRoute>
           }
         />
+        <Route
+          path="/pagos"
+          element={
+            <RoleBasedRoute
+              allowedUserTypes={["project_manager", "emprendedor"]}
+            >
+              <Pagos />
+            </RoleBasedRoute>
+          }
+        />
 
         {/* Rutas EXCLUSIVAS para Freelancers */}
         <Route
@@ -131,6 +143,14 @@ const App = () => {
           element={
             <RoleBasedRoute allowedUserTypes={["freelancer"]}>
               <FreelancerStatistics />
+            </RoleBasedRoute>
+          }
+        />
+        <Route
+          path="/freelancer-pagos"
+          element={
+            <RoleBasedRoute allowedUserTypes={["freelancer"]}>
+              <FreelancerPagos />
             </RoleBasedRoute>
           }
         />

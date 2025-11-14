@@ -114,6 +114,7 @@ const Layout = ({
     { path: "/gestionar-propuestas", labelKey: "menu.proposals", key: "proposals", icon: "ri-file-list-3-line" },
     { path: "/calendario", labelKey: "menu.calendar", key: "calendar", icon: "ri-calendar-line" },
     { path: "/finanzas", labelKey: "menu.finance", key: "finance", icon: "ri-money-dollar-circle-line" },
+    { path: "/pagos", labelKey: "menu.payments", key: "payments", icon: "ri-wallet-3-line" },
     { path: "/estadisticas", labelKey: "menu.stats", key: "stats", icon: "ri-bar-chart-2-line" },
     { path: "/Settings", labelKey: "menu.settings", key: "Settings", icon: "ri-settings-3-line" },
   ];
@@ -124,6 +125,7 @@ const Layout = ({
     { path: "/ver-proyectos-freelancer", labelKey: "menu.projects", key: "freelancer-projects", icon: "ri-briefcase-line" },
     { path: "/mis-contratos", labelKey: "menu.contracts", key: "contracts", icon: "ri-file-text-line" },
     { path: "/freelancer-finanzas", labelKey: "menu.finance", key: "finance", icon: "ri-money-dollar-circle-line" },
+    { path: "/freelancer-pagos", labelKey: "menu.payments", key: "payments", icon: "ri-wallet-3-line" },
     { path: "/freelancer-estadisticas", labelKey: "menu.stats", key: "stats", icon: "ri-bar-chart-2-line" },
     { path: "/freelancer-settings", labelKey: "menu.settings", key: "Settings", icon: "ri-settings-3-line" },
   ];

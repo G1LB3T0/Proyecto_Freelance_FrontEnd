@@ -2,7 +2,7 @@
 
 **La interfaz del proyecto full-stack Freelance Hub**, desarrollada con React y Vite. Este repositorio se complementa con la [API de Freelance Hub](https://github.com/G1LB3T0/Proyecto_Freelance_BackEnd), construida con Node.js, Express, Prisma y PostgreSQL.
 
-## Recorrido rápido
+## Documentación principal
 
 - **Interfaz y aplicación:** [`Freelance/`](Freelance/).
 - **Scripts y dependencias:** [`Freelance/package.json`](Freelance/package.json).
@@ -45,4 +45,4 @@ Ejecuta estos comandos dentro de `Freelance/`:
 
 Proyecto de ingeniería presentado en mi portafolio como muestra de desarrollo full-stack.
 
-[← Volver a mi perfil](https://github.com/G1LB3T0)
+[Perfil profesional](https://github.com/G1LB3T0)
